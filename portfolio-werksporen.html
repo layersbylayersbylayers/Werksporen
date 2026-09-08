@@ -1286,8 +1286,8 @@
       const layer = document.createElement("div");
       layer.className = "raster-morph-layer";
       Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
-      const duration = 1500;
-      const flipLead = duration;
+      const duration = 1700;
+      const flipLead = 1400;
       const cssGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
       const sampleFrame = overviewGrid.querySelector(".overview-thumb");
       const frameBorder = Math.max(0, Number.parseFloat(sampleFrame ? getComputedStyle(sampleFrame).borderLeftWidth : 1) || 1);
@@ -1308,17 +1308,10 @@
           const start = lineNumber / axis.count;
           line.style[axis.coordinate] = `${start * axis.dimension}px`; layer.appendChild(line);
           const target = targets.get(index);
-          const end = (target ?? .5) * axis.dimension;
-          const frames = target == null ? [
-            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1, offset:0 },
-            { [axis.coordinate]:`${end}px`, [axis.thickness]:"1px", opacity:0, offset:.72 },
-            { [axis.coordinate]:`${end}px`, [axis.thickness]:"1px", opacity:0, offset:1 }
-          ] : [
-            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1, offset:0 },
-            { [axis.coordinate]:`${end}px`, [axis.thickness]:"1px", opacity:1, offset:.72 },
-            { [axis.coordinate]:`${end}px`, [axis.thickness]:`${targetGap}px`, opacity:1, offset:1 }
-          ];
-          animations.push(line.animate(frames,{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+          animations.push(line.animate([
+            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1 },
+            { [axis.coordinate]:`${(target ?? .5) * axis.dimension}px`, [axis.thickness]:target == null ? "1px" : `${targetGap}px`, opacity:target == null ? 0 : 1 }
+          ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
         });
       });
       homeMosaic.classList.add("is-morphing-out");
