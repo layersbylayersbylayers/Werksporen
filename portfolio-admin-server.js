@@ -93,7 +93,7 @@ function buildInitialData() {
 
   return {
     version: 1,
-    theme: { background: "#f6f5f0", accent: "#a3442e", homeTone: "color", glitchTone: "warm", glitchGlow: false, shadowColor: "#1c1b19", shadowAngle: 45, shadowDistance: 0, shadowBlur: 0 },
+    theme: { background: "#f6f5f0", accent: "#a3442e", homeTone: "color", glitchTone: "warm", glitchGlowMode: "off", glitchGlowColor: "#d94f8f", glitchGlowOpacity: 80, glitchGlowSoftness: 18, frameRadius: 0, homeGridSize: 1, shadowColor: "#1c1b19", shadowAngle: 45, shadowDistance: 0, shadowBlur: 0 },
     sections: [
       { id:"inkt", label:"inkt & flash" },
       { id:"verf", label:"schilderij" },
@@ -223,6 +223,11 @@ function requireSession(request, response) {
   return false;
 }
 
+function finiteNumber(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
 function safeData(input) {
   if (!input || !Array.isArray(input.items) || input.items.length > 500 || typeof input.texts !== "object") throw new Error("Ongeldige portfolio-inhoud");
   const rawSections = Array.isArray(input.sections) ? input.sections.slice(0, 30) : [];
@@ -244,11 +249,18 @@ function safeData(input) {
       homeTone: ["color", "gray", "warm", "cool"].includes(input.theme?.homeTone) ? input.theme.homeTone : "color",
       glitchTone: ["color", "gray", "warm", "cool"].includes(input.theme?.glitchTone) ? input.theme.glitchTone : "warm",
       glitchGlow: Boolean(input.theme?.glitchGlow),
+      glitchGlowMode: ["off", "synth", "earth", "research", "mono"].includes(input.theme?.glitchGlowMode) ? input.theme.glitchGlowMode : (input.theme?.glitchGlow ? "synth" : "off"),
+      glitchGlowColor: /^#[0-9a-f]{6}$/i.test(input.theme?.glitchGlowColor || "") ? input.theme.glitchGlowColor : "#d94f8f",
+      glitchGlowOpacity: Math.min(100, Math.max(0, input.theme?.glitchGlowOpacity == null ? 80 : Number(input.theme.glitchGlowOpacity))),
+      glitchGlowSoftness: Math.min(36, Math.max(2, Number(input.theme?.glitchGlowSoftness) || 18)),
+      frameRadius: Math.min(32, Math.max(0, Number(input.theme?.frameRadius) || 0)),
+      homeGridSize: Math.min(2, Math.max(0, Math.round(Number(input.theme?.homeGridSize) || 0))),
       shadowColor: /^#[0-9a-f]{6}$/i.test(input.theme?.shadowColor || "") ? input.theme.shadowColor : "#1c1b19",
       shadowAngle: Math.min(360, Math.max(0, Number(input.theme?.shadowAngle) || 0)),
       shadowDistance: Math.min(28, Math.max(0, Number(input.theme?.shadowDistance) || 0)),
       shadowBlur: Math.min(40, Math.max(0, Number(input.theme?.shadowBlur) || 0))
     },
+    home: { baseItemId:String(input.home?.baseItemId || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64) },
     sections,
     texts: Object.fromEntries(Object.entries(input.texts).map(([key, value]) => [String(key).slice(0, 80), String(value).slice(0, 10000)])),
     items: input.items.map((item, index) => ({
@@ -260,15 +272,23 @@ function safeData(input) {
       year: String(item.year || "2026").slice(0, 20),
       categories: Array.isArray(item.categories) ? item.categories.filter(value => categories.has(value)) : ["proces"],
       gallery: Boolean(item.gallery), glitch: Boolean(item.glitch), visible: Boolean(item.visible),
-      scale: Math.min(3, Math.max(1, Number(item.scale) || 1)),
-      x: Math.min(100, Math.max(0, Number(item.x) || 50)),
-      y: Math.min(100, Math.max(0, Number(item.y) || 50)),
+      scale: Math.min(3, Math.max(1, finiteNumber(item.scale, 1))),
+      x: Math.min(100, Math.max(0, finiteNumber(item.x, 50))),
+      y: Math.min(100, Math.max(0, finiteNumber(item.y, 50))),
       filter: ["normal", "gray", "warm", "cool"].includes(item.filter) ? item.filter : "normal",
-      brightness: Math.min(2, Math.max(.4, Number(item.brightness) || 1)),
-      contrast: Math.min(2, Math.max(.4, Number(item.contrast) || 1)),
-      rotate: Math.min(15, Math.max(-15, Number(item.rotate) || 0)),
-      skewX: Math.min(20, Math.max(-20, Number(item.skewX) || 0)),
-      skewY: Math.min(20, Math.max(-20, Number(item.skewY) || 0)),
+      brightness: Math.min(2, Math.max(.4, finiteNumber(item.brightness, 1))),
+      contrast: Math.min(2, Math.max(.4, finiteNumber(item.contrast, 1))),
+      rotate: Math.min(15, Math.max(-15, finiteNumber(item.rotate, 0))),
+      skewX: Math.min(20, Math.max(-20, finiteNumber(item.skewX, 0))),
+      skewY: Math.min(20, Math.max(-20, finiteNumber(item.skewY, 0))),
+      viewerScale: Math.min(3, Math.max(.35, finiteNumber(item.viewerScale, 1))),
+      viewerX: Math.min(100, Math.max(0, finiteNumber(item.viewerX, 50))),
+      viewerY: Math.min(100, Math.max(0, finiteNumber(item.viewerY, 50))),
+      viewerRotate: Math.min(15, Math.max(-15, finiteNumber(item.viewerRotate, 0))),
+      viewerSkewX: Math.min(20, Math.max(-20, finiteNumber(item.viewerSkewX, 0))),
+      viewerSkewY: Math.min(20, Math.max(-20, finiteNumber(item.viewerSkewY, 0))),
+      viewerPerspectiveX: Math.min(25, Math.max(-25, finiteNumber(item.viewerPerspectiveX, 0))),
+      viewerPerspectiveY: Math.min(25, Math.max(-25, finiteNumber(item.viewerPerspectiveY, 0))),
       format: String(item.format || "image").slice(0, 100), order: index
     }))
   };
@@ -305,7 +325,7 @@ async function api(request, response, pathname) {
   if (pathname === "/api/data" && request.method === "POST") {
     const data = safeData(await readJson(request));
     writeData(data);
-    return send(response, 200, { ok: true });
+    return send(response, 200, { ok: true, data });
   }
   if (pathname === "/api/upload" && request.method === "POST") {
     const body = await readJson(request);

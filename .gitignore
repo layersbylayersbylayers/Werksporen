@@ -7,3 +7,6 @@ portfolio-images/
 # Systeem & afhankelijkheden
 node_modules/
 .DS_Store
+
+# macOS metadata op externe SSD
+._*

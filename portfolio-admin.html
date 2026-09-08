@@ -38,6 +38,8 @@
     .section-head h2 { margin:0; font-size:1rem; color:var(--red); }
     .section-head p { margin:5px 0 0; color:#666; font-size:.75rem; }
     .section-head button { border:1px solid var(--ink); background:var(--green); color:white; padding:10px 13px; }
+    .section-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:7px; }
+    .section-actions #quick-add-section { background:transparent; color:var(--green); }
     .gallery-tabs { display:flex; margin:0 0 22px; border-bottom:1px solid var(--ink); overflow-x:auto; scrollbar-width:none; }
     .gallery-tabs::-webkit-scrollbar { display:none; }
     .gallery-filter { flex:0 0 auto; appearance:none; border:0; border-right:1px solid var(--line); background:transparent; color:#77736c; padding:13px 16px 12px; font-size:.72rem; }
@@ -52,15 +54,29 @@
     .section-row button, #add-section { border:1px solid var(--line); background:transparent; padding:7px 9px; font-size:.7rem; }
     #add-section { color:var(--green); }
     .image-stage { width:min(100%,610px); margin:0; }
-    .image-list { display:grid; width:100%; aspect-ratio:61 / 72; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr)); gap:clamp(48px,4.5vw,68px) clamp(34px,3.8vw,54px); align-items:stretch; }
+    .home-editor { width:min(100%,610px); }
+    .home-editor-layout { display:grid; grid-template-columns:minmax(0,1fr); gap:18px; }
+    .admin-home-mosaic { display:grid; gap:1px; width:100%; aspect-ratio:9 / 13; overflow:hidden; background:#24231f; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); }
+    .admin-home-tile { min-width:0; min-height:0; background-repeat:no-repeat; border:0; }
+    .home-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:14px 0; border-top:1px solid var(--ink); }
+    .home-controls .wide { grid-column:1 / -1; }
+    .home-grid-presets { display:flex; gap:6px; margin-top:7px; }
+    .home-grid-presets button { flex:1; border:1px solid var(--line); background:transparent; padding:7px; font-size:.66rem; }
+    .home-grid-presets button.is-active { border-color:var(--red); color:var(--red); background:#f4eee8; }
+    .edit-divider { margin:16px 0 12px; padding-top:12px; border-top:1px solid var(--ink); color:var(--green); font-size:.72rem; font-weight:700; }
+    .edit-hint { margin:0 0 10px; color:#666; font-size:.68rem; }
+    .viewer-edit-preview { position:relative; width:100%; aspect-ratio:4 / 3; overflow:hidden; display:grid; place-items:center; background:#deddd6; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); cursor:grab; touch-action:none; }
+    .viewer-edit-preview img { width:100%; height:100%; object-fit:contain; transform-origin:center; }
+    .viewer-edit-preview::after { content:"WEERGAVE NA KLIK"; position:absolute; left:7px; top:7px; padding:3px 5px; background:rgba(28,27,25,.8); color:white; font-size:.58rem; pointer-events:none; }
+    .image-list { display:grid; width:100%; aspect-ratio:9 / 13; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:12px; align-items:stretch; }
     .image-list.is-single { grid-template-columns:1fr; grid-template-rows:1fr; aspect-ratio:auto; }
     .image-list.is-single .item { cursor:default; }
-    .image-list.is-single .item-preview { width:100%; aspect-ratio:61 / 72; }
-    .image-list.is-single .item-preview img { object-fit:contain; background:#efeee8; }
-    .image-list:not(.is-single) .item { height:100%; }
+    .image-list.is-single .item-preview { width:100%; aspect-ratio:9 / 13; }
+    .image-list.is-single .item-preview img { object-fit:cover; background:#efeee8; cursor:grab; }
+    .image-list:not(.is-single) .item { height:100%; touch-action:none; user-select:none; }
     .image-list:not(.is-single) .item-preview { height:100%; aspect-ratio:auto; border-bottom:0; }
     .image-list:not(.is-single) .item-body { display:none; }
-    .item { border:1px solid var(--line); background:var(--white); min-width:0; transition:transform .18s ease, opacity .18s ease, box-shadow .18s ease; }
+    .item { border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); overflow:hidden; background:var(--white); min-width:0; transition:transform .18s ease, opacity .18s ease, box-shadow .18s ease; }
     .item[draggable="true"] { cursor:grab; }
     .item.is-dragging { opacity:.28; transform:scale(.95); }
     .item.drag-before { box-shadow:-5px 0 0 var(--red); }
@@ -71,7 +87,7 @@
     .image-page-state { min-width:58px; text-align:center; color:#777; font-size:.68rem; }
     .admin-view-icon { width:14px; height:14px; display:grid; }
     .admin-view-icon.single { border:1.5px solid currentColor; }
-    .admin-view-icon.dots { grid-template-columns:repeat(3,3px); grid-template-rows:repeat(3,3px); gap:2px; }
+    .admin-view-icon.dots { grid-template-columns:repeat(3,3px); grid-template-rows:repeat(4,3px); gap:1.5px 2px; }
     .admin-view-icon.dots i { width:3px; height:3px; border-radius:50%; background:currentColor; }
     .admin-view-button { opacity:.48; }
     .admin-view-button.is-active { opacity:1; border-color:var(--red); background:#f4eee8; }
@@ -127,7 +143,7 @@
       .editor { padding:16px; }
       .text-form, .dashboard-grid { grid-template-columns:1fr; }
       .metric.wide { grid-column:auto; }
-      .image-list:not(.is-single) { grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr)); gap:16px; }
+      .image-list:not(.is-single) { grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:8px; }
     }
   </style>
 </head>
@@ -165,7 +181,7 @@
         <div class="panel" id="images-panel">
           <div class="section-head">
             <div><h2>01 / BEELDEN</h2><p>Sleep de beelden naar hun plek; de rest schuift vanzelf op. Schaal en positie bepalen de uitsnede.</p></div>
-            <button id="add-frame">+ NIEUW KADER</button>
+            <div class="section-actions"><button id="quick-add-section" type="button">+ NIEUWE SECTIE</button><button id="add-frame">+ NIEUW KADER</button></div>
           </div>
           <details class="page-manager">
             <summary>PAGINA’S BEHEREN / HERNOEMEN</summary>
@@ -175,11 +191,27 @@
           <nav class="gallery-tabs" id="gallery-tabs" aria-label="Portfolio categorieën">
 
           </nav>
-          <div class="image-stage">
+          <section class="home-editor" id="home-editor" hidden>
+            <div class="home-editor-layout">
+              <div class="admin-home-mosaic" id="admin-home-mosaic" aria-label="Voorbeeld van de home-glitch"></div>
+              <div class="home-controls">
+                <div class="field wide"><label for="home-source">achtergrondfoto glitchraster</label><select id="home-source"></select><p class="edit-hint" id="home-source-name">Deze foto vormt het doorlopende beeld achter alle vakjes.</p></div>
+                <div class="field"><label for="home-tone">achtergrond</label><select id="home-tone"><option value="color">kleur</option><option value="gray">zwart-wit</option><option value="warm">warm</option><option value="cool">koud</option></select></div>
+                <div class="field"><label for="glitch-tone">glitchvakjes</label><select id="glitch-tone"><option value="color">kleur</option><option value="gray">zwart-wit</option><option value="warm">warm</option><option value="cool">koud</option></select></div>
+                <div class="field wide"><label for="home-grid-size">gridgrootte <span id="home-grid-label"></span></label><input id="home-grid-size" type="range" min="0" max="2" step="1" value="1"><div class="home-grid-presets"><button type="button" data-home-grid="0">70</button><button type="button" data-home-grid="1">117</button><button type="button" data-home-grid="2">192</button></div></div>
+                <div class="field"><label for="glitch-glow-mode">glow thema</label><select id="glitch-glow-mode"><option value="off">uit</option><option value="synth">synth</option><option value="earth">earthly warm</option><option value="research">research / medical cold</option><option value="mono">mono / eigen kleur</option></select></div>
+                <div class="field"><label for="glitch-glow-color">mono kleur</label><input id="glitch-glow-color" type="color" value="#d94f8f"></div>
+                <div class="field"><label for="glitch-glow-opacity">glow sterkte <span id="glitch-glow-opacity-label">80%</span></label><input id="glitch-glow-opacity" type="range" min="0" max="100" step="1" value="80"></div>
+                <div class="field"><label for="glitch-glow-softness">glow zachtheid <span id="glitch-glow-softness-label">18px</span></label><input id="glitch-glow-softness" type="range" min="2" max="36" step="1" value="18"></div>
+                <div class="field wide"><label for="frame-radius">ronde hoeken <span id="frame-radius-label">0px</span></label><input id="frame-radius" type="range" min="0" max="32" step="1" value="0"></div>
+              </div>
+            </div>
+          </section>
+          <div class="image-stage" id="gallery-editor">
           <div class="image-list" id="image-list"></div>
           <div class="image-controls" aria-label="Beeldenweergave">
-            <button class="admin-view-button" type="button" data-admin-view="grid" aria-label="Bekijk als negen vakjes" title="3 × 3 grid"><span class="admin-view-icon dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
-            <button class="admin-view-button is-active" type="button" data-admin-view="single" aria-label="Bekijk één groot beeld" title="één beeld groot"><span class="admin-view-icon single" aria-hidden="true"></span></button>
+            <button class="admin-view-button is-active" type="button" data-admin-view="grid" aria-label="Bekijk als twaalf vakjes" title="3 × 4 grid"><span class="admin-view-icon dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
+            <button class="admin-view-button" type="button" data-admin-view="single" aria-label="Bekijk één groot beeld" title="één beeld groot"><span class="admin-view-icon single" aria-hidden="true"></span></button>
             <button id="admin-prev" type="button" aria-label="Vorige beelden" title="vorige">&lt;</button>
             <span class="image-page-state" id="image-page-state" aria-live="polite"></span>
             <button id="admin-next" type="button" aria-label="Volgende beelden" title="volgende">&gt;</button>
@@ -219,6 +251,9 @@
     const loginView = document.getElementById("login-view");
     const adminView = document.getElementById("admin-view");
     const imageList = document.getElementById("image-list");
+    const homeEditor = document.getElementById("home-editor");
+    const galleryEditor = document.getElementById("gallery-editor");
+    const adminHomeMosaic = document.getElementById("admin-home-mosaic");
     const galleryTabs = document.getElementById("gallery-tabs");
     const sectionList = document.getElementById("section-list");
     const textForm = document.getElementById("text-form");
@@ -227,12 +262,13 @@
     const dashboardGrid = document.getElementById("dashboard-grid");
     let data = null;
     let dirty = false;
-    let adminViewMode = "single";
+    let adminViewMode = "grid";
     let adminPage = 0;
     let draggedItemId = null;
     let pointerTargetId = null;
     let pointerAfter = false;
-    let adminFilter = "all";
+    let panState = null;
+    let adminFilter = "home";
 
     const textGroups = [
       { title:"Kop", fields:[["name","Naam"],["edition","Midden boven"],["location","Rechts boven"],["welcome","Welkomsttekst"]] },
@@ -267,9 +303,15 @@
       return `scale(${item.scale ?? 1}) rotate(${item.rotate ?? 0}deg) skewX(${item.skewX ?? 0}deg) skewY(${item.skewY ?? 0}deg)`;
     }
 
+    function viewerTransformCss(item) {
+      const x = (item.viewerX ?? 50) - 50;
+      const y = (item.viewerY ?? 50) - 50;
+      return `translate(${x}% , ${y}%) perspective(900px) rotateX(${item.viewerPerspectiveX ?? 0}deg) rotateY(${item.viewerPerspectiveY ?? 0}deg) rotate(${item.viewerRotate ?? 0}deg) skewX(${item.viewerSkewX ?? 0}deg) skewY(${item.viewerSkewY ?? 0}deg) scale(${item.viewerScale ?? 1})`;
+    }
+
     function itemCard(item, index) {
       const categories = data.sections;
-      return `<article class="item ${item.visible ? "" : "is-off"}" data-id="${item.id}" draggable="true">
+      return `<article class="item ${item.visible ? "" : "is-off"}" data-id="${item.id}">
         <div class="item-preview"><span class="order">${String(index + 1).padStart(2,"0")}</span><button class="drag-handle" type="button" aria-label="Sleep naar een andere positie">⠿</button>${item.src ? `<img src="/${escapeHtml(item.src)}" alt="" style="object-position:${item.x}% ${item.y}%;transform:${transformCss(item)};filter:${filterCss(item)}">` : `<div class="empty">leeg kader<br>kies een afbeelding</div>`}</div>
         <div class="item-body">
           <div class="row">
@@ -289,6 +331,13 @@
           <div class="row"><div class="field"><label>kleurtoon</label><select data-key="filter"><option value="normal" ${(item.filter || "normal") === "normal" ? "selected" : ""}>normaal</option><option value="gray" ${item.filter === "gray" ? "selected" : ""}>grijs</option><option value="warm" ${item.filter === "warm" ? "selected" : ""}>warm</option><option value="cool" ${item.filter === "cool" ? "selected" : ""}>koud</option></select></div><div class="field"><label>helderheid</label><input type="range" data-key="brightness" min=".4" max="2" step=".05" value="${item.brightness ?? 1}"></div></div>
           <div class="row"><div class="field"><label>contrast</label><input type="range" data-key="contrast" min=".4" max="2" step=".05" value="${item.contrast ?? 1}"></div><div class="field"><label>rechtzetten</label><input type="range" data-key="rotate" min="-15" max="15" step=".25" value="${item.rotate ?? 0}"></div></div>
           <div class="row"><div class="field"><label>perspectief horizontaal</label><input type="range" data-key="skewX" min="-20" max="20" step=".25" value="${item.skewX ?? 0}"></div><div class="field"><label>perspectief verticaal</label><input type="range" data-key="skewY" min="-20" max="20" step=".25" value="${item.skewY ?? 0}"></div></div>
+          ${item.src ? `<div class="edit-divider">NA AANKLIKKEN / VOLLEDIGE FOTO</div>
+          <p class="edit-hint">Sleep de foto om hem te verschuiven. Deze instellingen staan los van het raster hierboven.</p>
+          <div class="viewer-edit-preview"><img src="/${escapeHtml(item.src)}" alt="" style="transform:${viewerTransformCss(item)};filter:${filterCss(item)}"></div>
+          <div class="row"><div class="field"><label>zoom <span>${Number(item.viewerScale ?? 1).toFixed(2)}×</span></label><input type="range" data-viewer-key="viewerScale" min=".35" max="3" step=".05" value="${item.viewerScale ?? 1}"></div><div class="field"><label>rechtzetten</label><input type="range" data-viewer-key="viewerRotate" min="-15" max="15" step=".25" value="${item.viewerRotate ?? 0}"></div></div>
+          <div class="row"><div class="field"><label>horizontaal</label><input type="range" data-viewer-key="viewerX" min="0" max="100" value="${item.viewerX ?? 50}"></div><div class="field"><label>verticaal</label><input type="range" data-viewer-key="viewerY" min="0" max="100" value="${item.viewerY ?? 50}"></div></div>
+          <div class="row"><div class="field"><label>warp horizontaal</label><input type="range" data-viewer-key="viewerPerspectiveY" min="-25" max="25" step=".25" value="${item.viewerPerspectiveY ?? 0}"></div><div class="field"><label>warp verticaal</label><input type="range" data-viewer-key="viewerPerspectiveX" min="-25" max="25" step=".25" value="${item.viewerPerspectiveX ?? 0}"></div></div>
+          <div class="row"><div class="field"><label>scheef horizontaal</label><input type="range" data-viewer-key="viewerSkewX" min="-20" max="20" step=".25" value="${item.viewerSkewX ?? 0}"></div><div class="field"><label>scheef verticaal</label><input type="range" data-viewer-key="viewerSkewY" min="-20" max="20" step=".25" value="${item.viewerSkewY ?? 0}"></div></div>` : ""}
           <div class="item-actions">
             <button data-action="left" title="Naar voren">←</button><button data-action="right" title="Naar achteren">→</button>
             <label class="file-label">${item.src ? "VERVANGEN" : "AFBEELDING KIEZEN"}<input type="file" data-upload accept="image/jpeg,image/png,image/webp,image/gif"></label>
@@ -299,7 +348,7 @@
     }
 
     function createEmptyItem(categoryId) {
-      return { id:crypto.randomUUID().replaceAll("-",""), src:"", title:"", categories:[categoryId || data.sections[0]?.id || "proces"], gallery:true, glitch:true, visible:true, scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0, note:"Selected from the current image archive.", status:"selected", year:"2026", format:"image" };
+      return { id:crypto.randomUUID().replaceAll("-",""), src:"", title:"", categories:[categoryId || data.sections[0]?.id || "proces"], gallery:true, glitch:true, visible:true, scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0, viewerScale:1, viewerX:50, viewerY:50, viewerRotate:0, viewerSkewX:0, viewerSkewY:0, viewerPerspectiveX:0, viewerPerspectiveY:0, note:"Selected from the current image archive.", status:"selected", year:"2026", format:"image" };
     }
 
     function ensureEmptyFrame() {
@@ -309,9 +358,78 @@
       if (!hasEmpty) data.items.push(createEmptyItem(categoryId));
     }
 
+    function toneFilter(mode) {
+      return { color:"none", gray:"grayscale(1)", warm:"sepia(.28) saturate(1.18)", cool:"sepia(.12) hue-rotate(155deg) saturate(.9)" }[mode || "color"] || "none";
+    }
+
+    function glowPalette(mode, mono) {
+      return {
+        synth:["#ff4b35","#ffc62e","#42c878","#3e91ff","#db5cff"],
+        earth:["#a95f37","#d09a45","#71845a","#8b654d","#c47a55"],
+        research:["#50d6d1","#6ba7ff","#9ce7dd","#7d82d7","#d5f4ef"],
+        mono:[mono || "#d94f8f"]
+      }[mode] || [];
+    }
+
+    function hexRgba(hex, opacity) {
+      const value = String(hex || "#d94f8f").replace("#", "");
+      const number = Number.parseInt(value, 16);
+      return `rgba(${number >> 16},${number >> 8 & 255},${number & 255},${opacity})`;
+    }
+
+    function renderHomeEditor() {
+      data.theme ||= {};
+      data.home ||= {};
+      const works = data.items.filter(item => item.visible && item.src);
+      let base = works.find(item => item.id === data.home.baseItemId) || works.find(item => /IMG_0947/i.test(item.src)) || works[0];
+      if (!base) { adminHomeMosaic.innerHTML = '<div class="empty">Voeg eerst een afbeelding toe.</div>'; return; }
+      data.home.baseItemId = base.id;
+      const sizes = [{ columns:7, rows:10, label:"grof / 70 vakjes" }, { columns:9, rows:13, label:"normaal / 117 vakjes" }, { columns:12, rows:16, label:"fijn / 192 vakjes" }];
+      const sizeIndex = Math.min(2, Math.max(0, Number(data.theme.homeGridSize ?? 1)));
+      const size = sizes[sizeIndex];
+      const alternatives = works.filter(item => item.glitch && item.id !== base.id).slice(0,8);
+      const glitchIndexes = new Set([Math.floor(size.columns * 2.2), Math.floor(size.columns * size.rows * .42), Math.floor(size.columns * size.rows * .68), Math.floor(size.columns * size.rows * .84)]);
+      adminHomeMosaic.style.gridTemplateColumns = `repeat(${size.columns},minmax(0,1fr))`;
+      adminHomeMosaic.style.gridTemplateRows = `repeat(${size.rows},minmax(0,1fr))`;
+      adminHomeMosaic.style.aspectRatio = "9 / 13";
+      adminHomeMosaic.innerHTML = Array.from({ length:size.columns * size.rows }, (_, index) => {
+        const column = index % size.columns;
+        const row = Math.floor(index / size.columns);
+        const alternateIndex = [...glitchIndexes].indexOf(index);
+        const alternate = alternateIndex >= 0 && alternatives.length ? alternatives[alternateIndex % alternatives.length] : null;
+        const src = alternate?.src || base.src;
+        const sizeCss = alternate ? "cover" : `${size.columns * 100}% ${size.rows * 100}%`;
+        const position = alternate ? "center" : `${column / Math.max(1,size.columns - 1) * 100}% ${row / Math.max(1,size.rows - 1) * 100}%`;
+        const filter = toneFilter(alternate ? data.theme.glitchTone : data.theme.homeTone);
+        const palette = glowPalette(data.theme.glitchGlowMode || (data.theme.glitchGlow ? "synth" : "off"), data.theme.glitchGlowColor);
+        const glowColor = palette.length ? palette[alternateIndex % palette.length] : "transparent";
+        const glowOpacity = Number(data.theme.glitchGlowOpacity ?? 80) / 100;
+        const glowSoftness = Number(data.theme.glitchGlowSoftness ?? 18);
+        const glow = alternate && palette.length ? `box-shadow:inset 0 0 0 1px rgba(246,245,240,.85),inset 0 0 ${glowSoftness}px ${Math.max(1,glowSoftness * .28)}px ${hexRgba(glowColor,glowOpacity)};` : "";
+        return `<span class="admin-home-tile" style="border-radius:${Number(data.theme.frameRadius || 0)}px;background-image:url(&quot;/${escapeHtml(src)}&quot;);background-size:${sizeCss};background-position:${position};filter:${filter};${glow}"></span>`;
+      }).join("");
+      document.getElementById("home-source").innerHTML = works.map(item => `<option value="${item.id}" ${item.id === base.id ? "selected" : ""}>${escapeHtml(item.title || item.src.split("/").pop())}</option>`).join("");
+      document.getElementById("home-source-name").textContent = `Actief: ${base.title || base.src.split("/").pop()} — deze foto vormt het doorlopende beeld achter alle vakjes.`;
+      document.getElementById("home-tone").value = data.theme.homeTone || "color";
+      document.getElementById("glitch-tone").value = data.theme.glitchTone || "warm";
+      document.getElementById("glitch-glow-mode").value = data.theme.glitchGlowMode || (data.theme.glitchGlow ? "synth" : "off");
+      document.getElementById("glitch-glow-color").value = data.theme.glitchGlowColor || "#d94f8f";
+      document.getElementById("glitch-glow-opacity").value = Number(data.theme.glitchGlowOpacity ?? 80);
+      document.getElementById("glitch-glow-opacity-label").textContent = `${Number(data.theme.glitchGlowOpacity ?? 80)}%`;
+      document.getElementById("glitch-glow-softness").value = Number(data.theme.glitchGlowSoftness ?? 18);
+      document.getElementById("glitch-glow-softness-label").textContent = `${Number(data.theme.glitchGlowSoftness ?? 18)}px`;
+      document.getElementById("frame-radius").value = Number(data.theme.frameRadius || 0);
+      document.getElementById("frame-radius-label").textContent = `${Number(data.theme.frameRadius || 0)}px`;
+      document.documentElement.style.setProperty("--admin-frame-radius", `${Number(data.theme.frameRadius || 0)}px`);
+      document.getElementById("home-grid-size").value = sizeIndex;
+      document.getElementById("home-grid-label").textContent = size.label;
+      homeEditor.querySelectorAll("[data-home-grid]").forEach(button => button.classList.toggle("is-active", Number(button.dataset.homeGrid) === sizeIndex));
+    }
+
     function renderSections() {
       galleryTabs.innerHTML = [
-        `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">${escapeHtml(data.texts.all || "alles")}</button>`,
+        `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${escapeHtml(data.texts.all || "home")}</button>`,
+        `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">alle werken</button>`,
         ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" data-gallery-filter="${section.id}">${escapeHtml(section.label)}</button>`),
         `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
       ].join("");
@@ -320,9 +438,14 @@
 
     function renderImages() {
       renderSections();
+      const isHome = adminFilter === "home";
+      homeEditor.hidden = !isHome;
+      galleryEditor.hidden = isHome;
+      document.getElementById("add-frame").hidden = isHome;
+      if (isHome) { renderHomeEditor(); return; }
       ensureEmptyFrame();
       const matching = data.items.filter(item => adminFilter === "hidden" ? (!item.visible || !item.gallery) : (item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter))));
-      const pageSize = adminViewMode === "single" ? 1 : 9;
+      const pageSize = adminViewMode === "single" ? 1 : 12;
       const pages = Math.max(1, Math.ceil(matching.length / pageSize));
       adminPage = Math.min(adminPage, pages - 1);
       const start = adminPage * pageSize;
@@ -340,10 +463,11 @@
     }
 
     function renderTexts() {
-      data.theme ||= { background:"#f6f5f0", accent:"#a3442e", homeTone:"color", glitchTone:"warm", glitchGlow:false, shadowColor:"#1c1b19", shadowAngle:45, shadowDistance:0, shadowBlur:0 };
+      data.theme ||= { background:"#f6f5f0", accent:"#a3442e", homeTone:"color", glitchTone:"warm", glitchGlowMode:"off", glitchGlowColor:"#d94f8f", glitchGlowOpacity:80, glitchGlowSoftness:18, frameRadius:0, homeGridSize:1, shadowColor:"#1c1b19", shadowAngle:45, shadowDistance:0, shadowBlur:0 };
       const toneOptions = value => [["color","kleur"],["gray","zwart-wit"],["warm","warm"],["cool","koud"]].map(([key,label]) => `<option value="${key}" ${value === key ? "selected" : ""}>${label}</option>`).join("");
       const colors = `<section class="text-card"><h3>Kleuren</h3><div class="field"><label>Achtergrond</label><div class="color-row"><input type="color" data-theme="background" value="${data.theme.background}"><input type="text" data-theme-text="background" value="${data.theme.background}"></div></div><div class="field"><label>Rode accenttekst</label><div class="color-row"><input type="color" data-theme="accent" value="${data.theme.accent}"><input type="text" data-theme-text="accent" value="${data.theme.accent}"></div></div></section>`;
-      const home = `<section class="text-card"><h3>Home-grid</h3><div class="field"><label>Grote achtergrondfoto</label><select data-theme-select="homeTone">${toneOptions(data.theme.homeTone || "color")}</select></div><div class="field"><label>Kleine glitchfoto’s</label><select data-theme-select="glitchTone">${toneOptions(data.theme.glitchTone || "warm")}</select></div><div class="checks"><label><input type="checkbox" data-theme-check="glitchGlow" ${data.theme.glitchGlow ? "checked" : ""}>meerkleurige synth-glow</label></div></section>`;
+      const glowOptions = [["off","uit"],["synth","synth"],["earth","earthly warm"],["research","research / medical cold"],["mono","mono / eigen kleur"]].map(([key,label]) => `<option value="${key}" ${(data.theme.glitchGlowMode || (data.theme.glitchGlow ? "synth" : "off")) === key ? "selected" : ""}>${label}</option>`).join("");
+      const home = `<section class="text-card"><h3>Home-grid</h3><div class="field"><label>Grote achtergrondfoto</label><select data-theme-select="homeTone">${toneOptions(data.theme.homeTone || "color")}</select></div><div class="field"><label>Kleine glitchfoto’s</label><select data-theme-select="glitchTone">${toneOptions(data.theme.glitchTone || "warm")}</select></div><div class="field"><label>Glow-thema</label><select data-theme-select="glitchGlowMode">${glowOptions}</select></div><div class="field"><label>Mono glowkleur</label><input type="color" data-theme="glitchGlowColor" value="${data.theme.glitchGlowColor || "#d94f8f"}"></div><div class="field"><label>Glow sterkte <span>${data.theme.glitchGlowOpacity ?? 80}%</span></label><input type="range" data-theme-range="glitchGlowOpacity" min="0" max="100" step="1" value="${data.theme.glitchGlowOpacity ?? 80}"></div><div class="field"><label>Glow zachtheid <span>${data.theme.glitchGlowSoftness ?? 18}px</span></label><input type="range" data-theme-range="glitchGlowSoftness" min="2" max="36" step="1" value="${data.theme.glitchGlowSoftness ?? 18}"></div><div class="field"><label>Ronde hoeken <span>${data.theme.frameRadius || 0}px</span></label><input type="range" data-theme-range="frameRadius" min="0" max="32" step="1" value="${data.theme.frameRadius || 0}"></div><div class="field"><label>gridgrootte <span>${["grof","normaal","fijn"][data.theme.homeGridSize ?? 1]}</span></label><input type="range" data-theme-range="homeGridSize" min="0" max="2" step="1" value="${data.theme.homeGridSize ?? 1}"></div></section>`;
       const shadow = `<section class="text-card"><h3>Schaduw beelden</h3><div class="field"><label>kleur</label><input type="color" data-theme="shadowColor" value="${data.theme.shadowColor || "#1c1b19"}"></div><div class="field"><label>angle <span>${data.theme.shadowAngle ?? 45}°</span></label><input type="range" data-theme-range="shadowAngle" min="0" max="360" step="1" value="${data.theme.shadowAngle ?? 45}"></div><div class="field"><label>distance <span>${data.theme.shadowDistance ?? 0}px</span></label><input type="range" data-theme-range="shadowDistance" min="0" max="28" step="1" value="${data.theme.shadowDistance ?? 0}"></div><div class="field"><label>softness <span>${data.theme.shadowBlur ?? 0}px</span></label><input type="range" data-theme-range="shadowBlur" min="0" max="40" step="1" value="${data.theme.shadowBlur ?? 0}"></div></section>`;
       textForm.innerHTML = colors + home + shadow + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key])}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key])}">`}</div>`).join("")}</section>`).join("");
     }
@@ -371,6 +495,16 @@
     }
 
     function render() {
+      data.home ||= {};
+      data.theme ||= {};
+      if (!Number.isFinite(Number(data.theme.homeGridSize))) data.theme.homeGridSize = 1;
+      if (!data.texts.all || data.texts.all === "alles") data.texts.all = "home";
+      const currentHome = data.items.find(item => item.id === data.home.baseItemId && item.visible && item.src) || data.items.find(item => /IMG_0947/i.test(item.src)) || data.items.find(item => item.visible && item.src);
+      if (currentHome) data.home.baseItemId = currentHome.id;
+      data.items.forEach(item => {
+        item.viewerScale ??= 1; item.viewerX ??= 50; item.viewerY ??= 50; item.viewerRotate ??= 0;
+        item.viewerSkewX ??= 0; item.viewerSkewY ??= 0; item.viewerPerspectiveX ??= 0; item.viewerPerspectiveY ??= 0;
+      });
       data.sections ||= [
         { id:"inkt", label:data.texts.ink || "inkt & flash" },
         { id:"verf", label:data.texts.paint || "schilderij" },
@@ -411,9 +545,20 @@
     }
 
     imageList.addEventListener("pointerdown", event => {
-      if (imageList.classList.contains("is-single")) return;
       const card = event.target.closest(".item");
-      if (!card || event.target.closest("button,input,select,textarea,label,a")) return;
+      if (!card) return;
+      if (imageList.classList.contains("is-single")) {
+        const preview = event.target.closest(".viewer-edit-preview, .item-preview");
+        const image = event.target.closest("img");
+        if (!preview || !image) return;
+        const item = data.items.find(entry => entry.id === card.dataset.id);
+        const viewerMode = preview.classList.contains("viewer-edit-preview");
+        event.preventDefault();
+        panState = { item, viewerMode, startX:event.clientX, startY:event.clientY, baseX:viewerMode ? (item.viewerX ?? 50) : (item.x ?? 50), baseY:viewerMode ? (item.viewerY ?? 50) : (item.y ?? 50), width:preview.clientWidth || 1, height:preview.clientHeight || 1, preview, image };
+        preview.setPointerCapture(event.pointerId);
+        return;
+      }
+      if (event.target.closest("button,input,select,textarea,label,a") && !event.target.closest(".drag-handle")) return;
       event.preventDefault();
       draggedItemId = card.dataset.id;
       pointerTargetId = null;
@@ -423,11 +568,31 @@
       card.setPointerCapture(event.pointerId);
     });
     imageList.addEventListener("pointermove", event => {
+      if (panState) {
+        event.preventDefault();
+        const x = Math.min(100, Math.max(0, panState.baseX + (event.clientX - panState.startX) / panState.width * 100));
+        const y = Math.min(100, Math.max(0, panState.baseY + (event.clientY - panState.startY) / panState.height * 100));
+        if (panState.viewerMode) {
+          panState.item.viewerX = x; panState.item.viewerY = y;
+          panState.image.style.transform = viewerTransformCss(panState.item);
+          const card = panState.preview.closest(".item");
+          card.querySelector('[data-viewer-key="viewerX"]').value = x;
+          card.querySelector('[data-viewer-key="viewerY"]').value = y;
+        } else {
+          panState.item.x = x; panState.item.y = y;
+          panState.image.style.objectPosition = `${x}% ${y}%`;
+          const card = panState.preview.closest(".item");
+          card.querySelector('[data-key="x"]').value = x;
+          card.querySelector('[data-key="y"]').value = y;
+        }
+        return;
+      }
       if (!document.body.classList.contains("is-sorting")) return;
       event.preventDefault();
       showDropTarget(document.elementFromPoint(event.clientX,event.clientY)?.closest(".item"), event.clientX, event.clientY);
     });
     imageList.addEventListener("pointerup", event => {
+      if (panState) { event.preventDefault(); panState = null; markDirty(); return; }
       if (!document.body.classList.contains("is-sorting")) return;
       event.preventDefault();
       const moved = commitMove(pointerTargetId, pointerAfter);
@@ -437,34 +602,8 @@
       else imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
     });
     imageList.addEventListener("pointercancel", () => {
-      draggedItemId = null; pointerTargetId = null;
+      panState = null; draggedItemId = null; pointerTargetId = null;
       document.body.classList.remove("is-sorting");
-      imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
-    });
-    imageList.addEventListener("dragstart", event => {
-      if (event.target.closest(".drag-handle") || imageList.classList.contains("is-single")) return;
-      const card = event.target.closest(".item");
-      if (!card) return;
-      draggedItemId = card.dataset.id;
-      card.classList.add("is-dragging");
-      event.dataTransfer.effectAllowed = "move";
-    });
-    imageList.addEventListener("dragover", event => {
-      const target = event.target.closest(".item");
-      if (!target || target.dataset.id === draggedItemId) return;
-      event.preventDefault();
-      showDropTarget(target,event.clientX,event.clientY);
-    });
-    imageList.addEventListener("drop", event => {
-      const target = event.target.closest(".item");
-      if (!target || !draggedItemId || target.dataset.id === draggedItemId) return;
-      event.preventDefault();
-      const moved = commitMove(target.dataset.id,pointerAfter);
-      draggedItemId = null;
-      if (moved) { renderImages(); markDirty(); }
-    });
-    imageList.addEventListener("dragend", () => {
-      draggedItemId = null;
       imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
     });
     imageList.addEventListener("click", event => {
@@ -486,11 +625,18 @@
       } else if (event.target.dataset.key) {
         const key = event.target.dataset.key;
         item[key] = event.target.type === "checkbox" ? event.target.checked : event.target.type === "range" ? Number(event.target.value) : event.target.value;
+      } else if (event.target.dataset.viewerKey) {
+        item[event.target.dataset.viewerKey] = Number(event.target.value);
       }
-      const image = event.target.closest(".item").querySelector(".item-preview img");
+      const card = event.target.closest(".item");
+      const image = card.querySelector(".item-preview img");
       if (image) { image.style.objectPosition = `${item.x}% ${item.y}%`; image.style.transform = transformCss(item); image.style.filter = filterCss(item); }
-      const scaleLabel = event.target.closest(".item").querySelector('[data-key="scale"]')?.previousElementSibling?.querySelector("span");
+      const viewerImage = card.querySelector(".viewer-edit-preview img");
+      if (viewerImage) { viewerImage.style.transform = viewerTransformCss(item); viewerImage.style.filter = filterCss(item); }
+      const scaleLabel = card.querySelector('[data-key="scale"]')?.previousElementSibling?.querySelector("span");
       if (scaleLabel) scaleLabel.textContent = `${Number(item.scale).toFixed(2)}×`;
+      const viewerScaleLabel = card.querySelector('[data-viewer-key="viewerScale"]')?.previousElementSibling?.querySelector("span");
+      if (viewerScaleLabel) viewerScaleLabel.textContent = `${Number(item.viewerScale ?? 1).toFixed(2)}×`;
       event.target.closest(".item").classList.toggle("is-off", !item.visible);
       markDirty();
     });
@@ -537,11 +683,55 @@
       if (event.target.dataset.themeSelect) data.theme[event.target.dataset.themeSelect] = event.target.value;
       if (event.target.dataset.themeRange) {
         data.theme[event.target.dataset.themeRange] = Number(event.target.value);
-        const suffix = event.target.dataset.themeRange === "shadowAngle" ? "°" : "px";
-        event.target.previousElementSibling.querySelector("span").textContent = event.target.value + suffix;
+        const suffix = event.target.dataset.themeRange === "shadowAngle" ? "°" : event.target.dataset.themeRange === "glitchGlowOpacity" ? "%" : event.target.dataset.themeRange === "homeGridSize" ? "" : "px";
+        const shown = event.target.dataset.themeRange === "homeGridSize" ? ["grof","normaal","fijn"][Number(event.target.value)] : event.target.value + suffix;
+        event.target.previousElementSibling.querySelector("span").textContent = shown;
       }
       if (event.target.dataset.themeCheck) data.theme[event.target.dataset.themeCheck] = event.target.checked;
       if (event.target.dataset.text || event.target.dataset.theme || event.target.dataset.themeText || event.target.dataset.themeSelect || event.target.dataset.themeCheck || event.target.dataset.themeRange) markDirty();
+    });
+
+    homeEditor.addEventListener("input", event => {
+      if (event.target.id === "home-grid-size") {
+        data.theme.homeGridSize = Number(event.target.value);
+        document.getElementById("home-grid-label").textContent = ["grof / 70 vakjes","normaal / 117 vakjes","fijn / 192 vakjes"][data.theme.homeGridSize];
+      }
+      if (event.target.id === "glitch-glow-opacity") {
+        data.theme.glitchGlowOpacity = Number(event.target.value);
+        document.getElementById("glitch-glow-opacity-label").textContent = `${event.target.value}%`;
+      }
+      if (event.target.id === "glitch-glow-softness") {
+        data.theme.glitchGlowSoftness = Number(event.target.value);
+        document.getElementById("glitch-glow-softness-label").textContent = `${event.target.value}px`;
+      }
+      if (event.target.id === "frame-radius") {
+        data.theme.frameRadius = Number(event.target.value);
+        document.getElementById("frame-radius-label").textContent = `${event.target.value}px`;
+        document.documentElement.style.setProperty("--admin-frame-radius", `${event.target.value}px`);
+      }
+      if (["home-grid-size","glitch-glow-opacity","glitch-glow-softness","frame-radius"].includes(event.target.id)) markDirty();
+    });
+    homeEditor.addEventListener("pointerup", event => {
+      if (!["home-grid-size","glitch-glow-opacity","glitch-glow-softness","frame-radius"].includes(event.target.id)) return;
+      renderHomeEditor(); markDirty();
+    });
+    homeEditor.addEventListener("click", event => {
+      const preset = event.target.closest("[data-home-grid]");
+      if (!preset) return;
+      data.theme.homeGridSize = Number(preset.dataset.homeGrid);
+      renderHomeEditor(); markDirty();
+    });
+    homeEditor.addEventListener("change", event => {
+      if (event.target.id === "home-source") data.home.baseItemId = event.target.value;
+      if (event.target.id === "home-tone") data.theme.homeTone = event.target.value;
+      if (event.target.id === "glitch-tone") data.theme.glitchTone = event.target.value;
+      if (event.target.id === "home-grid-size") data.theme.homeGridSize = Number(event.target.value);
+      if (event.target.id === "glitch-glow-mode") data.theme.glitchGlowMode = event.target.value;
+      if (event.target.id === "glitch-glow-color") data.theme.glitchGlowColor = event.target.value;
+      if (event.target.id === "glitch-glow-opacity") data.theme.glitchGlowOpacity = Number(event.target.value);
+      if (event.target.id === "glitch-glow-softness") data.theme.glitchGlowSoftness = Number(event.target.value);
+      if (event.target.id === "frame-radius") data.theme.frameRadius = Number(event.target.value);
+      renderHomeEditor(); markDirty();
     });
 
     galleryTabs.addEventListener("click", event => {
@@ -569,6 +759,7 @@
       if (adminFilter === id) adminFilter = "all";
       renderImages(); markDirty();
     });
+    document.getElementById("quick-add-section").addEventListener("click", () => document.getElementById("add-section").click());
     document.getElementById("add-section").addEventListener("click", () => {
       const label = prompt("Naam van de nieuwe pagina, bijvoorbeeld lino cuts:");
       if (!label?.trim()) return;
@@ -589,19 +780,19 @@
     document.getElementById("admin-prev").addEventListener("click", () => {
       adminPage = Math.max(0, adminPage - 1);
       renderImages();
-      imageList.scrollIntoView({ behavior:"smooth", block:"start" });
+
     });
     document.getElementById("admin-next").addEventListener("click", () => {
       adminPage += 1;
       renderImages();
-      imageList.scrollIntoView({ behavior:"smooth", block:"start" });
+
     });
 
     document.getElementById("add-frame").addEventListener("click", () => {
       ensureEmptyFrame();
       const matching = data.items.filter(item => item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter)));
       const emptyIndex = matching.findIndex(item => !item.src);
-      const pageSize = adminViewMode === "single" ? 1 : 9;
+      const pageSize = adminViewMode === "single" ? 1 : 12;
       adminPage = Math.max(0, Math.floor(emptyIndex / pageSize));
       renderImages();
       imageList.querySelector(".item:not(:has(img))")?.scrollIntoView({ behavior:"smooth", block:"center" });
@@ -610,7 +801,8 @@
     document.getElementById("save-button").addEventListener("click", async () => {
       saveState.textContent = "opslaan…";
       try {
-        await request("/api/data", { method:"POST", body:JSON.stringify(data) });
+        const result = await request("/api/data", { method:"POST", body:JSON.stringify(data) });
+        if (result.data) data = result.data;
         dirty = false; saveState.textContent = "opgeslagen"; saveState.style.color = "#344638";
         preview.src = `/portfolio?preview=${Date.now()}`;
       } catch (error) { saveState.textContent = "niet opgeslagen"; alert(error.message); }

@@ -82,9 +82,8 @@
       cursor: pointer;
       transition: background .15s ease, color .15s ease;
     }
-    .filter:first-child { padding-left: 0; padding-right: 20px; }
-    .filter:hover, .filter.is-active { color: var(--paper); background: var(--ink); }
-    .filter:first-child.is-active { padding-left: 14px; }
+    .filter:first-child { padding-left:14px; padding-right:20px; }
+    .filter:hover, .filter.is-active { color:var(--paper); background:var(--ink); }
 
     .work { border-bottom: 1px solid var(--hairline); }
     .work-topline {
@@ -182,10 +181,11 @@
     /* Compact welcome and work overview */
     .intro { min-height: 0; padding: 14px 0; }
     .intro h1 { width: min(100%, 610px); max-width: none; font-size: clamp(14px, 1.25vw, 18px); letter-spacing: -.035em; text-align: left; transition: transform .38s ease; white-space: pre-line; }
-    .overview-grid { display: grid; grid-column: 1; width: min(100%, 610px); margin: 0 auto; grid-template-columns: repeat(3, minmax(0, 1fr)); justify-content: center; gap: clamp(48px, 4.5vw, 68px) clamp(34px, 3.8vw, 54px); }
+    .overview-grid { display: grid; grid-column: 1; width: min(100%, 715px); margin: 0 auto; grid-template-columns: repeat(3, minmax(0, 1fr)); justify-content: center; gap: clamp(48px, 4.5vw, 68px) clamp(34px, 3.8vw, 54px); }
     .overview-thumb { position: relative; min-height: 0; aspect-ratio: 4 / 5; margin: 0; overflow: hidden; border: 1px solid var(--hairline); background: #d8d5cd; cursor: pointer; transition: transform .18s ease, border-color .18s ease; }
     .overview-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: none; transform: scale(1.22); display: none; transition: transform .35s ease; }
-    .overview-thumb.has-image img { display: block; } .overview-thumb:hover { transform: translateY(-3px); border-color: var(--ink); }
+    .overview-thumb.has-image { background:var(--paper) !important; }
+    .overview-thumb.has-image img { display:block; } .overview-thumb:hover { transform:translateY(-3px); border-color:var(--ink); }
     .overview-thumb.is-hidden { display: none; }
     .overview-work .work-grid { padding-top: 66px; padding-bottom: 210px; }
     .contact-button { grid-column: 1; grid-row: 1; justify-self: start; border: 0; padding: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; }
@@ -237,7 +237,8 @@
     .full-image-hint { color: var(--accent); font-size: 10px; }
     .image-viewer { max-width: min(94vw, 1300px); max-height: 92vh; padding: 12px; border: 1px solid var(--ink); background: var(--paper); }
     .image-viewer::backdrop { background: rgba(23,22,15,.48); }
-    .image-viewer img { display: block; max-width: 88vw; max-height: 82vh; object-fit: contain; }
+    .viewer-canvas { width:min(88vw,1100px); height:min(76vh,820px); overflow:hidden; display:grid; place-items:center; background:var(--paper); }
+    .image-viewer img { display:block; width:100%; height:100%; object-fit:contain; transform-origin:center; }
     .viewer-close { display: block; margin: 0 0 9px auto; padding: 0; border: 0; background: transparent; color: var(--accent); font: 500 11px var(--mono); cursor: pointer; }
     .home-image, .overview-thumb { border-color: rgba(28,27,25,.18); background: #d8d5cd; }
     .home-image::after, .overview-thumb::after { display: none; }
@@ -274,22 +275,23 @@
 
     .contact-signoff { align-self: center; white-space: nowrap; }
 
-    .grid-controls { grid-column:1 / -1; width:min(100%,610px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; gap:12px; }
+    .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; gap:12px; }
     .grid-controls button { width:28px; height:28px; display:grid; place-items:center; border:0; padding:0; background:transparent; color:var(--accent); cursor:pointer; }
     .grid-next { font:700 12px var(--mono); }
     .grid-next[hidden] { display:none; }
     .view-icon { width:14px; height:14px; display:grid; }
     .view-icon.single { border:1.5px solid currentColor; }
-    .view-icon.dots { grid-template-columns:repeat(3,3px); grid-template-rows:repeat(3,3px); gap:2px; }
+    .view-icon.dots { grid-template-columns:repeat(3,3px); grid-template-rows:repeat(4,3px); gap:1.5px 2px; }
     .view-icon.dots i { width:3px; height:3px; border-radius:50%; background:currentColor; }
     .grid-view-button { border:1px solid transparent !important; opacity:.48; }
     .grid-view-button.is-active { border-color:currentColor !important; opacity:1; }
-    .overview-grid { aspect-ratio:61 / 72; grid-template-rows:repeat(3,minmax(0,1fr)); }
+    .overview-grid { aspect-ratio:9 / 13; grid-template-rows:repeat(4,minmax(0,1fr)); }
+    .overview-grid:not(.is-single) { gap:12px; }
     .overview-grid:not(.is-single) .overview-thumb { width:100%; height:100%; aspect-ratio:auto; }
     .overview-grid.is-single { grid-template-columns:1fr; grid-template-rows:1fr; gap:0; }
     .overview-grid.is-single .overview-thumb { width:100%; height:100%; aspect-ratio:auto; }
     .overview-grid.is-single .overview-thumb img { object-fit:contain; background:var(--paper); }
-    .gallery-view { grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,610px) minmax(170px,190px); gap:clamp(28px,4vw,58px); width:min(100%,858px); align-items:start; }
+    .gallery-view { grid-column:1 / -1; display:grid; grid-template-columns:minmax(0,715px) minmax(170px,190px); gap:clamp(28px,4vw,58px); width:min(100%,965px); align-items:start; }
     .gallery-view .overview-grid { grid-column: 1; }
     .gallery-note { grid-column:2; grid-row:1; color:var(--soft); padding-top:3px; }
     .gallery-note p { max-width:21ch; margin:0 0 28px; }
@@ -303,6 +305,8 @@
 
     /* Portrait mosaic home */
     .overview-work.show-feature .home-feature { display: grid; grid-template-columns: minmax(0, 715px) minmax(170px, 190px); gap: clamp(28px, 4vw, 58px); width: min(100%, 965px); align-items: start; }
+    .home-feature .home-mosaic, .home-feature .feature-note { transition: opacity 1.04s cubic-bezier(.22,1,.36,1); }
+    .home-feature.intro-pending .home-mosaic, .home-feature.intro-pending .feature-note { opacity: 0 !important; pointer-events: none; }
     .overview-work.show-feature .home-image, .overview-work.show-feature .scroll-cue { display: none !important; }
     .overview-work.show-feature .feature-note { display: block !important; position: static; grid-column: 2; grid-row: 1; width: auto; margin: 0; padding-top: 3px; }
     .home-mosaic { grid-column: 1; grid-row: 1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(16, minmax(0, 1fr)); gap: 1px; width: 100%; aspect-ratio: 3 / 4; background: var(--paper); }
@@ -321,16 +325,17 @@
     .home-tile.is-alternate { filter: grayscale(1) contrast(1.08) brightness(.72); background-size: cover; background-position: center; }
 
     /* Proportional source photo behind the 10 × 14 clipping grid. */
-    .home-mosaic { grid-template-columns: repeat(9, minmax(0, 1fr)); grid-template-rows: repeat(13, minmax(0, 1fr)); aspect-ratio: 9 / 13; gap: 0; background-image: var(--mosaic-image); background-size: cover; background-position: center; background-repeat: no-repeat; }
-    .home-tile { background-color: transparent; background-image: none; background-size: auto; box-shadow: inset 0 0 0 1px rgba(246,245,240,.92); }
-    .home-tile.is-alternate { background-image: var(--tile-image); background-size: cover; background-position: center; box-shadow: inset 0 0 0 1px rgba(246,245,240,.92); }
+    .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:0; background-image:var(--mosaic-image); background-size:cover; background-position:center; background-repeat:no-repeat; }
+    .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); border-radius:inherit; }
+    .home-tile { position:relative; z-index:1; background-color:transparent; background-image:none; background-size:auto; box-shadow:none; }
+    .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; }
 
     .home-mosaic { perspective: 900px; }
-    .home-tile.is-arriving { transform-origin: center; animation: tileFlipIn .52s cubic-bezier(.2,.75,.25,1) both; box-shadow: inset 0 0 0 1px rgba(246,245,240,.92), 0 7px 13px rgba(28,27,25,.30); }
-    @keyframes tileFlipIn { from { opacity: .08; transform: rotateY(-92deg) scale(.88) translateZ(0); box-shadow: inset 0 0 0 1px rgba(246,245,240,.92), 9px 10px 16px rgba(28,27,25,.42); } 55% { box-shadow: inset 0 0 0 1px rgba(246,245,240,.92), 5px 7px 13px rgba(28,27,25,.30); } to { opacity: 1; transform: rotateY(0) scale(1) translateZ(0); box-shadow: inset 0 0 0 1px rgba(246,245,240,.92), 0 2px 5px rgba(28,27,25,.16); } }
+    .home-tile.is-arriving { transform-origin:center; animation:tileFlipIn .52s cubic-bezier(.2,.75,.25,1) both; }
+    @keyframes tileFlipIn { from { opacity:.08; transform:rotateY(-92deg) scale(.88) translateZ(0); box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,transparent) var(--glow-opacity,80%),transparent); } to { opacity:1; transform:rotateY(0) scale(1) translateZ(0); box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,transparent) var(--glow-opacity,80%),transparent); } }
 
     .home-tile.is-leaving { transform-origin: center; animation: tileFlipOut .46s cubic-bezier(.5,0,.8,.2) both; }
-    @keyframes tileFlipOut { from { opacity: 1; transform: rotateY(0) scale(1) translateZ(0); box-shadow: inset 0 0 0 1px rgba(246,245,240,.92), 0 2px 5px rgba(28,27,25,.16); } 45% { box-shadow: inset 0 0 0 1px rgba(246,245,240,.92), -5px 7px 13px rgba(28,27,25,.30); } to { opacity: .08; transform: rotateY(92deg) scale(.88) translateZ(0); box-shadow: inset 0 0 0 1px rgba(246,245,240,.92), -9px 10px 16px rgba(28,27,25,.42); } }
+    @keyframes tileFlipOut { from { opacity:1; transform:rotateY(0) scale(1) translateZ(0); box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,transparent) var(--glow-opacity,80%),transparent); } to { opacity:.08; transform:rotateY(92deg) scale(.88) translateZ(0); box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,transparent) var(--glow-opacity,80%),transparent); } }
 
     .home-tile.is-alternate { background-color: rgba(205,83,42,.42); background-blend-mode: color; filter: grayscale(.05) sepia(.28) saturate(1.35) brightness(.96) contrast(1.03); }
 
@@ -341,7 +346,8 @@
     body.glitch-tone-gray .home-tile.is-alternate { background-color:#888; background-blend-mode:saturation; filter:grayscale(1); }
     body.glitch-tone-warm .home-tile.is-alternate { background-color:rgba(219,92,38,.44); background-blend-mode:color; filter:sepia(.2) saturate(1.28); }
     body.glitch-tone-cool .home-tile.is-alternate { background-color:rgba(46,110,177,.44); background-blend-mode:color; filter:sepia(.14) hue-rotate(155deg) saturate(1.05); }
-    body.glitch-glow .home-tile.is-alternate { box-shadow:inset 0 0 0 1px rgba(246,245,240,.94),0 0 15px 3px var(--glow-color,#ef5a35); z-index:2; }
+    body.glitch-glow .home-tile.is-alternate { box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,#ef5a35) var(--glow-opacity,80%),transparent); z-index:2; }
+    .home-mosaic, .home-tile, .home-image, .overview-thumb, .viewer-canvas, .grid-morph-cell { border-radius:var(--frame-radius,0px); }
     .home-image, .home-mosaic, .overview-thumb { box-shadow:var(--image-shadow, none); }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
     .contact-field label { display:block; margin-bottom:5px; color:var(--accent); font-size:10px; text-transform:uppercase; }
@@ -352,6 +358,27 @@
     .contact-state { align-self:center; color:var(--accent); }
     .contact-trap { position:absolute!important; left:-9999px!important; width:1px!important; height:1px!important; }
     @media (max-width:700px) { .contact-form { grid-template-columns:1fr; } .contact-message { grid-column:auto; } }
+
+
+    /* Navigation roll and optional Home ↔ gallery line morph. */
+    .scroll-cue, .grid-next, .viewer-info { transform-origin:center; }
+    .is-control-rolling { animation:controlRoll 1.44s cubic-bezier(.2,.75,.25,1); }
+    @keyframes controlRoll { 0%{transform:rotateX(0) scale(1)} 45%{transform:rotateX(88deg) scale(.88)} 55%{transform:rotateX(-88deg) scale(.88)} 100%{transform:rotateX(0) scale(1)} }
+    .grid-morph-layer { position:fixed; inset:0; z-index:999; pointer-events:none; }
+    .grid-morph-cell { position:fixed; overflow:hidden; background-repeat:no-repeat; background-color:var(--paper); transform-origin:center; }
+    .grid-morph-cell img { width:100%; height:100%; object-fit:cover; display:block; }
+    .raster-morph-layer { position:fixed; z-index:999; pointer-events:none; overflow:hidden; }
+    .raster-morph-line { position:absolute; background:rgba(246,245,240,.96); transform-origin:center; }
+    .raster-morph-line.is-vertical { top:0; bottom:0; width:1px; transform:translateX(-50%); }
+    .raster-morph-line.is-horizontal { left:0; right:0; height:1px; transform:translateY(-50%); }
+    .return-home-face { position:absolute; inset:0; z-index:3; background-repeat:no-repeat; transform-origin:center; pointer-events:none; border-radius:inherit; }
+    .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:var(--paper); border-radius:var(--frame-radius,0px); }
+    .flip-content-shell img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; }
+    .home-panel-face { background-repeat:no-repeat; }
+    .home-panel-glitch { position:absolute; display:block; background-repeat:no-repeat; pointer-events:none; }
+    .home-mosaic.is-morphing-out::after { opacity:0; }
+    .home-mosaic.is-transition-locked .home-tile { animation-play-state:paused !important; }
+    @media (prefers-reduced-motion:reduce) { .is-control-rolling { animation:none; } }
 
     /* One continuous left-hand dossier line on mobile, desktop and ultrawide. */
     .overview-grid, .detail-panel, .home-feature, .grid-controls { margin-left:0; margin-right:0; }
@@ -384,7 +411,7 @@
     <article class="work overview-work show-feature" data-kind="inkt verf digitaal proces">
       <div class="work-topline"><span class="work-number">01 / SELECTIE</span><span>WERKOVERZICHT</span></div>
       <div class="work-grid">
-        <section class="home-feature" aria-label="Uitgelicht werk">
+        <section class="home-feature intro-pending" aria-label="Uitgelicht werk">
           <figure class="home-image">
             <img id="featured-image" class="is-loaded" src="portfolio-images/IMG_0469.JPG" alt="Uitgelicht portfolio werk">
           </figure>
@@ -415,8 +442,8 @@
         </aside>
         </div>
         <div class="grid-controls" aria-label="Galerijweergave">
-          <button class="grid-view-button" type="button" data-view="grid" aria-label="Bekijk als negen vakjes" title="3 × 3 grid"><span class="view-icon dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
-          <button class="grid-view-button is-active" type="button" data-view="single" aria-label="Bekijk één groot werk" title="één werk groot"><span class="view-icon single" aria-hidden="true"></span></button>
+          <button class="grid-view-button is-active" type="button" data-view="grid" aria-label="Bekijk als twaalf vakjes" title="3 × 4 grid"><span class="view-icon dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
+          <button class="grid-view-button" type="button" data-view="single" aria-label="Bekijk één groot werk" title="één werk groot"><span class="view-icon single" aria-hidden="true"></span></button>
           <button class="grid-next" type="button" hidden aria-label="Volgende werken">&lt;/&gt;</button>
         </div>
 
@@ -446,7 +473,7 @@
     </footer>
     <dialog class="image-viewer" id="image-viewer" aria-label="Full image viewer">
       <button class="viewer-close" type="button">close</button>
-      <img id="viewer-image" alt="">
+      <div class="viewer-canvas"><img id="viewer-image" alt=""></div>
       <button class="viewer-info" type="button" aria-label="next image">&lt;/&gt;</button>
       <div class="viewer-detail" id="viewer-detail">
         <p><strong>WORK NOTE</strong><br><span id="viewer-note"></span></p>
@@ -483,7 +510,13 @@
       document.documentElement.style.setProperty("--image-shadow", shadowDistance || shadowBlur ? `${shadowX.toFixed(2)}px ${shadowY.toFixed(2)}px ${shadowBlur}px ${shadowColor}55` : "none");
       document.body.classList.add("home-tone-" + (adminConfig.theme.homeTone || "color"));
       document.body.classList.add("glitch-tone-" + (adminConfig.theme.glitchTone || "warm"));
-      document.body.classList.toggle("glitch-glow", Boolean(adminConfig.theme.glitchGlow));
+      const glowMode = adminConfig.theme.glitchGlowMode || (adminConfig.theme.glitchGlow ? "synth" : "off");
+      document.body.classList.toggle("glitch-glow", glowMode !== "off");
+      document.documentElement.style.setProperty("--frame-radius", `${Number(adminConfig.theme.frameRadius || 0)}px`);
+      document.documentElement.style.setProperty("--glow-opacity", `${Number(adminConfig.theme.glitchGlowOpacity ?? 80)}%`);
+      const glowSoftness = Number(adminConfig.theme.glitchGlowSoftness ?? 18);
+      document.documentElement.style.setProperty("--glow-softness", `${glowSoftness}px`);
+      document.documentElement.style.setProperty("--glow-spread", `${Math.max(1,glowSoftness * .28)}px`);
     }
     const setText = (selector, value) => { const element = document.querySelector(selector); if (element && value != null) element.textContent = value; };
     if (adminConfig?.sections?.length) {
@@ -515,14 +548,26 @@
     const welcome = `${adminTexts.welcome || "Welcome;"}\n\n${today}.`;
     const typewriterText = document.getElementById("typewriter-text");
     let character = 0;
+    const homeFeature = document.querySelector(".home-feature");
+    let introFinished = false;
+    function finishHomeIntro() {
+      if (introFinished) return;
+      introFinished = true;
+      requestAnimationFrame(() => {
+        homeFeature.classList.remove("intro-pending");
+        window.setTimeout(placeGlitches, 1090);
+      });
+    }
     function typeWelcome() {
       typewriterText.textContent = welcome.slice(0, character);
       if (character < welcome.length) {
         character += 1;
         window.setTimeout(typeWelcome, 92);
+      } else {
+        finishHomeIntro();
       }
     }
-    window.setTimeout(typeWelcome, 350);
+    window.setTimeout(typeWelcome, 500);
     let introHasChanged = false;
     window.addEventListener("scroll", () => {
       if (character < welcome.length) return;
@@ -590,7 +635,7 @@
       format: item.format
     })));
 
-    const homeBaseItem = { src: "portfolio-images/IMG_0947.jpg", note: "Selected from the current image archive.", status: "selected<br>2026", format: "painting" };
+    let homeBaseItem = { src: "portfolio-images/IMG_0947.jpg", note: "Selected from the current image archive.", status: "selected<br>2026", format: "painting" };
     featureItems.unshift(homeBaseItem);
 
     const retiredSources = new Set(["portfolio-images/IMG_1218.jpg"]);
@@ -633,9 +678,16 @@
       return `${tone} brightness(${item.brightness ?? 1}) contrast(${item.contrast ?? 1})`.trim();
     }
     function managedTransform(item) { return `scale(${item.scale ?? 1}) rotate(${item.rotate ?? 0}deg) skewX(${item.skewX ?? 0}deg) skewY(${item.skewY ?? 0}deg)`; }
+    function managedViewerTransform(item) {
+      const x = (item.viewerX ?? 50) - 50;
+      const y = (item.viewerY ?? 50) - 50;
+      return `translate(${x}% , ${y}%) perspective(900px) rotateX(${item.viewerPerspectiveX ?? 0}deg) rotateY(${item.viewerPerspectiveY ?? 0}deg) rotate(${item.viewerRotate ?? 0}deg) skewX(${item.viewerSkewX ?? 0}deg) skewY(${item.viewerSkewY ?? 0}deg) scale(${item.viewerScale ?? 1})`;
+    }
     if (adminConfig?.items?.length) {
       const managedItems = adminConfig.items.filter(item => item.visible && item.src);
-      featureItems.splice(0, featureItems.length, homeBaseItem, ...managedItems.map(item => ({ src:item.src, note:item.note || "Selected from the current image archive.", status:`${item.status || "selected"}<br>${item.year || "2026"}`, format:item.format || "image", glitch:item.glitch, managed:item })));
+      const configuredHome = managedItems.find(item => item.id === adminConfig.home?.baseItemId);
+      if (configuredHome) homeBaseItem = { src:configuredHome.src, note:configuredHome.note || "Selected from the current image archive.", status:`${configuredHome.status || "selected"}<br>${configuredHome.year || "2026"}`, format:configuredHome.format || "image", glitch:false, managed:configuredHome };
+      featureItems.splice(0, featureItems.length, homeBaseItem, ...managedItems.filter(item => item.id !== configuredHome?.id).map(item => ({ src:item.src, note:item.note || "Selected from the current image archive.", status:`${item.status || "selected"}<br>${item.year || "2026"}`, format:item.format || "image", glitch:item.glitch, managed:item })));
       overviewGrid.replaceChildren();
       managedItems.filter(item => item.gallery).forEach((item, index) => {
         const figure = document.createElement("figure");
@@ -658,8 +710,15 @@
     const homeTiles = [];
     let currentFeatureIndex = initialFeature;
     const activeGlitchTiles = new Set();
-    const mosaicColumns = 9;
-    const mosaicRows = 13;
+    let homeFrozen = false;
+    const mosaicSizes = [{ columns:7, rows:10 }, { columns:9, rows:13 }, { columns:12, rows:16 }];
+    const mosaicSize = mosaicSizes[Math.min(2, Math.max(0, Number(adminConfig?.theme?.homeGridSize ?? 1)))] || mosaicSizes[1];
+    const mosaicColumns = mosaicSize.columns;
+    const mosaicRows = mosaicSize.rows;
+    homeMosaic.style.setProperty("--mosaic-columns", mosaicColumns);
+    homeMosaic.style.setProperty("--mosaic-rows", mosaicRows);
+    homeMosaic.style.setProperty("--mosaic-cell-width", `${100 / mosaicColumns}%`);
+    homeMosaic.style.setProperty("--mosaic-cell-height", `${100 / mosaicRows}%`);
     function restoreTile(tile) {
       const base = featureItems[currentFeatureIndex].src;
       tile.dataset.src = base;
@@ -670,6 +729,7 @@
       tile.classList.remove("is-arriving");
       tile.classList.add("is-leaving");
       window.setTimeout(() => {
+        if (homeFrozen) { tile.classList.remove("is-leaving"); return; }
         restoreTile(tile);
         tile.classList.remove("is-leaving");
         if (done) done();
@@ -677,6 +737,7 @@
     }
 
     function spawnGlitch() {
+      if (homeFrozen) return;
       const available = homeTiles.filter(tile => !activeGlitchTiles.has(tile));
       if (!available.length) return;
       const tile = available[Math.floor(Math.random() * available.length)];
@@ -691,7 +752,32 @@
       window.setTimeout(() => tile.classList.remove("is-arriving"), 360);
       activeGlitchTiles.add(tile);
     }
+    function freezeHomeGlitches() {
+      homeFrozen = true;
+      homeMosaic.classList.add("is-transition-locked");
+      homeTiles.forEach(tile => {
+        tile.classList.remove("is-arriving", "is-leaving");
+        tile.getAnimations().forEach(animation => animation.cancel());
+      });
+    }
+    function releaseHomeGlitches() {
+      homeFrozen = false;
+      homeMosaic.classList.remove("is-transition-locked");
+    }
+    async function settleHomeGlitches() {
+      freezeHomeGlitches();
+      const tiles = Array.from(activeGlitchTiles).filter(tile => tile.classList.contains("is-alternate"));
+      if (!tiles.length) return;
+      const animations = tiles.map((tile,index) => tile.animate([
+        { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" },
+        { opacity:.03, transform:"perspective(900px) rotateY(88deg) scale(.94)" }
+      ],{ duration:460 + index * 35, easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
+      await Promise.allSettled(animations.map(animation => animation.finished));
+      tiles.forEach(restoreTile); activeGlitchTiles.clear();
+      animations.forEach(animation => animation.cancel());
+    }
     function placeGlitches() {
+      if (homeFrozen || morphing || pageTransitioning) return;
       if (!activeGlitchTiles.size) {
         const count = 3 + Math.floor(Math.random() * 2);
         for (let index = 0; index < count; index += 1) spawnGlitch();
@@ -709,7 +795,15 @@
         tile.setAttribute("aria-label", "Verplaats de glitch");
         tile.style.setProperty("--tile-x", (column / (mosaicColumns - 1)) * 100 + "%");
         tile.style.setProperty("--tile-y", (row / (mosaicRows - 1)) * 100 + "%");
-        tile.style.setProperty("--glow-color", ["#ff4b35", "#ffc62e", "#42c878", "#3e91ff", "#db5cff"][homeTiles.length % 5]);
+        const glowMode = adminConfig?.theme?.glitchGlowMode || (adminConfig?.theme?.glitchGlow ? "synth" : "off");
+        const glowPalettes = {
+          synth:["#ff4b35","#ffc62e","#42c878","#3e91ff","#db5cff"],
+          earth:["#a95f37","#d09a45","#71845a","#8b654d","#c47a55"],
+          research:["#50d6d1","#6ba7ff","#9ce7dd","#7d82d7","#d5f4ef"],
+          mono:[adminConfig?.theme?.glitchGlowColor || "#d94f8f"]
+        };
+        const glowPalette = glowPalettes[glowMode] || [];
+        tile.style.setProperty("--glow-color", glowPalette[homeTiles.length % Math.max(1,glowPalette.length)] || "transparent");
         tile.addEventListener("pointerenter", () => {
           if (!activeGlitchTiles.has(tile)) return;
           activeGlitchTiles.delete(tile);
@@ -747,13 +841,134 @@
       }, immediate ? 0 : 180);
     }
     setFeature(initialFeature, true);
-    window.setTimeout(placeGlitches, 1300);
-    window.setInterval(placeGlitches, 6500);
-    document.querySelector(".scroll-cue").addEventListener("click", () => {
-      featureStep += 1;
-      setFeature((initialFeature + featureStep) % featureItems.length, false);
+    window.setInterval(() => { if (introFinished) placeGlitches(); }, 6500);
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    function rollControl(button) {
+      button.classList.remove("is-control-rolling");
+      void button.offsetWidth;
+      button.classList.add("is-control-rolling");
+      window.setTimeout(() => button.classList.remove("is-control-rolling"), 1500);
+    }
+    function rollSwap(element, update) {
+      if (reducedMotion.matches || element.dataset.rolling === "true") { if (element.dataset.rolling !== "true") update(); return; }
+      element.dataset.rolling = "true";
+      const out = element.animate([{ opacity:1, transform:"translateY(0) rotateX(0)" },{ opacity:.06, transform:"translateY(12px) rotateX(14deg)" }],{ duration:540, easing:"ease-in", fill:"forwards" });
+      out.finished.then(() => {
+        update();
+        const incoming = element.animate([{ opacity:.06, transform:"translateY(-12px) rotateX(-14deg)" },{ opacity:1, transform:"translateY(0) rotateX(0)" }],{ duration:780, easing:"cubic-bezier(.2,.75,.25,1)", fill:"forwards" });
+        incoming.finished.finally(() => { delete element.dataset.rolling; element.getAnimations().forEach(animation => animation.cancel()); });
+      });
+    }
+    let pageTransitioning = false;
+    let morphing = false;
+    let pendingHomeGlitchTargets = [];
+    const homeImageMetrics = new Map();
+    async function coverGeometry(src, frame) {
+      let metrics = homeImageMetrics.get(src);
+      if (!metrics) {
+        const probe = new Image(); probe.src = src;
+        try { if (!probe.complete) await probe.decode(); } catch {}
+        metrics = { width:probe.naturalWidth || frame.width, height:probe.naturalHeight || frame.height };
+        homeImageMetrics.set(src, metrics);
+      }
+      const scale = Math.max(frame.width / metrics.width, frame.height / metrics.height);
+      const width = metrics.width * scale, height = metrics.height * scale;
+      return { width, height, offsetX:(frame.width - width) / 2, offsetY:(frame.height - height) / 2 };
+    }
+    async function captureHomeGlitchTargets() {
+      pendingHomeGlitchTargets.forEach(target => target.remove());
+      const frame = homeMosaic.getBoundingClientRect();
+      const gap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
+      const sampleFrame = overviewGrid.querySelector(".overview-thumb");
+      const border = Math.max(0, Number.parseFloat(sampleFrame ? getComputedStyle(sampleFrame).borderLeftWidth : 1) || 1);
+      const columns = 3, rows = 4;
+      const cellWidth = (frame.width - gap * (columns - 1)) / columns;
+      const cellHeight = (frame.height - gap * (rows - 1)) / rows;
+      const currentSource = featureItems[currentFeatureIndex]?.src || homeBaseItem.src;
+      const baseImage = `url(\"${currentSource}\")`;
+      const geometry = await coverGeometry(currentSource, frame);
+      const glitches = Array.from(activeGlitchTiles).filter(tile => tile.classList.contains("is-alternate")).map(tile => ({ tile, rect:tile.getBoundingClientRect(), computed:getComputedStyle(tile) }));
+      pendingHomeGlitchTargets = [];
+      for (let row=0; row<rows; row += 1) {
+        for (let column=0; column<columns; column += 1) {
+          const left = frame.left + column * (cellWidth + gap) + border;
+          const top = frame.top + row * (cellHeight + gap) + border;
+          const panel = document.createElement("div"); panel.className = "flip-content-shell home-panel-face";
+          Object.assign(panel.style,{
+            left:`${left}px`, top:`${top}px`, width:`${Math.max(0,cellWidth - border * 2)}px`, height:`${Math.max(0,cellHeight - border * 2)}px`,
+            backgroundImage:baseImage, backgroundSize:`${geometry.width}px ${geometry.height}px`,
+            backgroundPosition:`${frame.left + geometry.offsetX - left}px ${frame.top + geometry.offsetY - top}px`
+          });
+          glitches.forEach(({rect,computed}) => {
+            const intersects = rect.right > left && rect.left < left + cellWidth && rect.bottom > top && rect.top < top + cellHeight;
+            if (!intersects) return;
+            const fragment = document.createElement("i"); fragment.className = "home-panel-glitch";
+            Object.assign(fragment.style,{
+              left:`${rect.left - left}px`, top:`${rect.top - top}px`, width:`${rect.width}px`, height:`${rect.height}px`,
+              backgroundImage:computed.backgroundImage, backgroundSize:"cover", backgroundPosition:"center",
+              filter:computed.filter, boxShadow:computed.boxShadow, backgroundColor:computed.backgroundColor,
+              backgroundBlendMode:computed.backgroundBlendMode
+            });
+            panel.appendChild(fragment);
+          });
+          document.body.appendChild(panel); pendingHomeGlitchTargets.push(panel);
+        }
+      }
+    }
+    function makeFlipTarget(cell) {
+      if (!(cell instanceof HTMLImageElement)) return { node:cell, cleanup() {} };
+      const frame = cell.closest(".overview-thumb");
+      const outer = (frame || cell).getBoundingClientRect();
+      const insetX = frame?.clientLeft || 0, insetY = frame?.clientTop || 0;
+      const rect = { left:outer.left + insetX, top:outer.top + insetY, width:frame?.clientWidth || outer.width, height:frame?.clientHeight || outer.height };
+      const shell = document.createElement("div"); shell.className = "flip-content-shell";
+      Object.assign(shell.style,{ left:`${rect.left}px`, top:`${rect.top}px`, width:`${rect.width}px`, height:`${rect.height}px` });
+      const clone = cell.cloneNode(); clone.removeAttribute("loading");
+      const computed = getComputedStyle(cell);
+      clone.style.visibility = "visible";
+      clone.style.objectPosition = computed.objectPosition;
+      clone.style.objectFit = computed.objectFit;
+      clone.style.transform = computed.transform === "none" ? "" : computed.transform;
+      clone.style.filter = computed.filter;
+      shell.appendChild(clone); document.body.appendChild(shell);
+      cell.style.visibility = "hidden";
+      return { node:shell, cleanup() { shell.remove(); cell.style.removeProperty("visibility"); } };
+    }
+    async function flipCellPage(getCells, update) {
+      if (pageTransitioning || morphing) return;
+      const outgoing = getCells().filter(cell => !cell.classList.contains("is-hidden"));
+      if (reducedMotion.matches || !outgoing.length) { update(); return; }
+      pageTransitioning = true;
+      const outgoingTargets = outgoing.map(makeFlipTarget);
+      const outgoingAnimations = outgoingTargets.map(({node},index) => node.animate([
+        { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" },
+        { opacity:.05, transform:"perspective(900px) rotateY(88deg) scale(.94)" }
+      ],{ duration:560 + Math.min(index,11) * 18, easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
+      await Promise.allSettled(outgoingAnimations.map(animation => animation.finished));
+      update();
+      const incoming = getCells().filter(cell => !cell.classList.contains("is-hidden"));
+      const incomingTargets = incoming.map(makeFlipTarget);
+      outgoingTargets.forEach(target => target.cleanup());
+      const incomingAnimations = incomingTargets.map(({node},index) => node.animate([
+        { opacity:.05, transform:"perspective(900px) rotateY(-88deg) scale(.94)" },
+        { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" }
+      ],{ duration:720 + Math.min(index,11) * 18, delay:Math.min(index,11) * 20, easing:"cubic-bezier(.2,.75,.25,1)", fill:"backwards" }));
+      await Promise.allSettled(incomingAnimations.map(animation => animation.finished));
+      outgoingAnimations.concat(incomingAnimations).forEach(animation => animation.cancel());
+      incomingTargets.forEach(target => target.cleanup());
+      pageTransitioning = false;
+    }
+
+    const homeNext = document.querySelector(".scroll-cue");
+    homeNext.addEventListener("click", () => {
+      rollControl(homeNext);
+      flipCellPage(() => homeTiles, () => {
+        featureStep += 1;
+        setFeature((initialFeature + featureStep) % featureItems.length, true);
+      });
     });
     window.addEventListener("scroll", () => {
+      if (!overview.classList.contains("show-feature") || pageTransitioning || morphing) return;
       const nextStep = Math.floor(window.scrollY / 420);
       if (nextStep === featureStep) return;
       featureStep = nextStep;
@@ -779,8 +994,8 @@
       viewerImage.alt = image.alt;
       const managed = item.managed || adminConfig?.items?.find(entry => entry.id === image.dataset.managedId || entry.src === source);
       viewerImage.style.filter = managed ? managedFilter(managed) : "";
-      viewerImage.style.transform = managed ? managedTransform(managed) : "";
-      viewerImage.style.objectPosition = managed ? `${managed.x ?? 50}% ${managed.y ?? 50}%` : "";
+      viewerImage.style.transform = managed ? managedViewerTransform(managed) : "";
+      viewerImage.style.objectPosition = "center";
     }
 
     function openViewer(image) {
@@ -809,8 +1024,11 @@
       event.preventDefault();
       event.stopPropagation();
       if (viewerImages.length < 2) return;
-      viewerIndex = (viewerIndex + 1) % viewerImages.length;
-      updateViewer(viewerImages[viewerIndex]);
+      rollControl(viewerInfo);
+      rollSwap(document.querySelector(".viewer-canvas"), () => {
+        viewerIndex = (viewerIndex + 1) % viewerImages.length;
+        updateViewer(viewerImages[viewerIndex]);
+      });
     });
 
     viewer.addEventListener("click", event => { if (event.target === viewer) viewer.close(); });
@@ -822,10 +1040,10 @@
     const gridViewButtons = document.querySelectorAll(".grid-view-button");
     let activeFilter = "all";
     let gridPage = 0;
-    let gridViewMode = "single";
+    let gridViewMode = "grid";
     function renderGrid() {
       const matching = Array.from(stamps).filter(stamp => activeFilter === "all" || stamp.dataset.kind.includes(activeFilter));
-      const pageSize = gridViewMode === "single" ? 1 : 9;
+      const pageSize = gridViewMode === "single" ? 1 : 12;
       const pages = Math.max(1, Math.ceil(matching.length / pageSize));
       gridPage %= pages;
       overviewGrid.classList.toggle("is-single", gridViewMode === "single");
@@ -858,14 +1076,15 @@
       gridNext.hidden = pages < 2;
     }
     gridViewButtons.forEach(button => button.addEventListener("click", () => {
+      if (pageTransitioning || morphing) return;
       gridViewMode = button.dataset.view;
       gridPage = 0;
       renderGrid();
     }));
     gridNext.addEventListener("click", () => {
-      gridPage += 1;
-      renderGrid();
-      overviewGrid.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (pageTransitioning || morphing) return;
+      rollControl(gridNext);
+      flipCellPage(() => activeGridVisuals(false), () => { gridPage += 1; renderGrid(); });
     });
 
     const detailCopy = { about: adminTexts.about || "A small selection of drawing, painting and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram" };
@@ -881,6 +1100,263 @@
       window.setTimeout(type, 180);
     }
 
+    /* EXPERIMENT: real cells move and resize; white space exists only between them. */
+    function evenlySpacedIndexes(total, wanted) {
+      if (wanted >= total) return Array.from({ length:total }, (_, index) => index);
+      return Array.from({ length:wanted }, (_, index) => Math.round(index * (total - 1) / Math.max(1,wanted - 1)));
+    }
+
+    function activeGridCells(home) {
+      return home ? homeTiles.slice() : Array.from(stamps).filter(stamp => !stamp.classList.contains("is-hidden"));
+    }
+
+    function activeGridVisuals(home) {
+      return home ? homeTiles.slice() : activeGridCells(false).map(frame => frame.querySelector("img")).filter(Boolean);
+    }
+
+    let returnHomePanels = [];
+    async function flipGalleryToHomeFaces() {
+      const frames = activeGridCells(false);
+      const images = frames.map(frame => frame.querySelector("img")).filter(Boolean);
+      const gridRect = overviewGrid.getBoundingClientRect();
+      if (reducedMotion.matches || !gridRect.width) return;
+      pageTransitioning = true;
+      setFeature(initialFeature, true);
+      const homeGeometryPromise = coverGeometry(homeBaseItem.src, gridRect);
+      const outgoingTargets = images.map(makeFlipTarget);
+      const outAnimations = outgoingTargets.map(({node},index) => node.animate([
+        { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" },
+        { opacity:.04, transform:"perspective(900px) rotateY(88deg) scale(.96)" }
+      ],{ duration:560 + Math.min(index,11) * 14, delay:Math.min(index,11) * 12, easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
+      await Promise.allSettled(outAnimations.map(animation => animation.finished));
+      const geometry = await homeGeometryPromise;
+      const source = `url(\"${homeBaseItem.src}\")`;
+      const gap = Math.max(0, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
+      const border = Math.max(0, Number.parseFloat(getComputedStyle(frames[0] || overviewGrid.querySelector(".overview-thumb")).borderLeftWidth) || 1);
+      const columns = 3, rows = 4;
+      const trackWidth = (gridRect.width - gap * (columns - 1)) / columns;
+      const trackHeight = (gridRect.height - gap * (rows - 1)) / rows;
+      clearReturnHomeFaces();
+      returnHomePanels = Array.from({ length:columns * rows }, (_,index) => {
+        const column = index % columns, row = Math.floor(index / columns);
+        const left = gridRect.left + column * (trackWidth + gap) + border;
+        const top = gridRect.top + row * (trackHeight + gap) + border;
+        const face = document.createElement("i"); face.className = "flip-content-shell home-panel-face return-home-panel";
+        Object.assign(face.style, {
+          left:`${left}px`, top:`${top}px`, width:`${Math.max(0,trackWidth - border * 2)}px`, height:`${Math.max(0,trackHeight - border * 2)}px`,
+          backgroundImage:source, backgroundSize:`${geometry.width}px ${geometry.height}px`,
+          backgroundPosition:`${gridRect.left + geometry.offsetX - left}px ${gridRect.top + geometry.offsetY - top}px`
+        });
+        document.body.appendChild(face); return face;
+      });
+      outgoingTargets.forEach(target => target.cleanup());
+      images.forEach(image => image.style.visibility = "hidden");
+      outAnimations.forEach(animation => animation.cancel());
+      const inAnimations = returnHomePanels.map((face,index) => face.animate([
+        { opacity:.04, transform:"perspective(900px) rotateY(-88deg) scale(.96)" },
+        { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" }
+      ],{ duration:720 + Math.min(index,11) * 14, delay:Math.min(index,11) * 12, easing:"cubic-bezier(.18,.72,.22,1)", fill:"backwards" }));
+      await Promise.allSettled(inAnimations.map(animation => animation.finished));
+      inAnimations.forEach(animation => animation.cancel());
+      pageTransitioning = false;
+    }
+
+    function clearReturnHomeFaces() {
+      returnHomePanels.forEach(panel => panel.remove());
+      returnHomePanels = [];
+      activeGridCells(false).forEach(frame => {
+        frame.querySelector(".return-home-face")?.remove();
+        const image = frame.querySelector("img"); if (image) image.style.removeProperty("visibility");
+      });
+    }
+
+    async function flipInPage(getCells) {
+      const incoming = getCells();
+      if (reducedMotion.matches || !incoming.length) return;
+      pageTransitioning = true;
+      const targets = incoming.map(makeFlipTarget);
+      const homePanelAnimations = pendingHomeGlitchTargets.map((node,index) => node.animate([
+        { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" },
+        { opacity:.03, transform:"perspective(900px) rotateY(88deg) scale(.92)" }
+      ],{ duration:920 + index * 45, easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
+      const animations = targets.map(({node},index) => node.animate([
+        { opacity:.04, transform:"perspective(900px) rotateY(-88deg) scale(.96)" },
+        { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" }
+      ],{ duration:1080 + Math.min(index,11) * 22, delay:Math.min(index,11) * 26, easing:"cubic-bezier(.18,.72,.22,1)", fill:"backwards" }));
+      await Promise.allSettled(animations.concat(homePanelAnimations).map(animation => animation.finished));
+      animations.concat(homePanelAnimations).forEach(animation => animation.cancel());
+      targets.forEach(target => target.cleanup());
+      pendingHomeGlitchTargets.forEach(target => target.remove()); pendingHomeGlitchTargets = [];
+      pageTransitioning = false;
+    }
+
+    function morphHomeRasterToGrid(commit) {
+      const frame = homeMosaic.getBoundingClientRect();
+      if (!frame.width || reducedMotion.matches) { commit(); return Promise.resolve(); }
+      morphing = true;
+      const layer = document.createElement("div");
+      layer.className = "raster-morph-layer";
+      Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
+      const duration = 1700;
+      const flipLead = 1400;
+      const cssGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
+      const sampleFrame = overviewGrid.querySelector(".overview-thumb");
+      const frameBorder = Math.max(0, Number.parseFloat(sampleFrame ? getComputedStyle(sampleFrame).borderLeftWidth : 1) || 1);
+      const targetGap = cssGap + frameBorder * 2;
+      const animations = [];
+      const axes = [
+        { count:mosaicColumns, target:3, className:"is-vertical", dimension:frame.width, coordinate:"left", thickness:"width" },
+        { count:mosaicRows, target:4, className:"is-horizontal", dimension:frame.height, coordinate:"top", thickness:"height" }
+      ];
+      axes.forEach(axis => {
+        const sourceLines = Array.from({ length:axis.count - 1 }, (_,index) => index + 1);
+        const targetTrack = (axis.dimension - cssGap * (axis.target - 1)) / axis.target;
+        const targetPositions = Array.from({ length:axis.target - 1 }, (_,index) => ((index + 1) * targetTrack + (index + .5) * cssGap) / axis.dimension);
+        const survivorIndexes = evenlySpacedIndexes(sourceLines.length,targetPositions.length);
+        const targets = new Map(survivorIndexes.map((sourceIndex,targetIndex) => [sourceIndex,targetPositions[targetIndex]]));
+        sourceLines.forEach((lineNumber,index) => {
+          const line = document.createElement("i"); line.className = `raster-morph-line ${axis.className}`;
+          const start = lineNumber / axis.count;
+          line.style[axis.coordinate] = `${start * axis.dimension}px`; layer.appendChild(line);
+          const target = targets.get(index);
+          animations.push(line.animate([
+            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1 },
+            { [axis.coordinate]:`${(target ?? .5) * axis.dimension}px`, [axis.thickness]:target == null ? "1px" : `${targetGap}px`, opacity:target == null ? 0 : 1 }
+          ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+        });
+      });
+      homeMosaic.classList.add("is-morphing-out");
+      document.body.appendChild(layer);
+      const cleanup = Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+        layer.remove(); homeMosaic.classList.remove("is-morphing-out");
+      });
+      return new Promise(resolve => window.setTimeout(async () => {
+        await captureHomeGlitchTargets(); commit(); morphing = false; resolve();
+      }, flipLead)).finally(() => { cleanup.catch(() => {}); });
+    }
+
+    function morphGridToHomeRaster(commit) {
+      const sourceFrame = overviewGrid.getBoundingClientRect();
+      if (!sourceFrame.width || reducedMotion.matches) { commit(); return Promise.resolve(); }
+      morphing = true;
+      commit();
+      clearReturnHomeFaces();
+      const frame = homeMosaic.getBoundingClientRect();
+      const layer = document.createElement("div"); layer.className = "raster-morph-layer";
+      Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
+      const sourceGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
+      const duration = 1280;
+      const animations = [];
+      const axes = [
+        { target:mosaicColumns, source:3, className:"is-vertical", dimension:frame.width, coordinate:"left", thickness:"width" },
+        { target:mosaicRows, source:4, className:"is-horizontal", dimension:frame.height, coordinate:"top", thickness:"height" }
+      ];
+      axes.forEach(axis => {
+        const coarse = Array.from({length:axis.source - 1},(_,index)=>(index + 1) / axis.source);
+        for (let lineNumber=1; lineNumber<axis.target; lineNumber += 1) {
+          const end = lineNumber / axis.target;
+          const start = coarse.reduce((best,value) => Math.abs(value-end) < Math.abs(best-end) ? value : best, coarse[0]);
+          const isMain = Math.abs(start-end) < 1 / axis.target;
+          const line = document.createElement("i"); line.className = `raster-morph-line ${axis.className}`; layer.appendChild(line);
+          animations.push(line.animate([
+            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:`${sourceGap}px`, opacity:isMain ? 1 : 0 },
+            { [axis.coordinate]:`${end * axis.dimension}px`, [axis.thickness]:"1px", opacity:1 }
+          ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+        }
+      });
+      homeMosaic.classList.add("is-morphing-out"); document.body.appendChild(layer);
+      return Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+        layer.remove(); homeMosaic.classList.remove("is-morphing-out"); morphing = false;
+      });
+    }
+
+    function makeMorphCell(source, sourceRect, frameRect, sourceIsHome) {
+      const cell = document.createElement("div");
+      cell.className = "grid-morph-cell";
+      if (sourceIsHome) {
+        const computed = getComputedStyle(source);
+        const isAlternate = source.classList.contains("is-alternate") && computed.backgroundImage !== "none";
+        cell.style.backgroundImage = isAlternate ? computed.backgroundImage : homeMosaic.style.getPropertyValue("--mosaic-image");
+        if (isAlternate) {
+          cell.style.backgroundSize = "cover"; cell.style.backgroundPosition = "center";
+          cell.style.filter = computed.filter; cell.style.boxShadow = computed.boxShadow;
+        } else {
+          cell.style.backgroundSize = `${frameRect.width}px ${frameRect.height}px`;
+          cell.style.backgroundPosition = `${frameRect.left - sourceRect.left}px ${frameRect.top - sourceRect.top}px`;
+        }
+      } else {
+        const returnFace = source.querySelector(".return-home-face");
+        if (returnFace) {
+          const computed = getComputedStyle(returnFace);
+          cell.style.backgroundImage = computed.backgroundImage;
+          cell.style.backgroundSize = computed.backgroundSize;
+          cell.style.backgroundPosition = computed.backgroundPosition;
+        } else {
+          const image = source.querySelector("img");
+          if (image) {
+            const clone = image.cloneNode();
+            const computed = getComputedStyle(image);
+            clone.style.objectPosition = computed.objectPosition;
+            clone.style.transform = computed.transform === "none" ? "" : computed.transform;
+            clone.style.filter = computed.filter;
+            cell.appendChild(clone);
+          }
+        }
+      }
+      Object.assign(cell.style,{ left:`${sourceRect.left}px`, top:`${sourceRect.top}px`, width:`${sourceRect.width}px`, height:`${sourceRect.height}px` });
+      return cell;
+    }
+
+    function morphGrid(toHome, commit) {
+      const fromHome = overview.classList.contains("show-feature");
+      if (reducedMotion.matches || fromHome === toHome) { commit(); return Promise.resolve(); }
+      if (fromHome && !toHome) return morphHomeRasterToGrid(commit);
+      const sourceFrame = fromHome ? homeMosaic : overviewGrid;
+      const sourceFrameRect = sourceFrame.getBoundingClientRect();
+      const sourceCells = activeGridCells(fromHome);
+      const sourceRects = sourceCells.map(cell => cell.getBoundingClientRect());
+      if (!sourceFrameRect.width || !sourceCells.length) { commit(); return Promise.resolve(); }
+      morphing = true;
+      const layer = document.createElement("div");
+      layer.className = "grid-morph-layer";
+      const movingCells = sourceCells.map((source,index) => {
+        const cell = makeMorphCell(source,sourceRects[index],sourceFrameRect,fromHome);
+        layer.appendChild(cell); return cell;
+      });
+      document.body.appendChild(layer);
+      commit();
+      const targetFrame = toHome ? homeMosaic : overviewGrid;
+      const targetCells = activeGridCells(toHome);
+      const targetRects = targetCells.map(cell => cell.getBoundingClientRect());
+      const targetFrameRect = targetFrame.getBoundingClientRect();
+      const duration = 2040;
+      const animations = [];
+      if (movingCells.length >= targetRects.length) {
+        const survivors = evenlySpacedIndexes(movingCells.length,targetRects.length);
+        const targetBySource = new Map(survivors.map((sourceIndex,targetIndex) => [sourceIndex,targetRects[targetIndex]]));
+        movingCells.forEach((cell,index) => {
+          const target = targetBySource.get(index);
+          const end = target || { left:targetFrameRect.left + targetFrameRect.width/2, top:targetFrameRect.top + targetFrameRect.height/2, width:0, height:0 };
+          animations.push(cell.animate([
+            { left:`${sourceRects[index].left}px`, top:`${sourceRects[index].top}px`, width:`${sourceRects[index].width}px`, height:`${sourceRects[index].height}px`, opacity:1 },
+            { left:`${end.left}px`, top:`${end.top}px`, width:`${end.width}px`, height:`${end.height}px`, opacity:target ? 1 : 0 }
+          ],{ duration, easing:"cubic-bezier(.65,0,.35,1)", fill:"forwards" }));
+        });
+      } else {
+        const destinations = evenlySpacedIndexes(targetRects.length,movingCells.length);
+        movingCells.forEach((cell,index) => {
+          const target = targetRects[destinations[index]];
+          animations.push(cell.animate([
+            { left:`${sourceRects[index].left}px`, top:`${sourceRects[index].top}px`, width:`${sourceRects[index].width}px`, height:`${sourceRects[index].height}px`, opacity:1 },
+            { left:`${target.left}px`, top:`${target.top}px`, width:`${target.width}px`, height:`${target.height}px`, opacity:1 }
+          ],{ duration, easing:"cubic-bezier(.65,0,.35,1)", fill:"forwards" }));
+        });
+      }
+      return Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+        layer.remove(); morphing = false;
+      });
+    }
+
     function showDetail(kind) {
       overview.classList.remove("show-feature");
       overview.classList.add("show-detail");
@@ -889,22 +1365,38 @@
       typeDetail(kind);
     }
     filters.forEach(button => button.addEventListener("click", () => {
+      if (pageTransitioning || morphing) return;
       const selected = button.dataset.filter;
       if (selected === "about") { showDetail("about"); return; }
       if (selected === "all") {
-        overview.classList.remove("show-detail");
-        overview.classList.add("show-feature");
-        panels.forEach(panel => panel.classList.remove("is-active"));
-        filters.forEach(item => item.classList.toggle("is-active", item === button));
+        freezeHomeGlitches();
+        flipGalleryToHomeFaces().then(() => morphGridToHomeRaster(() => {
+          overview.classList.remove("show-detail");
+          overview.classList.add("show-feature");
+          panels.forEach(panel => panel.classList.remove("is-active"));
+          filters.forEach(item => item.classList.toggle("is-active", item === button));
+        })).finally(() => {
+          clearReturnHomeFaces(); releaseHomeGlitches();
+          window.setTimeout(placeGlitches, 90);
+        });
         return;
       }
-      overview.classList.remove("show-feature");
-      overview.classList.remove("show-detail");
-      panels.forEach(panel => panel.classList.remove("is-active"));
-      filters.forEach(item => item.classList.toggle("is-active", item === button));
-      activeFilter = selected;
-      gridPage = 0;
-      renderGrid();
+      const applyPage = () => {
+        overview.classList.remove("show-feature");
+        overview.classList.remove("show-detail");
+        panels.forEach(panel => panel.classList.remove("is-active"));
+        filters.forEach(item => item.classList.toggle("is-active", item === button));
+        activeFilter = selected;
+        gridPage = 0;
+        renderGrid();
+      };
+      if (overview.classList.contains("show-feature")) {
+        settleHomeGlitches().then(() => morphGrid(false, applyPage)).then(() => flipInPage(() => activeGridVisuals(false))).finally(() => {
+          releaseHomeGlitches();
+        });
+      } else {
+        flipCellPage(() => activeGridVisuals(false), applyPage);
+      }
     }));
     document.querySelector(".contact-button").addEventListener("click", event => {
       event.preventDefault();
