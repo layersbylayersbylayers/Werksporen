@@ -19,7 +19,8 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior:smooth; }
+    @media (min-width:701px) { html { scrollbar-gutter:stable; } }
     body {
       margin: 0;
       background: var(--paper);
@@ -30,6 +31,8 @@
     }
     a { color: inherit; text-decoration: none; }
     button { font: inherit; }
+    .project-menu, .overview-work, .contact { transition:opacity 1.28s cubic-bezier(.22,1,.36,1), transform 1.28s cubic-bezier(.22,1,.36,1); }
+    body.intro-pending > .page > :is(.project-menu,.overview-work,.contact) { opacity:0; transform:translateY(7px); pointer-events:none; }
 
     .page { max-width: 1440px; margin: 0 auto; padding: 18px 24px 58px; }
     .masthead {
@@ -152,7 +155,9 @@
 
     @media (max-width: 700px) {
       .page { padding: 14px 15px 36px; }
-      .masthead { grid-template-columns: 1fr auto; }
+      .masthead { min-height:44px; grid-template-columns: 1fr auto; }
+      .name { padding-top:2px; }
+      .location { padding-top:2px; }
       .edition { display: none; }
       .intro, .work-topline, .work-grid, .archive-note, .contact { grid-template-columns: 1fr; gap: 12px; }
       .intro { padding: 14vh 0 11vh; }
@@ -169,6 +174,13 @@
       .archive-note { padding: 72px 0; }
       .archive-note h2, .archive-note p, .contact-links { grid-column: auto; }
       .contact-signoff { text-align: left; }
+      .project-menu { width:100%; overflow-x:hidden; }
+      .filter { flex:0 0 38px; min-width:38px; padding:11px 8px 10px; justify-content:center; font-size:0; overflow:hidden; white-space:nowrap; transition:flex-basis .2s ease, background .15s ease, color .15s ease; }
+      .filter::before { content:attr(data-mobile-index); font-size:10px; }
+      .filter[data-filter="all"] { flex-basis:70px; padding-left:8px; padding-right:8px; }
+      .filter[data-filter="all"]::before { content:"Home"; }
+      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active) { flex-basis:min(132px,34vw); }
+      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active)::before { content:attr(data-mobile-label); }
     }
     @media (prefers-reduced-motion: no-preference) { .work { transition: opacity .25s ease; } .work.is-hidden { display: none; } }
   
@@ -197,7 +209,7 @@
     .overview-thumb:nth-child(4) { background: linear-gradient(135deg, #292824 0 32%, #d6d3ca 32% 60%, #55524d 60%); }
     .overview-thumb:nth-child(5) { background: radial-gradient(circle at 45% 44%, #2a2925 0 14%, transparent 14.4%), #d8d5cd; }
     .overview-thumb:nth-child(6) { background: repeating-linear-gradient(115deg, #d4d1c8 0 18px, #24231f 19px 20px); } .overview-thumb:nth-child(7) { background: radial-gradient(ellipse at 46% 54%, #272622 0 19%, transparent 19.5%), #d6d3ca; } .overview-thumb:nth-child(8) { background: linear-gradient(75deg, #24231f 0 13%, #d8d5cd 13% 47%, #514f49 47% 62%, #d8d5cd 62%); } .overview-thumb:nth-child(9) { background: repeating-linear-gradient(10deg, #d5d2c9 0 11px, #292824 12px 13px); }
-@media (max-width: 700px) { .intro { min-height: 225px; align-items: start; padding: 42px 0 0; } .overview-work .work-grid { padding-top: 56px; padding-bottom: 110px; } .intro h1 { width: 100%; text-align: left; white-space: pre-line; } .overview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .overview-thumb { min-height: 0; } }
+@media (max-width: 700px) { .intro { min-height:0; align-items:start; padding:14px 0; } .overview-work .work-grid { padding-top: 56px; padding-bottom: 110px; } .intro h1 { width: 100%; text-align: left; white-space: pre-line; } .overview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .overview-thumb { min-height: 0; } }
   
     /* About and contact terminal panels */
     .detail-panel { display: none; grid-column: 1 / -1; width: min(100%, 610px); min-height: 590px; margin: 0 auto; padding: 0; }
@@ -235,11 +247,17 @@
     .home-feature > .scroll-cue { position: absolute; top: 100%; right: 0; margin: 7px 0 0 !important; border: 0; padding: 0; background: transparent; color: var(--accent); cursor: pointer; font: 500 12px var(--mono); }
 @media (max-width: 700px) { .home-feature { width: 100%; } .feature-note { position: static; width: auto; margin-top: 20px; } .home-feature > .scroll-cue { position: static; display: block; margin: 8px 0 0 auto !important; } }
     .full-image-hint { color: var(--accent); font-size: 10px; }
-    .image-viewer { max-width: min(94vw, 1300px); max-height: 92vh; padding: 12px; border: 1px solid var(--ink); background: var(--paper); }
-    .image-viewer::backdrop { background: rgba(23,22,15,.48); }
+    .image-viewer { max-width: min(94vw, 1300px); max-height: 92vh; margin:auto; padding:10px 10px 12px; overflow:auto; border:1px solid var(--ink); background:var(--paper); opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:contain; }
+    .image-viewer::backdrop { background:rgba(23,22,15,.48); opacity:1; transition:opacity .24s ease; }
+    .image-viewer.is-closing::backdrop { opacity:0; }
     .viewer-canvas { width:min(88vw,1100px); height:min(76vh,820px); overflow:hidden; display:grid; place-items:center; background:var(--paper); }
     .image-viewer img { display:block; width:100%; height:100%; object-fit:contain; transform-origin:center; }
-    .viewer-close { display: block; margin: 0 0 9px auto; padding: 0; border: 0; background: transparent; color: var(--accent); font: 500 11px var(--mono); cursor: pointer; }
+    .viewer-controls { display:flex; justify-content:flex-end; align-items:center; gap:15px; min-height:22px; margin:5px 1px 0; }
+    .viewer-close, .viewer-info { display:block; margin:0; padding:0; border:0; background:transparent; color:var(--accent); font:500 11px var(--mono); cursor:pointer; }
+    @media (max-width:700px) {
+      .image-viewer { width:calc(100vw - 20px); max-width:none; max-height:calc(100dvh - 20px); box-sizing:border-box; padding:8px 8px 10px; }
+      .viewer-canvas { width:100%; height:min(72dvh,820px); }
+    }
     .home-image, .overview-thumb { border-color: rgba(28,27,25,.18); background: #d8d5cd; }
     .home-image::after, .overview-thumb::after { display: none; }
     .home-image::before { display: none; }
@@ -257,7 +275,7 @@
     .home-feature > .scroll-cue { top: 100%; right: 0; }
 
     .feature-note { display: none !important; }
-    .viewer-info { display: block; margin: 9px 0 0; padding: 0; border: 0; background: transparent; color: var(--accent); font: 700 12px var(--mono); cursor: pointer; }
+    .viewer-info { font-weight:700; font-size:12px; }
     .viewer-detail { display: block; max-width: 48ch; margin: 10px 0 0; color: var(--soft); font: 10px/1.45 var(--mono); }
     .viewer-detail.is-open { display: block; animation: viewerDetailIn .22s ease both; }
     .viewer-detail p { margin: 0 0 13px; }
@@ -276,6 +294,7 @@
     .contact-signoff { align-self: center; white-space: nowrap; }
 
     .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; gap:12px; }
+    .grid-controls[hidden] { display:none; }
     .grid-controls button { width:28px; height:28px; display:grid; place-items:center; border:0; padding:0; background:transparent; color:var(--accent); cursor:pointer; }
     .grid-next { font:700 12px var(--mono); }
     .grid-next[hidden] { display:none; }
@@ -325,9 +344,9 @@
     .home-tile.is-alternate { filter: grayscale(1) contrast(1.08) brightness(.72); background-size: cover; background-position: center; }
 
     /* Proportional source photo behind the 10 × 14 clipping grid. */
-    .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:0; background-image:var(--mosaic-image); background-size:cover; background-position:center; background-repeat:no-repeat; }
-    .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); border-radius:inherit; }
-    .home-tile { position:relative; z-index:1; background-color:transparent; background-image:none; background-size:auto; box-shadow:none; }
+    .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:1px; background:var(--paper); }
+    .home-mosaic::after { display:none; }
+    .home-tile { position:relative; z-index:1; background-color:transparent; background-image:var(--mosaic-image); background-size:var(--mosaic-bg-width,900%) var(--mosaic-bg-height,1300%); background-position:var(--tile-x) var(--tile-y); background-repeat:no-repeat; border-radius:min(var(--frame-radius,0px),35%); box-shadow:none; }
     .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; }
 
     .home-mosaic { perspective: 900px; }
@@ -347,7 +366,8 @@
     body.glitch-tone-warm .home-tile.is-alternate { background-color:rgba(219,92,38,.44); background-blend-mode:color; filter:sepia(.2) saturate(1.28); }
     body.glitch-tone-cool .home-tile.is-alternate { background-color:rgba(46,110,177,.44); background-blend-mode:color; filter:sepia(.14) hue-rotate(155deg) saturate(1.05); }
     body.glitch-glow .home-tile.is-alternate { box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,#ef5a35) var(--glow-opacity,80%),transparent); z-index:2; }
-    .home-mosaic, .home-tile, .home-image, .overview-thumb, .viewer-canvas, .grid-morph-cell { border-radius:var(--frame-radius,0px); }
+    .home-mosaic, .home-image, .overview-grid, .overview-thumb, .viewer-canvas, .grid-morph-cell { border-radius:var(--frame-radius,0px); }
+    .home-mosaic, .overview-grid { overflow:hidden; }
     .home-image, .overview-thumb, .viewer-canvas { box-shadow:var(--image-shadow, none); }
     .home-mosaic { box-shadow:var(--home-image-shadow, var(--image-shadow, none)); }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
@@ -374,6 +394,9 @@
     .raster-morph-line.is-horizontal { left:0; right:0; height:1px; transform:translateY(-50%); }
     .return-home-face { position:absolute; inset:0; z-index:3; background-repeat:no-repeat; transform-origin:center; pointer-events:none; border-radius:inherit; }
     .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:var(--paper); border-radius:var(--frame-radius,0px); }
+    .flip-content-shell, .grid-morph-cell, .home-panel-face { -webkit-backface-visibility:hidden; backface-visibility:hidden; will-change:transform,opacity; contain:paint; }
+    .flip-content-shell > img { width:100%; height:100%; display:block; }
+    .flip-content-shell > .overview-thumb { width:100%; height:100%; aspect-ratio:auto; transform:none; pointer-events:none; }
     .flip-content-shell img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; }
     .home-panel-face { background-repeat:no-repeat; }
     .home-panel-glitch { position:absolute; display:block; background-repeat:no-repeat; pointer-events:none; }
@@ -387,7 +410,7 @@
 
   </style>
 </head>
-<body>
+<body class="intro-pending">
 
   <main class="page">
     <header class="masthead">
@@ -442,9 +465,7 @@
           <p id="gallery-format-block"><strong>FORMAT</strong><br><span id="gallery-format"></span></p>
         </aside>
         </div>
-        <div class="grid-controls" aria-label="Galerijweergave">
-          <button class="grid-view-button is-active" type="button" data-view="grid" aria-label="Bekijk als twaalf vakjes" title="3 × 4 grid"><span class="view-icon dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
-          <button class="grid-view-button" type="button" data-view="single" aria-label="Bekijk één groot werk" title="één werk groot"><span class="view-icon single" aria-hidden="true"></span></button>
+        <div class="grid-controls" aria-label="Galerijpaginering">
           <button class="grid-next" type="button" hidden aria-label="Volgende werken">&lt;/&gt;</button>
         </div>
 
@@ -473,9 +494,11 @@
       <span class="contact-signoff">laatst bijgewerkt / september 2026</span>
     </footer>
     <dialog class="image-viewer" id="image-viewer" aria-label="Full image viewer">
-      <button class="viewer-close" type="button">close</button>
       <div class="viewer-canvas"><img id="viewer-image" alt=""></div>
-      <button class="viewer-info" type="button" aria-label="next image">&lt;/&gt;</button>
+      <div class="viewer-controls">
+        <button class="viewer-close" type="button">close</button>
+        <button class="viewer-info" type="button" aria-label="next image">&lt;/&gt;</button>
+      </div>
       <div class="viewer-detail" id="viewer-detail">
         <p><strong>WORK NOTE</strong><br><span id="viewer-note"></span></p>
         <p><strong>STATUS</strong><br><span id="viewer-status"></span></p>
@@ -542,6 +565,10 @@
     setText(".name", adminTexts.name); setText(".edition", adminTexts.edition); setText(".location", adminTexts.location);
     setText("[data-filter=\"inkt\"]", adminTexts.ink); setText("[data-filter=\"verf\"]", adminTexts.paint); setText("[data-filter=\"digitaal\"]", adminTexts.digital); setText("[data-filter=\"proces\"]", adminTexts.process); setText("[data-filter=\"about\"]", adminTexts.aboutLabel);
     setText(".work-number", adminTexts.selection); setText(".work-topline span:nth-child(2)", adminTexts.overview); setText(".contact-button", adminTexts.contactButton); setText(".contact-signoff", adminTexts.footer);
+    Array.from(document.querySelectorAll(".project-menu .filter")).forEach((button,index) => {
+      button.dataset.mobileIndex = index === 0 ? "" : String(index).padStart(2,"0");
+      button.dataset.mobileLabel = button.textContent.trim();
+    });
     const contactButton = document.querySelector(".contact-button"); if (contactButton && adminTexts.contactEmail) contactButton.href = "mailto:" + adminTexts.contactEmail;
 
     document.querySelector(".name").addEventListener("click", event => {
@@ -549,7 +576,8 @@
       window.location.reload();
     });
     const today = new Intl.DateTimeFormat("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
-    const welcome = `${adminTexts.welcome || "Welcome;"}\n\n${today}.`;
+    const welcomeLead = adminTexts.welcome || "Welcome;";
+    const welcome = `${welcomeLead} scroll to explore\n\n${today}.`;
     const typewriterText = document.getElementById("typewriter-text");
     let character = 0;
     const homeFeature = document.querySelector(".home-feature");
@@ -557,10 +585,11 @@
     function finishHomeIntro() {
       if (introFinished) return;
       introFinished = true;
-      requestAnimationFrame(() => {
+      window.setTimeout(() => requestAnimationFrame(() => {
+        document.body.classList.remove("intro-pending");
         homeFeature.classList.remove("intro-pending");
-        window.setTimeout(placeGlitches, 1090);
-      });
+        window.setTimeout(placeGlitches, 1320);
+      }), 180);
     }
     function typeWelcome() {
       typewriterText.textContent = welcome.slice(0, character);
@@ -572,19 +601,6 @@
       }
     }
     window.setTimeout(typeWelcome, 500);
-    let introHasChanged = false;
-    window.addEventListener("scroll", () => {
-      if (character < welcome.length) return;
-      const shouldChange = window.scrollY > 80;
-      if (shouldChange === introHasChanged) return;
-      introHasChanged = shouldChange;
-      const heading = document.querySelector(".intro h1");
-      heading.classList.add("is-changing");
-      window.setTimeout(() => {
-        typewriterText.textContent = shouldChange ? "Scroll to explore." : welcome;
-        heading.classList.remove("is-changing");
-      }, 180);
-    });
     const featureImage = document.getElementById("featured-image");
     const featureNote = document.querySelector(".feature-note");
     const featureNoteCopy = document.getElementById("feature-note-copy");
@@ -723,6 +739,8 @@
     homeMosaic.style.setProperty("--mosaic-rows", mosaicRows);
     homeMosaic.style.setProperty("--mosaic-cell-width", `${100 / mosaicColumns}%`);
     homeMosaic.style.setProperty("--mosaic-cell-height", `${100 / mosaicRows}%`);
+    homeMosaic.style.setProperty("--mosaic-bg-width", `${mosaicColumns * 100}%`);
+    homeMosaic.style.setProperty("--mosaic-bg-height", `${mosaicRows * 100}%`);
     function restoreTile(tile) {
       const base = featureItems[currentFeatureIndex].src;
       tile.dataset.src = base;
@@ -865,6 +883,28 @@
     }
     let pageTransitioning = false;
     let morphing = false;
+    let transitionScrollY = 0;
+    let transitionScrollLocked = false;
+    function lockTransitionScroll() {
+      if (transitionScrollLocked) return;
+      transitionScrollLocked = true;
+      transitionScrollY = window.scrollY;
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.overflow = "hidden";
+    }
+    function unlockTransitionScroll() {
+      if (!transitionScrollLocked) return;
+      document.documentElement.style.removeProperty("overflow");
+      document.body.style.removeProperty("overflow");
+      window.scrollTo({ top:transitionScrollY, left:0, behavior:"instant" });
+      transitionScrollLocked = false;
+    }
+    const stopTransitionScroll = event => {
+      if (!pageTransitioning && !morphing) return;
+      event.preventDefault();
+    };
+    window.addEventListener("wheel", stopTransitionScroll, { passive:false });
+    window.addEventListener("touchmove", stopTransitionScroll, { passive:false });
     let pendingHomeGlitchTargets = [];
     const homeImageMetrics = new Map();
     async function coverGeometry(src, frame) {
@@ -922,21 +962,26 @@
     function makeFlipTarget(cell) {
       if (!(cell instanceof HTMLImageElement)) return { node:cell, cleanup() {} };
       const frame = cell.closest(".overview-thumb");
-      const outer = (frame || cell).getBoundingClientRect();
-      const insetX = frame?.clientLeft || 0, insetY = frame?.clientTop || 0;
-      const rect = { left:outer.left + insetX, top:outer.top + insetY, width:frame?.clientWidth || outer.width, height:frame?.clientHeight || outer.height };
+      const visual = frame || cell;
+      const rect = visual.getBoundingClientRect();
       const shell = document.createElement("div"); shell.className = "flip-content-shell";
       Object.assign(shell.style,{ left:`${rect.left}px`, top:`${rect.top}px`, width:`${rect.width}px`, height:`${rect.height}px` });
-      const clone = cell.cloneNode(); clone.removeAttribute("loading");
+      const clone = visual.cloneNode(true);
+      const cloneImage = frame ? clone.querySelector("img") : clone;
+      cloneImage.removeAttribute("loading");
       const computed = getComputedStyle(cell);
       clone.style.visibility = "visible";
-      clone.style.objectPosition = computed.objectPosition;
-      clone.style.objectFit = computed.objectFit;
-      clone.style.transform = computed.transform === "none" ? "" : computed.transform;
-      clone.style.filter = computed.filter;
+      cloneImage.style.visibility = "visible";
+      cloneImage.style.objectPosition = computed.objectPosition;
+      cloneImage.style.objectFit = computed.objectFit;
+      cloneImage.style.transform = computed.transform === "none" ? "" : computed.transform;
+      cloneImage.style.filter = computed.filter;
       shell.appendChild(clone); document.body.appendChild(shell);
-      cell.style.visibility = "hidden";
-      return { node:shell, cleanup() { shell.remove(); cell.style.removeProperty("visibility"); } };
+      visual.style.visibility = "hidden";
+      return { node:shell, cleanup() {
+        visual.style.removeProperty("visibility");
+        requestAnimationFrame(() => shell.remove());
+      } };
     }
     async function flipCellPage(getCells, update) {
       if (pageTransitioning || morphing) return;
@@ -973,7 +1018,8 @@
     });
     window.addEventListener("scroll", () => {
       if (!overview.classList.contains("show-feature") || pageTransitioning || morphing) return;
-      const nextStep = Math.floor(window.scrollY / 420);
+      const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const nextStep = window.scrollY / scrollRange >= .48 ? 1 : 0;
       if (nextStep === featureStep) return;
       featureStep = nextStep;
       setFeature((initialFeature + nextStep) % featureItems.length, false);
@@ -987,6 +1033,8 @@
     const viewerFormat = document.getElementById("viewer-format");
     let viewerImages = [];
     let viewerIndex = 0;
+    let viewerAnimation = null;
+    let viewerClosing = false;
 
     function updateViewer(image) {
       const source = image.getAttribute("src") || image.src;
@@ -1010,7 +1058,34 @@
         : mosaic ? Array.from(document.querySelectorAll(".home-tile img")) : [featureImage];
       viewerIndex = Math.max(0, viewerImages.indexOf(image));
       updateViewer(image);
-      if (!viewer.open) viewer.showModal();
+      if (viewer.open || viewerClosing) return;
+      viewer.showModal();
+      if (reducedMotion.matches) return;
+      viewerAnimation?.cancel();
+      viewerAnimation = viewer.animate([
+        { opacity:0, transform:"translateZ(0) scale(.84)" },
+        { opacity:1, transform:"translateZ(0) scale(1)" }
+      ], { duration:380, easing:"cubic-bezier(.16,1,.3,1)", fill:"both" });
+      viewerAnimation.finished.finally(() => { viewerAnimation?.cancel(); viewerAnimation = null; }).catch(() => {});
+    }
+
+    function closeViewer() {
+      if (!viewer.open || viewerClosing) return;
+      if (reducedMotion.matches) { viewer.close(); return; }
+      viewerClosing = true;
+      viewer.classList.add("is-closing");
+      viewerAnimation?.cancel();
+      viewerAnimation = viewer.animate([
+        { opacity:1, transform:"translateZ(0) scale(1)" },
+        { opacity:0, transform:"translateZ(0) scale(.84)" }
+      ], { duration:280, easing:"cubic-bezier(.4,0,1,1)", fill:"both" });
+      viewerAnimation.finished.catch(() => {}).finally(() => {
+        viewer.close();
+        viewer.classList.remove("is-closing");
+        viewerAnimation?.cancel();
+        viewerAnimation = null;
+        viewerClosing = false;
+      });
     }
     document.querySelectorAll(".home-image, .overview-thumb").forEach(frame => {
       frame.addEventListener("click", () => {
@@ -1023,7 +1098,7 @@
         }
       });
     });
-    document.querySelector(".viewer-close").addEventListener("click", () => viewer.close());
+    document.querySelector(".viewer-close").addEventListener("click", closeViewer);
     viewerInfo.addEventListener("click", event => {
       event.preventDefault();
       event.stopPropagation();
@@ -1035,11 +1110,17 @@
       });
     });
 
-    viewer.addEventListener("click", event => { if (event.target === viewer) viewer.close(); });
+    viewer.addEventListener("cancel", event => { event.preventDefault(); closeViewer(); });
+    viewer.addEventListener("pointerdown", event => {
+      const bounds = viewer.getBoundingClientRect();
+      const outside = event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom;
+      if (outside || event.target === viewer) closeViewer();
+    });
     const filters = document.querySelectorAll(".filter");
     const stamps = document.querySelectorAll(".overview-thumb");
     const overview = document.querySelector(".overview-work");
     const panels = document.querySelectorAll(".detail-panel");
+    const gridControls = document.querySelector(".grid-controls");
     const gridNext = document.querySelector(".grid-next");
     const gridViewButtons = document.querySelectorAll(".grid-view-button");
     let activeFilter = "all";
@@ -1077,6 +1158,7 @@
         document.getElementById("gallery-format-block").hidden = true;
         galleryNote.hidden = !generalNote.trim();
       }
+      gridControls.hidden = pages < 2;
       gridNext.hidden = pages < 2;
     }
     gridViewButtons.forEach(button => button.addEventListener("click", () => {
@@ -1088,7 +1170,8 @@
     gridNext.addEventListener("click", () => {
       if (pageTransitioning || morphing) return;
       rollControl(gridNext);
-      flipCellPage(() => activeGridVisuals(false), () => { gridPage += 1; renderGrid(); });
+      lockTransitionScroll();
+      flipCellPage(() => activeGridVisuals(false), () => { gridPage += 1; renderGrid(); }).finally(unlockTransitionScroll);
     });
 
     const detailCopy = { about: adminTexts.about || "A small selection of drawing, painting and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram" };
@@ -1179,14 +1262,16 @@
       if (reducedMotion.matches || !incoming.length) return;
       pageTransitioning = true;
       const targets = incoming.map(makeFlipTarget);
+      const flipDuration = index => 920 + Math.min(index,11) * 20;
+      const flipDelay = index => Math.min(index,11) * 22;
       const homePanelAnimations = pendingHomeGlitchTargets.map((node,index) => node.animate([
         { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" },
         { opacity:.03, transform:"perspective(900px) rotateY(88deg) scale(.92)" }
-      ],{ duration:920 + index * 45, easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
+      ],{ duration:flipDuration(index), delay:flipDelay(index), easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
       const animations = targets.map(({node},index) => node.animate([
         { opacity:.04, transform:"perspective(900px) rotateY(-88deg) scale(.96)" },
         { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" }
-      ],{ duration:1080 + Math.min(index,11) * 22, delay:Math.min(index,11) * 26, easing:"cubic-bezier(.18,.72,.22,1)", fill:"backwards" }));
+      ],{ duration:flipDuration(index), delay:flipDelay(index), easing:"cubic-bezier(.18,.72,.22,1)", fill:"backwards" }));
       await Promise.allSettled(animations.concat(homePanelAnimations).map(animation => animation.finished));
       animations.concat(homePanelAnimations).forEach(animation => animation.cancel());
       targets.forEach(target => target.cleanup());
@@ -1201,8 +1286,8 @@
       const layer = document.createElement("div");
       layer.className = "raster-morph-layer";
       Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
-      const duration = 1700;
-      const flipLead = 1400;
+      const duration = 1500;
+      const flipLead = duration;
       const cssGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
       const sampleFrame = overviewGrid.querySelector(".overview-thumb");
       const frameBorder = Math.max(0, Number.parseFloat(sampleFrame ? getComputedStyle(sampleFrame).borderLeftWidth : 1) || 1);
@@ -1223,10 +1308,17 @@
           const start = lineNumber / axis.count;
           line.style[axis.coordinate] = `${start * axis.dimension}px`; layer.appendChild(line);
           const target = targets.get(index);
-          animations.push(line.animate([
-            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1 },
-            { [axis.coordinate]:`${(target ?? .5) * axis.dimension}px`, [axis.thickness]:target == null ? "1px" : `${targetGap}px`, opacity:target == null ? 0 : 1 }
-          ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+          const end = (target ?? .5) * axis.dimension;
+          const frames = target == null ? [
+            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1, offset:0 },
+            { [axis.coordinate]:`${end}px`, [axis.thickness]:"1px", opacity:0, offset:.72 },
+            { [axis.coordinate]:`${end}px`, [axis.thickness]:"1px", opacity:0, offset:1 }
+          ] : [
+            { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1, offset:0 },
+            { [axis.coordinate]:`${end}px`, [axis.thickness]:"1px", opacity:1, offset:.72 },
+            { [axis.coordinate]:`${end}px`, [axis.thickness]:`${targetGap}px`, opacity:1, offset:1 }
+          ];
+          animations.push(line.animate(frames,{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
         });
       });
       homeMosaic.classList.add("is-morphing-out");
@@ -1370,9 +1462,11 @@
     }
     filters.forEach(button => button.addEventListener("click", () => {
       if (pageTransitioning || morphing) return;
+      if (button.classList.contains("is-active")) return;
       const selected = button.dataset.filter;
       if (selected === "about") { showDetail("about"); return; }
       if (selected === "all") {
+        lockTransitionScroll();
         freezeHomeGlitches();
         flipGalleryToHomeFaces().then(() => morphGridToHomeRaster(() => {
           overview.classList.remove("show-detail");
@@ -1382,6 +1476,7 @@
         })).finally(() => {
           clearReturnHomeFaces(); releaseHomeGlitches();
           window.setTimeout(placeGlitches, 90);
+          unlockTransitionScroll();
         });
         return;
       }
@@ -1395,11 +1490,14 @@
         renderGrid();
       };
       if (overview.classList.contains("show-feature")) {
+        lockTransitionScroll();
         settleHomeGlitches().then(() => morphGrid(false, applyPage)).then(() => flipInPage(() => activeGridVisuals(false))).finally(() => {
           releaseHomeGlitches();
+          unlockTransitionScroll();
         });
       } else {
-        flipCellPage(() => activeGridVisuals(false), applyPage);
+        lockTransitionScroll();
+        flipCellPage(() => activeGridVisuals(false), applyPage).finally(unlockTransitionScroll);
       }
     }));
     document.querySelector(".contact-button").addEventListener("click", event => {

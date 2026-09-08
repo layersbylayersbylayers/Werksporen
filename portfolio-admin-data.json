@@ -10,7 +10,7 @@
     "glitchGlowColor": "#00cc90",
     "glitchGlowOpacity": 67,
     "glitchGlowSoftness": 19,
-    "frameRadius": 7,
+    "frameRadius": 10,
     "homeGridSize": 0,
     "shadowColor": "#1c1b19",
     "shadowAngle": 45,
@@ -1441,7 +1441,7 @@
       "status": "selected",
       "year": "2026",
       "categories": [
-        "proces"
+        "inkt"
       ],
       "gallery": true,
       "glitch": true,
@@ -1455,9 +1455,9 @@
       "rotate": 0,
       "skewX": 0,
       "skewY": 0,
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.75,
+      "viewerX": 49.14089347079038,
+      "viewerY": 32.56880733944954,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,

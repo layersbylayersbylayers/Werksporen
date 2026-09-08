@@ -756,7 +756,11 @@
       const row = event.target.closest("[data-section-id]");
       const section = row && data.sections.find(entry => entry.id === row.dataset.sectionId);
       if (!section) return;
-      if (event.target.matches("[data-section-label]")) section.label = event.target.value;
+      if (event.target.matches("[data-section-label]")) {
+        section.label = event.target.value;
+        const tab = galleryTabs.querySelector(`[data-gallery-filter="${section.id}"]`);
+        if (tab) tab.textContent = section.label || "naamloos";
+      }
       if (event.target.matches("[data-section-note]")) section.note = event.target.value;
       markDirty();
     });
