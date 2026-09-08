@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Portfolio admin — Lars Kramer</title>
   <style>
-    :root { --paper:#f3f2ed; --ink:#1e1f1c; --line:#b7b5ad; --red:#a3442e; --green:#344638; --soft:#e7e5de; --white:#faf9f5; }
+    :root { --paper:#f3f2ed; --ink:#1e1f1c; --line:#b7b5ad; --red:#a3442e; --green:#344638; --soft:#e7e5de; --white:#faf9f5; --admin-image-shadow:none; }
     * { box-sizing:border-box; }
     html, body { margin:0; min-height:100%; background:var(--paper); color:var(--ink); font-family:"Courier New",monospace; }
     button, input, select, textarea { font:inherit; color:inherit; }
@@ -56,7 +56,7 @@
     .image-stage { width:min(100%,610px); margin:0; }
     .home-editor { width:min(100%,610px); }
     .home-editor-layout { display:grid; grid-template-columns:minmax(0,1fr); gap:18px; }
-    .admin-home-mosaic { display:grid; gap:1px; width:100%; aspect-ratio:9 / 13; overflow:hidden; background:#24231f; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); }
+    .admin-home-mosaic { display:grid; gap:1px; width:100%; aspect-ratio:9 / 13; overflow:hidden; background:#24231f; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); box-shadow:var(--admin-image-shadow); transition:box-shadow .18s ease; }
     .admin-home-tile { min-width:0; min-height:0; background-repeat:no-repeat; border:0; }
     .home-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:14px 0; border-top:1px solid var(--ink); }
     .home-controls .wide { grid-column:1 / -1; }
@@ -65,7 +65,7 @@
     .home-grid-presets button.is-active { border-color:var(--red); color:var(--red); background:#f4eee8; }
     .edit-divider { margin:16px 0 12px; padding-top:12px; border-top:1px solid var(--ink); color:var(--green); font-size:.72rem; font-weight:700; }
     .edit-hint { margin:0 0 10px; color:#666; font-size:.68rem; }
-    .viewer-edit-preview { position:relative; width:100%; aspect-ratio:4 / 3; overflow:hidden; display:grid; place-items:center; background:#deddd6; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); cursor:grab; touch-action:none; }
+    .viewer-edit-preview { position:relative; width:100%; aspect-ratio:4 / 3; overflow:hidden; display:grid; place-items:center; background:#deddd6; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); box-shadow:var(--admin-image-shadow); transition:box-shadow .18s ease; cursor:grab; touch-action:none; }
     .viewer-edit-preview img { width:100%; height:100%; object-fit:contain; transform-origin:center; }
     .viewer-edit-preview::after { content:"WEERGAVE NA KLIK"; position:absolute; left:7px; top:7px; padding:3px 5px; background:rgba(28,27,25,.8); color:white; font-size:.58rem; pointer-events:none; }
     .image-list { display:grid; width:100%; aspect-ratio:9 / 13; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:12px; align-items:stretch; }
@@ -92,7 +92,7 @@
     .admin-view-button { opacity:.48; }
     .admin-view-button.is-active { opacity:1; border-color:var(--red); background:#f4eee8; }
     .item.is-off { opacity:.52; }
-    .item-preview { position:relative; aspect-ratio:4 / 5; height:auto; overflow:hidden; background:#d6d4cd; border-bottom:1px solid var(--line); }
+    .item-preview { position:relative; aspect-ratio:4 / 5; height:auto; overflow:hidden; background:#d6d4cd; border-bottom:1px solid var(--line); box-shadow:var(--admin-image-shadow); transition:box-shadow .18s ease; }
     .item-preview img { width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; }
     .empty { height:100%; display:grid; place-items:center; padding:20px; color:#777; text-align:center; }
     .order { position:absolute; top:8px; left:8px; background:var(--ink); color:white; padding:4px 7px; font-size:.7rem; z-index:2; }
@@ -362,6 +362,16 @@
       return { color:"none", gray:"grayscale(1)", warm:"sepia(.28) saturate(1.18)", cool:"sepia(.12) hue-rotate(155deg) saturate(.9)" }[mode || "color"] || "none";
     }
 
+    function updateAdminShadowPreview() {
+      const angle = Number(data.theme.shadowAngle ?? 45) * Math.PI / 180;
+      const distance = Number(data.theme.shadowDistance ?? 0);
+      const blur = Number(data.theme.shadowBlur ?? 0);
+      const color = data.theme.shadowColor || "#1c1b19";
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+      document.documentElement.style.setProperty("--admin-image-shadow", distance || blur ? `${x.toFixed(2)}px ${y.toFixed(2)}px ${blur}px ${color}70` : "none");
+    }
+
     function glowPalette(mode, mono) {
       return {
         synth:["#ff4b35","#ffc62e","#42c878","#3e91ff","#db5cff"],
@@ -511,7 +521,7 @@
         { id:"digitaal", label:data.texts.digital || "digitaal" },
         { id:"proces", label:data.texts.process || "proces" }
       ];
-      renderImages(); renderTexts();
+      renderImages(); renderTexts(); updateAdminShadowPreview();
     }
 
     function findItem(element) {
@@ -688,6 +698,7 @@
         event.target.previousElementSibling.querySelector("span").textContent = shown;
       }
       if (event.target.dataset.themeCheck) data.theme[event.target.dataset.themeCheck] = event.target.checked;
+      if (["shadowColor","shadowAngle","shadowDistance","shadowBlur"].includes(event.target.dataset.theme || event.target.dataset.themeRange)) updateAdminShadowPreview();
       if (event.target.dataset.text || event.target.dataset.theme || event.target.dataset.themeText || event.target.dataset.themeSelect || event.target.dataset.themeCheck || event.target.dataset.themeRange) markDirty();
     });
 
