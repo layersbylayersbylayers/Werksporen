@@ -31,7 +31,7 @@
     }
     a { color: inherit; text-decoration: none; }
     button { font: inherit; }
-    .project-menu, .overview-work, .contact { transition:opacity 1.28s cubic-bezier(.22,1,.36,1), transform 1.28s cubic-bezier(.22,1,.36,1); }
+    .project-menu, .overview-work, .contact { transition:opacity 2.56s cubic-bezier(.22,1,.36,1), transform 2.56s cubic-bezier(.22,1,.36,1); }
     body.intro-pending > .page > :is(.project-menu,.overview-work,.contact) { opacity:0; transform:translateY(7px); pointer-events:none; }
 
     .page { max-width: 1440px; margin: 0 auto; padding: 18px 24px 58px; }
@@ -174,13 +174,11 @@
       .archive-note { padding: 72px 0; }
       .archive-note h2, .archive-note p, .contact-links { grid-column: auto; }
       .contact-signoff { text-align: left; }
-      .project-menu { width:100%; overflow-x:hidden; }
-      .filter { flex:0 0 38px; min-width:38px; padding:11px 8px 10px; justify-content:center; font-size:0; overflow:hidden; white-space:nowrap; transition:flex-basis .2s ease, background .15s ease, color .15s ease; }
-      .filter::before { content:attr(data-mobile-index); font-size:10px; }
-      .filter[data-filter="all"] { flex-basis:70px; padding-left:8px; padding-right:8px; }
-      .filter[data-filter="all"]::before { content:"Home"; }
-      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active) { flex-basis:min(132px,34vw); }
-      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active)::before { content:attr(data-mobile-label); }
+      .project-menu { width:100%; overflow-x:auto; }
+      .filter { flex:0 0 auto; min-width:max-content; padding:11px 12px 10px; justify-content:center; font-size:10px; overflow:visible; white-space:nowrap; transition:background .15s ease, color .15s ease; }
+      .filter::before, .filter[data-filter="all"]::before { content:none; }
+      .filter[data-filter="all"] { flex-basis:auto; padding-left:12px; padding-right:12px; }
+      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active) { flex-basis:auto; }
     }
     @media (prefers-reduced-motion: no-preference) { .work { transition: opacity .25s ease; } .work.is-hidden { display: none; } }
   
@@ -324,7 +322,7 @@
 
     /* Portrait mosaic home */
     .overview-work.show-feature .home-feature { display: grid; grid-template-columns: minmax(0, 715px) minmax(170px, 190px); gap: clamp(28px, 4vw, 58px); width: min(100%, 965px); align-items: start; }
-    .home-feature .home-mosaic, .home-feature .feature-note { transition: opacity 1.04s cubic-bezier(.22,1,.36,1); }
+    .home-feature .home-mosaic, .home-feature .feature-note { transition:opacity 2.08s cubic-bezier(.22,1,.36,1); }
     .home-feature.intro-pending .home-mosaic, .home-feature.intro-pending .feature-note { opacity: 0 !important; pointer-events: none; }
     .overview-work.show-feature .home-image, .overview-work.show-feature .scroll-cue { display: none !important; }
     .overview-work.show-feature .feature-note { display: block !important; position: static; grid-column: 2; grid-row: 1; width: auto; margin: 0; padding-top: 3px; }
@@ -344,9 +342,9 @@
     .home-tile.is-alternate { filter: grayscale(1) contrast(1.08) brightness(.72); background-size: cover; background-position: center; }
 
     /* Proportional source photo behind the 10 × 14 clipping grid. */
-    .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:1px; background:var(--paper); }
-    .home-mosaic::after { display:none; }
-    .home-tile { position:relative; z-index:1; background-color:transparent; background-image:var(--mosaic-image); background-size:var(--mosaic-bg-width,900%) var(--mosaic-bg-height,1300%); background-position:var(--tile-x) var(--tile-y); background-repeat:no-repeat; border-radius:min(var(--frame-radius,0px),35%); box-shadow:none; }
+    .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:0; background-image:var(--mosaic-image); background-size:cover; background-position:center; background-repeat:no-repeat; }
+    .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); border-radius:inherit; }
+    .home-tile { position:relative; z-index:1; background-color:transparent; background-image:none; background-size:auto; box-shadow:none; }
     .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; }
 
     .home-mosaic { perspective: 900px; }
@@ -366,7 +364,7 @@
     body.glitch-tone-warm .home-tile.is-alternate { background-color:rgba(219,92,38,.44); background-blend-mode:color; filter:sepia(.2) saturate(1.28); }
     body.glitch-tone-cool .home-tile.is-alternate { background-color:rgba(46,110,177,.44); background-blend-mode:color; filter:sepia(.14) hue-rotate(155deg) saturate(1.05); }
     body.glitch-glow .home-tile.is-alternate { box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,#ef5a35) var(--glow-opacity,80%),transparent); z-index:2; }
-    .home-mosaic, .home-image, .overview-grid, .overview-thumb, .viewer-canvas, .grid-morph-cell { border-radius:var(--frame-radius,0px); }
+    .home-mosaic, .home-tile, .home-image, .overview-grid, .overview-thumb, .viewer-canvas, .grid-morph-cell { border-radius:var(--frame-radius,0px); }
     .home-mosaic, .overview-grid { overflow:hidden; }
     .home-image, .overview-thumb, .viewer-canvas { box-shadow:var(--image-shadow, none); }
     .home-mosaic { box-shadow:var(--home-image-shadow, var(--image-shadow, none)); }
@@ -392,11 +390,9 @@
     .raster-morph-line { position:absolute; background:rgba(246,245,240,.96); transform-origin:center; }
     .raster-morph-line.is-vertical { top:0; bottom:0; width:1px; transform:translateX(-50%); }
     .raster-morph-line.is-horizontal { left:0; right:0; height:1px; transform:translateY(-50%); }
+    .home-raster-snapshot { position:fixed; z-index:998; pointer-events:none; overflow:hidden; background-repeat:no-repeat; transform:none !important; }
     .return-home-face { position:absolute; inset:0; z-index:3; background-repeat:no-repeat; transform-origin:center; pointer-events:none; border-radius:inherit; }
     .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:var(--paper); border-radius:var(--frame-radius,0px); }
-    .flip-content-shell, .grid-morph-cell, .home-panel-face { -webkit-backface-visibility:hidden; backface-visibility:hidden; will-change:transform,opacity; contain:paint; }
-    .flip-content-shell > img { width:100%; height:100%; display:block; }
-    .flip-content-shell > .overview-thumb { width:100%; height:100%; aspect-ratio:auto; transform:none; pointer-events:none; }
     .flip-content-shell img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; }
     .home-panel-face { background-repeat:no-repeat; }
     .home-panel-glitch { position:absolute; display:block; background-repeat:no-repeat; pointer-events:none; }
@@ -582,13 +578,17 @@
     let character = 0;
     const homeFeature = document.querySelector(".home-feature");
     let introFinished = false;
+    let glitchesEnabled = false;
     function finishHomeIntro() {
       if (introFinished) return;
       introFinished = true;
       window.setTimeout(() => requestAnimationFrame(() => {
         document.body.classList.remove("intro-pending");
         homeFeature.classList.remove("intro-pending");
-        window.setTimeout(placeGlitches, 1320);
+        window.setTimeout(() => {
+          glitchesEnabled = true;
+          placeGlitches();
+        }, 4060);
       }), 180);
     }
     function typeWelcome() {
@@ -739,8 +739,6 @@
     homeMosaic.style.setProperty("--mosaic-rows", mosaicRows);
     homeMosaic.style.setProperty("--mosaic-cell-width", `${100 / mosaicColumns}%`);
     homeMosaic.style.setProperty("--mosaic-cell-height", `${100 / mosaicRows}%`);
-    homeMosaic.style.setProperty("--mosaic-bg-width", `${mosaicColumns * 100}%`);
-    homeMosaic.style.setProperty("--mosaic-bg-height", `${mosaicRows * 100}%`);
     function restoreTile(tile) {
       const base = featureItems[currentFeatureIndex].src;
       tile.dataset.src = base;
@@ -863,7 +861,7 @@
       }, immediate ? 0 : 180);
     }
     setFeature(initialFeature, true);
-    window.setInterval(() => { if (introFinished) placeGlitches(); }, 6500);
+    window.setInterval(() => { if (glitchesEnabled) placeGlitches(); }, 6500);
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     function rollControl(button) {
       button.classList.remove("is-control-rolling");
@@ -906,6 +904,7 @@
     window.addEventListener("wheel", stopTransitionScroll, { passive:false });
     window.addEventListener("touchmove", stopTransitionScroll, { passive:false });
     let pendingHomeGlitchTargets = [];
+    let pendingHomeRasterSnapshot = null;
     const homeImageMetrics = new Map();
     async function coverGeometry(src, frame) {
       let metrics = homeImageMetrics.get(src);
@@ -962,26 +961,21 @@
     function makeFlipTarget(cell) {
       if (!(cell instanceof HTMLImageElement)) return { node:cell, cleanup() {} };
       const frame = cell.closest(".overview-thumb");
-      const visual = frame || cell;
-      const rect = visual.getBoundingClientRect();
+      const outer = (frame || cell).getBoundingClientRect();
+      const insetX = frame?.clientLeft || 0, insetY = frame?.clientTop || 0;
+      const rect = { left:outer.left + insetX, top:outer.top + insetY, width:frame?.clientWidth || outer.width, height:frame?.clientHeight || outer.height };
       const shell = document.createElement("div"); shell.className = "flip-content-shell";
       Object.assign(shell.style,{ left:`${rect.left}px`, top:`${rect.top}px`, width:`${rect.width}px`, height:`${rect.height}px` });
-      const clone = visual.cloneNode(true);
-      const cloneImage = frame ? clone.querySelector("img") : clone;
-      cloneImage.removeAttribute("loading");
+      const clone = cell.cloneNode(); clone.removeAttribute("loading");
       const computed = getComputedStyle(cell);
       clone.style.visibility = "visible";
-      cloneImage.style.visibility = "visible";
-      cloneImage.style.objectPosition = computed.objectPosition;
-      cloneImage.style.objectFit = computed.objectFit;
-      cloneImage.style.transform = computed.transform === "none" ? "" : computed.transform;
-      cloneImage.style.filter = computed.filter;
+      clone.style.objectPosition = computed.objectPosition;
+      clone.style.objectFit = computed.objectFit;
+      clone.style.transform = computed.transform === "none" ? "" : computed.transform;
+      clone.style.filter = computed.filter;
       shell.appendChild(clone); document.body.appendChild(shell);
-      visual.style.visibility = "hidden";
-      return { node:shell, cleanup() {
-        visual.style.removeProperty("visibility");
-        requestAnimationFrame(() => shell.remove());
-      } };
+      cell.style.visibility = "hidden";
+      return { node:shell, cleanup() { shell.remove(); cell.style.removeProperty("visibility"); } };
     }
     async function flipCellPage(getCells, update) {
       if (pageTransitioning || morphing) return;
@@ -1259,23 +1253,25 @@
 
     async function flipInPage(getCells) {
       const incoming = getCells();
-      if (reducedMotion.matches || !incoming.length) return;
+      if (reducedMotion.matches || !incoming.length) {
+        pendingHomeRasterSnapshot?.remove(); pendingHomeRasterSnapshot = null;
+        return;
+      }
       pageTransitioning = true;
       const targets = incoming.map(makeFlipTarget);
-      const flipDuration = index => 920 + Math.min(index,11) * 20;
-      const flipDelay = index => Math.min(index,11) * 22;
       const homePanelAnimations = pendingHomeGlitchTargets.map((node,index) => node.animate([
         { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" },
         { opacity:.03, transform:"perspective(900px) rotateY(88deg) scale(.92)" }
-      ],{ duration:flipDuration(index), delay:flipDelay(index), easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
+      ],{ duration:920 + index * 45, easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
       const animations = targets.map(({node},index) => node.animate([
         { opacity:.04, transform:"perspective(900px) rotateY(-88deg) scale(.96)" },
         { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" }
-      ],{ duration:flipDuration(index), delay:flipDelay(index), easing:"cubic-bezier(.18,.72,.22,1)", fill:"backwards" }));
+      ],{ duration:1080 + Math.min(index,11) * 22, delay:Math.min(index,11) * 26, easing:"cubic-bezier(.18,.72,.22,1)", fill:"backwards" }));
       await Promise.allSettled(animations.concat(homePanelAnimations).map(animation => animation.finished));
       animations.concat(homePanelAnimations).forEach(animation => animation.cancel());
       targets.forEach(target => target.cleanup());
       pendingHomeGlitchTargets.forEach(target => target.remove()); pendingHomeGlitchTargets = [];
+      pendingHomeRasterSnapshot?.remove(); pendingHomeRasterSnapshot = null;
       pageTransitioning = false;
     }
 
@@ -1283,11 +1279,23 @@
       const frame = homeMosaic.getBoundingClientRect();
       if (!frame.width || reducedMotion.matches) { commit(); return Promise.resolve(); }
       morphing = true;
+      pendingHomeRasterSnapshot?.remove();
+      const mosaicStyle = getComputedStyle(homeMosaic);
+      const snapshot = document.createElement("div");
+      snapshot.className = "home-raster-snapshot";
+      Object.assign(snapshot.style,{
+        left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px`,
+        backgroundImage:mosaicStyle.backgroundImage, backgroundSize:mosaicStyle.backgroundSize,
+        backgroundPosition:mosaicStyle.backgroundPosition, backgroundColor:mosaicStyle.backgroundColor,
+        backgroundBlendMode:mosaicStyle.backgroundBlendMode, borderRadius:mosaicStyle.borderRadius,
+        boxShadow:mosaicStyle.boxShadow
+      });
+      document.body.appendChild(snapshot);
+      pendingHomeRasterSnapshot = snapshot;
       const layer = document.createElement("div");
       layer.className = "raster-morph-layer";
       Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
-      const duration = 1700;
-      const flipLead = 1400;
+      const duration = 1500;
       const cssGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
       const sampleFrame = overviewGrid.querySelector(".overview-thumb");
       const frameBorder = Math.max(0, Number.parseFloat(sampleFrame ? getComputedStyle(sampleFrame).borderLeftWidth : 1) || 1);
@@ -1308,20 +1316,25 @@
           const start = lineNumber / axis.count;
           line.style[axis.coordinate] = `${start * axis.dimension}px`; layer.appendChild(line);
           const target = targets.get(index);
+          const end = target == null ? start : target;
           animations.push(line.animate([
             { [axis.coordinate]:`${start * axis.dimension}px`, [axis.thickness]:"1px", opacity:1 },
-            { [axis.coordinate]:`${(target ?? .5) * axis.dimension}px`, [axis.thickness]:target == null ? "1px" : `${targetGap}px`, opacity:target == null ? 0 : 1 }
+            { [axis.coordinate]:`${end * axis.dimension}px`, [axis.thickness]:target == null ? "1px" : `${targetGap}px`, opacity:target == null ? 0 : 1 }
           ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
         });
       });
       homeMosaic.classList.add("is-morphing-out");
+      homeMosaic.style.visibility = "hidden";
       document.body.appendChild(layer);
-      const cleanup = Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
-        layer.remove(); homeMosaic.classList.remove("is-morphing-out");
+      return Promise.allSettled(animations.map(animation => animation.finished)).then(async () => {
+        await captureHomeGlitchTargets();
+        commit();
+        pendingHomeRasterSnapshot?.remove(); pendingHomeRasterSnapshot = null;
+        layer.remove();
+        homeMosaic.classList.remove("is-morphing-out");
+        homeMosaic.style.removeProperty("visibility");
+        morphing = false;
       });
-      return new Promise(resolve => window.setTimeout(async () => {
-        await captureHomeGlitchTargets(); commit(); morphing = false; resolve();
-      }, flipLead)).finally(() => { cleanup.catch(() => {}); });
     }
 
     function morphGridToHomeRaster(commit) {
