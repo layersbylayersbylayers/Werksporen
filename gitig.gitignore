@@ -1,0 +1,9 @@
+# Portfolio data en afbeeldingen
+portfolio-admin-auth.json
+portfolio-messages.json
+portfolio-analytics.json
+portfolio-images/
+
+# Systeem & afhankelijkheden
+node_modules/
+.DS_Store
