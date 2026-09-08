@@ -174,11 +174,13 @@
       .archive-note { padding: 72px 0; }
       .archive-note h2, .archive-note p, .contact-links { grid-column: auto; }
       .contact-signoff { text-align: left; }
-      .project-menu { width:100%; overflow-x:auto; }
-      .filter { flex:0 0 auto; min-width:max-content; padding:11px 12px 10px; justify-content:center; font-size:10px; overflow:visible; white-space:nowrap; transition:background .15s ease, color .15s ease; }
-      .filter::before, .filter[data-filter="all"]::before { content:none; }
-      .filter[data-filter="all"] { flex-basis:auto; padding-left:12px; padding-right:12px; }
-      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active) { flex-basis:auto; }
+      .project-menu { width:100%; overflow-x:hidden; }
+      .filter { flex:0 0 38px; min-width:38px; padding:11px 8px 10px; justify-content:center; font-size:0; overflow:hidden; white-space:nowrap; transition:flex-basis .2s ease, background .15s ease, color .15s ease; }
+      .filter::before { content:attr(data-mobile-index); font-size:10px; }
+      .filter[data-filter="all"] { flex-basis:70px; padding-left:8px; padding-right:8px; }
+      .filter[data-filter="all"]::before { content:"Home"; }
+      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active) { flex-basis:min(132px,34vw); }
+      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active)::before { content:attr(data-mobile-label); }
     }
     @media (prefers-reduced-motion: no-preference) { .work { transition: opacity .25s ease; } .work.is-hidden { display: none; } }
   
