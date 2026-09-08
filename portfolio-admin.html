@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Portfolio admin — Lars Kramer</title>
+  <style>
+    :root { --paper:#f3f2ed; --ink:#1e1f1c; --line:#b7b5ad; --red:#a3442e; --green:#344638; --soft:#e7e5de; --white:#faf9f5; }
+    * { box-sizing:border-box; }
+    html, body { margin:0; min-height:100%; background:var(--paper); color:var(--ink); font-family:"Courier New",monospace; }
+    button, input, select, textarea { font:inherit; color:inherit; }
+    button { cursor:pointer; }
+    [hidden] { display:none!important; }
+    .login-shell { min-height:100vh; display:grid; place-items:center; padding:24px; }
+    .login-card { width:min(430px,100%); border-top:2px solid var(--ink); border-bottom:1px solid var(--line); padding:28px 0 34px; }
+    .login-card h1 { margin:0 0 36px; color:var(--green); font-size:1.25rem; }
+    .login-card label { display:block; margin:18px 0 6px; font-size:.8rem; color:var(--red); text-transform:uppercase; }
+    .login-card input { width:100%; border:1px solid var(--line); border-radius:0; background:var(--white); padding:13px; font-size:1rem; }
+    .login-card button { width:100%; margin-top:20px; border:0; background:var(--ink); color:var(--white); padding:14px; }
+    .login-card p { min-height:1.3em; color:var(--red); font-size:.8rem; }
+    .admin { min-height:100vh; }
+    .admin-header { position:sticky; top:0; z-index:20; height:66px; padding:0 22px; display:flex; align-items:center; gap:16px; background:rgba(243,242,237,.96); border-bottom:1px solid var(--ink); backdrop-filter:blur(10px); }
+    .brand { color:var(--green); font-weight:700; white-space:nowrap; }
+    .tabs { display:flex; gap:0; margin-left:18px; }
+    .tab { border:1px solid var(--line); border-bottom:0; background:transparent; padding:10px 16px; }
+    .tab + .tab { border-left:0; }
+    .tab.is-active { background:var(--ink); color:var(--white); }
+    .actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+    .actions button, .actions a { border:1px solid var(--ink); background:transparent; color:inherit; padding:9px 12px; text-decoration:none; white-space:nowrap; }
+    .actions .primary { background:var(--red); border-color:var(--red); color:var(--white); font-weight:700; }
+    .save-state { font-size:.72rem; color:#666; min-width:80px; text-align:right; }
+    .workspace { display:grid; grid-template-columns:minmax(390px,34%) minmax(720px,66%); min-height:calc(100vh - 66px); }
+    .editor { padding:22px; border-right:1px solid var(--ink); min-width:0; }
+    .preview-panel { min-width:0; background:#deddd6; padding:16px; }
+    .preview-bar { height:34px; display:flex; align-items:center; justify-content:space-between; font-size:.72rem; color:#585852; }
+    .preview-frame { position:sticky; top:82px; width:100%; height:calc(100vh - 112px); border:1px solid #777; background:white; }
+    .section-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; }
+    .section-head h2 { margin:0; font-size:1rem; color:var(--red); }
+    .section-head p { margin:5px 0 0; color:#666; font-size:.75rem; }
+    .section-head button { border:1px solid var(--ink); background:var(--green); color:white; padding:10px 13px; }
+    .gallery-tabs { display:flex; margin:0 0 22px; border-bottom:1px solid var(--ink); overflow-x:auto; scrollbar-width:none; }
+    .gallery-tabs::-webkit-scrollbar { display:none; }
+    .gallery-filter { flex:0 0 auto; appearance:none; border:0; border-right:1px solid var(--line); background:transparent; color:#77736c; padding:13px 16px 12px; font-size:.72rem; }
+    .gallery-filter:first-child { padding-left:0; padding-right:20px; }
+    .gallery-filter:hover, .gallery-filter.is-active { background:var(--ink); color:white; }
+    .gallery-filter:first-child.is-active { padding-left:14px; }
+    .page-manager { width:min(100%,610px); margin:0 0 18px; border-top:1px solid var(--ink); border-bottom:1px solid var(--line); padding:9px 0; }
+    .page-manager summary { color:var(--red); cursor:pointer; font-size:.74rem; font-weight:700; }
+    .section-list { display:grid; gap:7px; margin:12px 0 8px; }
+    .section-row { display:grid; grid-template-columns:1fr auto; gap:7px; }
+    .section-row input { width:100%; border:1px solid var(--line); background:white; padding:8px; }
+    .section-row button, #add-section { border:1px solid var(--line); background:transparent; padding:7px 9px; font-size:.7rem; }
+    #add-section { color:var(--green); }
+    .image-stage { width:min(100%,610px); margin:0; }
+    .image-list { display:grid; width:100%; aspect-ratio:61 / 72; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr)); gap:clamp(48px,4.5vw,68px) clamp(34px,3.8vw,54px); align-items:stretch; }
+    .image-list.is-single { grid-template-columns:1fr; grid-template-rows:1fr; aspect-ratio:auto; }
+    .image-list.is-single .item { cursor:default; }
+    .image-list.is-single .item-preview { width:100%; aspect-ratio:61 / 72; }
+    .image-list.is-single .item-preview img { object-fit:contain; background:#efeee8; }
+    .image-list:not(.is-single) .item { height:100%; }
+    .image-list:not(.is-single) .item-preview { height:100%; aspect-ratio:auto; border-bottom:0; }
+    .image-list:not(.is-single) .item-body { display:none; }
+    .item { border:1px solid var(--line); background:var(--white); min-width:0; transition:transform .18s ease, opacity .18s ease, box-shadow .18s ease; }
+    .item[draggable="true"] { cursor:grab; }
+    .item.is-dragging { opacity:.28; transform:scale(.95); }
+    .item.drag-before { box-shadow:-5px 0 0 var(--red); }
+    .item.drag-after { box-shadow:5px 0 0 var(--red); }
+    .image-controls { display:flex; justify-content:flex-end; align-items:center; gap:10px; margin-top:16px; }
+    .image-controls button { width:34px; height:34px; display:grid; place-items:center; border:1px solid var(--line); background:var(--white); color:var(--red); cursor:pointer; }
+    .image-controls button:disabled { opacity:.28; cursor:default; }
+    .image-page-state { min-width:58px; text-align:center; color:#777; font-size:.68rem; }
+    .admin-view-icon { width:14px; height:14px; display:grid; }
+    .admin-view-icon.single { border:1.5px solid currentColor; }
+    .admin-view-icon.dots { grid-template-columns:repeat(3,3px); grid-template-rows:repeat(3,3px); gap:2px; }
+    .admin-view-icon.dots i { width:3px; height:3px; border-radius:50%; background:currentColor; }
+    .admin-view-button { opacity:.48; }
+    .admin-view-button.is-active { opacity:1; border-color:var(--red); background:#f4eee8; }
+    .item.is-off { opacity:.52; }
+    .item-preview { position:relative; aspect-ratio:4 / 5; height:auto; overflow:hidden; background:#d6d4cd; border-bottom:1px solid var(--line); }
+    .item-preview img { width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; }
+    .empty { height:100%; display:grid; place-items:center; padding:20px; color:#777; text-align:center; }
+    .order { position:absolute; top:8px; left:8px; background:var(--ink); color:white; padding:4px 7px; font-size:.7rem; z-index:2; }
+    .drag-handle { position:absolute; z-index:3; top:8px; right:8px; border:1px solid rgba(255,255,255,.72); background:rgba(28,27,25,.88); color:white; padding:5px 7px; font:700 .65rem "Courier New",monospace; cursor:grab; touch-action:none; user-select:none; }
+    .image-list.is-single .drag-handle { display:none; }
+    body.is-sorting { overflow:hidden; cursor:grabbing; }
+    .item-body { padding:12px; }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:10px; }
+    .field { min-width:0; }
+    .field > label, .field-label { display:block; margin:0 0 5px; color:var(--red); font-size:.68rem; text-transform:uppercase; }
+    .field input[type="text"], .field input[type="email"], .field input[type="password"], .field textarea, .field select { width:100%; border:1px solid var(--line); border-radius:0; background:white; padding:8px; }
+    .field input[type="range"] { width:100%; accent-color:var(--red); }
+    .checks { display:flex; flex-wrap:wrap; gap:8px 13px; margin:10px 0; font-size:.72rem; }
+    .checks label { display:flex; gap:5px; align-items:center; }
+    .checks input { accent-color:var(--red); }
+    .item-actions { display:flex; flex-wrap:wrap; gap:6px; padding-top:4px; border-top:1px solid var(--soft); }
+    .item-actions button, .file-label { border:1px solid var(--line); background:transparent; padding:7px 9px; font-size:.7rem; }
+    .file-label { cursor:pointer; }
+    .file-label input { display:none; }
+    .danger { color:var(--red); margin-left:auto; }
+    .text-form { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .text-card { border-top:2px solid var(--ink); padding-top:16px; }
+    .text-card h3 { margin:0 0 14px; font-size:.9rem; color:var(--green); }
+    .text-card .field { margin-bottom:13px; }
+    .text-card textarea { min-height:130px; resize:vertical; }
+    .color-row { display:grid; grid-template-columns:62px 1fr; gap:10px; align-items:center; }
+    .color-row input[type="color"] { width:62px; height:42px; padding:2px; border:1px solid var(--line); background:white; }
+    .dashboard-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .metric { min-height:120px; border-top:2px solid var(--ink); padding:14px 0; }
+    .metric.wide { grid-column:span 2; }
+    .metric h3 { margin:0 0 12px; color:var(--red); font-size:.72rem; }
+    .metric strong { display:block; font-size:clamp(1.5rem,4vw,3rem); font-weight:400; }
+    .metric ol, .metric ul { margin:0; padding-left:20px; line-height:1.8; }
+    .account-card { max-width:520px; border-top:2px solid var(--ink); padding-top:18px; }
+    .account-card button { border:0; background:var(--ink); color:white; padding:11px 14px; }
+    .mobile-preview { display:none; }
+    @media (max-width:1050px) {
+      .workspace { grid-template-columns:1fr; }
+      .editor { border-right:0; }
+      .preview-panel { display:none; }
+      .mobile-preview { display:inline-block!important; }
+    }
+    @media (max-width:720px) {
+      .admin-header { height:auto; min-height:66px; flex-wrap:wrap; padding:10px 14px; }
+      .tabs { order:3; width:100%; margin:0; }
+      .tab { flex:1; }
+      .actions .secondary { display:none; }
+      .editor { padding:16px; }
+      .text-form, .dashboard-grid { grid-template-columns:1fr; }
+      .metric.wide { grid-column:auto; }
+      .image-list:not(.is-single) { grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr)); gap:16px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="login-shell" id="login-view">
+    <form class="login-card" id="login-form">
+      <h1>[ Lars Kramer / admin ]</h1>
+      <label for="username">naam</label><input id="username" autocomplete="username" value="admin" required>
+      <label for="password">wachtwoord</label><input id="password" type="password" autocomplete="current-password" required autofocus>
+      <button type="submit">INLOGGEN</button>
+      <p id="login-error" role="alert"></p>
+    </form>
+  </section>
+
+  <main class="admin" id="admin-view" hidden>
+    <header class="admin-header">
+      <span class="brand">[ Lars Kramer / admin ]</span>
+      <nav class="tabs" aria-label="Beheeronderdelen">
+        <button class="tab is-active" data-tab="images">beelden</button>
+        <button class="tab" data-tab="texts">teksten</button>
+        <button class="tab" data-tab="account">account</button>
+        <button class="tab" data-tab="dashboard">dashboard</button>
+      </nav>
+      <div class="actions">
+        <span class="save-state" id="save-state">opgeslagen</span>
+        <button class="secondary" id="export-button">BACKUP DOWNLOADEN</button>
+        <a class="mobile-preview" href="/portfolio" target="_blank">TEST SITE</a>
+        <button class="primary" id="save-button">OPSLAAN + TESTEN</button>
+        <button class="secondary" id="logout-button">UITLOGGEN</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <section class="editor">
+        <div class="panel" id="images-panel">
+          <div class="section-head">
+            <div><h2>01 / BEELDEN</h2><p>Sleep de beelden naar hun plek; de rest schuift vanzelf op. Schaal en positie bepalen de uitsnede.</p></div>
+            <button id="add-frame">+ NIEUW KADER</button>
+          </div>
+          <details class="page-manager">
+            <summary>PAGINA’S BEHEREN / HERNOEMEN</summary>
+            <div class="section-list" id="section-list"></div>
+            <button id="add-section" type="button">+ NIEUWE PAGINA</button>
+          </details>
+          <nav class="gallery-tabs" id="gallery-tabs" aria-label="Portfolio categorieën">
+
+          </nav>
+          <div class="image-stage">
+          <div class="image-list" id="image-list"></div>
+          <div class="image-controls" aria-label="Beeldenweergave">
+            <button class="admin-view-button" type="button" data-admin-view="grid" aria-label="Bekijk als negen vakjes" title="3 × 3 grid"><span class="admin-view-icon dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></button>
+            <button class="admin-view-button is-active" type="button" data-admin-view="single" aria-label="Bekijk één groot beeld" title="één beeld groot"><span class="admin-view-icon single" aria-hidden="true"></span></button>
+            <button id="admin-prev" type="button" aria-label="Vorige beelden" title="vorige">&lt;</button>
+            <span class="image-page-state" id="image-page-state" aria-live="polite"></span>
+            <button id="admin-next" type="button" aria-label="Volgende beelden" title="volgende">&gt;</button>
+          </div>
+          </div>
+        </div>
+
+        <div class="panel" id="texts-panel" hidden>
+          <div class="section-head"><div><h2>02 / TEKSTEN</h2><p>Alle hoofdteksten van de publieke website.</p></div></div>
+          <div class="text-form" id="text-form"></div>
+        </div>
+
+        <div class="panel" id="dashboard-panel" hidden>
+          <div class="section-head"><div><h2>04 / DASHBOARD</h2><p>Privacyvriendelijke bezoeken; geen IP-adressen of persoonlijke profielen.</p></div><button id="refresh-dashboard" type="button">VERVERS</button></div>
+          <div class="dashboard-grid" id="dashboard-grid"></div>
+        </div>
+
+        <div class="panel" id="account-panel" hidden>
+          <div class="section-head"><div><h2>03 / ACCOUNT</h2><p>Wijzig het tijdelijke wachtwoord admin.</p></div></div>
+          <form class="account-card" id="password-form">
+            <div class="field"><label for="current-password">huidig wachtwoord</label><input id="current-password" type="password" required></div>
+            <div class="field"><label for="new-password">nieuw wachtwoord (minimaal 8 tekens)</label><input id="new-password" type="password" minlength="8" required></div>
+            <button type="submit">WACHTWOORD WIJZIGEN</button>
+            <p id="password-state" role="status"></p>
+          </form>
+        </div>
+      </section>
+
+      <aside class="preview-panel">
+        <div class="preview-bar"><span>NORMALE WEBSITE / LIVE TEST</span><a href="/portfolio" target="_blank">open apart ↗</a></div>
+        <iframe class="preview-frame" id="preview" src="/portfolio" title="Preview normale website"></iframe>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const loginView = document.getElementById("login-view");
+    const adminView = document.getElementById("admin-view");
+    const imageList = document.getElementById("image-list");
+    const galleryTabs = document.getElementById("gallery-tabs");
+    const sectionList = document.getElementById("section-list");
+    const textForm = document.getElementById("text-form");
+    const saveState = document.getElementById("save-state");
+    const preview = document.getElementById("preview");
+    const dashboardGrid = document.getElementById("dashboard-grid");
+    let data = null;
+    let dirty = false;
+    let adminViewMode = "single";
+    let adminPage = 0;
+    let draggedItemId = null;
+    let pointerTargetId = null;
+    let pointerAfter = false;
+    let adminFilter = "all";
+
+    const textGroups = [
+      { title:"Kop", fields:[["name","Naam"],["edition","Midden boven"],["location","Rechts boven"],["welcome","Welkomsttekst"]] },
+      { title:"Navigatie", fields:[["all","Alles"],["ink","Inkt & flash"],["paint","Schilderij"],["digital","Digitaal"],["process","Proces"],["aboutLabel","About"]] },
+      { title:"Sectie", fields:[["selection","Selectielabel"],["overview","Werkoverzicht"],["galleryNote","Algemene work note bij alles (leeg = niets)","textarea"]] },
+      { title:"About & contact", fields:[["about","About-tekst","textarea"],["contact","Contacttekst","textarea"],["contactButton","Contactknop"],["contactEmail","E-mailadres"],["footer","Footer"]] }
+    ];
+
+    async function request(url, options = {}) {
+      const response = await fetch(url, { credentials:"same-origin", ...options, headers:{ "Content-Type":"application/json", ...(options.headers || {}) } });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Er ging iets mis.");
+      return result;
+    }
+
+    function markDirty() {
+      dirty = true;
+      saveState.textContent = "niet opgeslagen";
+      saveState.style.color = "#a3442e";
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>'"]/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[character]));
+    }
+
+    function filterCss(item) {
+      const tone = { normal:"", gray:"grayscale(1)", warm:"sepia(.28) saturate(1.18)", cool:"sepia(.12) hue-rotate(155deg) saturate(.9)" }[item.filter || "normal"];
+      return `${tone} brightness(${item.brightness ?? 1}) contrast(${item.contrast ?? 1})`.trim();
+    }
+
+    function transformCss(item) {
+      return `scale(${item.scale ?? 1}) rotate(${item.rotate ?? 0}deg) skewX(${item.skewX ?? 0}deg) skewY(${item.skewY ?? 0}deg)`;
+    }
+
+    function itemCard(item, index) {
+      const categories = data.sections;
+      return `<article class="item ${item.visible ? "" : "is-off"}" data-id="${item.id}" draggable="true">
+        <div class="item-preview"><span class="order">${String(index + 1).padStart(2,"0")}</span><button class="drag-handle" type="button" aria-label="Sleep naar een andere positie">⠿</button>${item.src ? `<img src="/${escapeHtml(item.src)}" alt="" style="object-position:${item.x}% ${item.y}%;transform:${transformCss(item)};filter:${filterCss(item)}">` : `<div class="empty">leeg kader<br>kies een afbeelding</div>`}</div>
+        <div class="item-body">
+          <div class="row">
+            <div class="field"><label>titel</label><input type="text" data-key="title" value="${escapeHtml(item.title)}"></div>
+            <div class="field"><label>formaat</label><input type="text" data-key="format" value="${escapeHtml(item.format)}"></div>
+          </div>
+          <div class="field"><label>work note</label><textarea data-key="note">${escapeHtml(item.note || "Selected from the current image archive.")}</textarea></div>
+          <div class="row">
+            <div class="field"><label>status</label><input type="text" data-key="status" value="${escapeHtml(item.status || "selected")}"></div>
+            <div class="field"><label>jaar</label><input type="text" data-key="year" value="${escapeHtml(item.year || "2026")}"></div>
+          </div>
+          <span class="field-label">indeling</span>
+          <div class="checks">${categories.map(category => `<label><input type="checkbox" data-category="${category.id}" ${item.categories.includes(category.id) ? "checked" : ""}>${escapeHtml(category.label)}</label>`).join("")}</div>
+          <div class="checks"><label><input type="checkbox" data-key="visible" ${item.visible ? "checked" : ""}>op website</label><label><input type="checkbox" data-key="gallery" ${item.gallery ? "checked" : ""}>in galerie</label><label><input type="checkbox" data-key="glitch" ${item.glitch ? "checked" : ""}>in glitches</label></div>
+          <div class="row"><div class="field"><label>schaal <span>${Number(item.scale).toFixed(2)}×</span></label><input type="range" data-key="scale" min="1" max="3" step=".05" value="${item.scale}"></div><div class="field"><label>horizontaal</label><input type="range" data-key="x" min="0" max="100" value="${item.x}"></div></div>
+          <div class="field"><label>verticaal</label><input type="range" data-key="y" min="0" max="100" value="${item.y}"></div>
+          <div class="row"><div class="field"><label>kleurtoon</label><select data-key="filter"><option value="normal" ${(item.filter || "normal") === "normal" ? "selected" : ""}>normaal</option><option value="gray" ${item.filter === "gray" ? "selected" : ""}>grijs</option><option value="warm" ${item.filter === "warm" ? "selected" : ""}>warm</option><option value="cool" ${item.filter === "cool" ? "selected" : ""}>koud</option></select></div><div class="field"><label>helderheid</label><input type="range" data-key="brightness" min=".4" max="2" step=".05" value="${item.brightness ?? 1}"></div></div>
+          <div class="row"><div class="field"><label>contrast</label><input type="range" data-key="contrast" min=".4" max="2" step=".05" value="${item.contrast ?? 1}"></div><div class="field"><label>rechtzetten</label><input type="range" data-key="rotate" min="-15" max="15" step=".25" value="${item.rotate ?? 0}"></div></div>
+          <div class="row"><div class="field"><label>perspectief horizontaal</label><input type="range" data-key="skewX" min="-20" max="20" step=".25" value="${item.skewX ?? 0}"></div><div class="field"><label>perspectief verticaal</label><input type="range" data-key="skewY" min="-20" max="20" step=".25" value="${item.skewY ?? 0}"></div></div>
+          <div class="item-actions">
+            <button data-action="left" title="Naar voren">←</button><button data-action="right" title="Naar achteren">→</button>
+            <label class="file-label">${item.src ? "VERVANGEN" : "AFBEELDING KIEZEN"}<input type="file" data-upload accept="image/jpeg,image/png,image/webp,image/gif"></label>
+            <button class="danger" data-action="remove">WEGHALEN</button>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function createEmptyItem(categoryId) {
+      return { id:crypto.randomUUID().replaceAll("-",""), src:"", title:"", categories:[categoryId || data.sections[0]?.id || "proces"], gallery:true, glitch:true, visible:true, scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0, note:"Selected from the current image archive.", status:"selected", year:"2026", format:"image" };
+    }
+
+    function ensureEmptyFrame() {
+      if (adminFilter === "hidden") return;
+      const categoryId = adminFilter === "all" ? (data.sections[0]?.id || "proces") : adminFilter;
+      const hasEmpty = data.items.some(item => !item.src && item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter)));
+      if (!hasEmpty) data.items.push(createEmptyItem(categoryId));
+    }
+
+    function renderSections() {
+      galleryTabs.innerHTML = [
+        `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">${escapeHtml(data.texts.all || "alles")}</button>`,
+        ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" data-gallery-filter="${section.id}">${escapeHtml(section.label)}</button>`),
+        `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
+      ].join("");
+      sectionList.innerHTML = data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><input type="text" data-section-label value="${escapeHtml(section.label)}" aria-label="Paginanaam"><input type="text" data-section-note value="${escapeHtml(section.note || "")}" placeholder="algemene work note (optioneel)" aria-label="Algemene work note"><button type="button" data-remove-section>WEG</button></div>`).join("");
+    }
+
+    function renderImages() {
+      renderSections();
+      ensureEmptyFrame();
+      const matching = data.items.filter(item => adminFilter === "hidden" ? (!item.visible || !item.gallery) : (item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter))));
+      const pageSize = adminViewMode === "single" ? 1 : 9;
+      const pages = Math.max(1, Math.ceil(matching.length / pageSize));
+      adminPage = Math.min(adminPage, pages - 1);
+      const start = adminPage * pageSize;
+      imageList.classList.toggle("is-single", adminViewMode === "single");
+      imageList.innerHTML = matching.slice(start, start + pageSize).map(item => itemCard(item, data.items.indexOf(item))).join("");
+      document.querySelectorAll(".gallery-filter").forEach(button => button.classList.toggle("is-active", button.dataset.galleryFilter === adminFilter));
+      document.querySelectorAll(".admin-view-button").forEach(button => {
+        const active = button.dataset.adminView === adminViewMode;
+        button.classList.toggle("is-active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      document.getElementById("admin-prev").disabled = adminPage <= 0;
+      document.getElementById("admin-next").disabled = adminPage >= pages - 1;
+      document.getElementById("image-page-state").textContent = `${adminPage + 1} / ${pages}`;
+    }
+
+    function renderTexts() {
+      data.theme ||= { background:"#f6f5f0", accent:"#a3442e", homeTone:"color", glitchTone:"warm", glitchGlow:false, shadowColor:"#1c1b19", shadowAngle:45, shadowDistance:0, shadowBlur:0 };
+      const toneOptions = value => [["color","kleur"],["gray","zwart-wit"],["warm","warm"],["cool","koud"]].map(([key,label]) => `<option value="${key}" ${value === key ? "selected" : ""}>${label}</option>`).join("");
+      const colors = `<section class="text-card"><h3>Kleuren</h3><div class="field"><label>Achtergrond</label><div class="color-row"><input type="color" data-theme="background" value="${data.theme.background}"><input type="text" data-theme-text="background" value="${data.theme.background}"></div></div><div class="field"><label>Rode accenttekst</label><div class="color-row"><input type="color" data-theme="accent" value="${data.theme.accent}"><input type="text" data-theme-text="accent" value="${data.theme.accent}"></div></div></section>`;
+      const home = `<section class="text-card"><h3>Home-grid</h3><div class="field"><label>Grote achtergrondfoto</label><select data-theme-select="homeTone">${toneOptions(data.theme.homeTone || "color")}</select></div><div class="field"><label>Kleine glitchfoto’s</label><select data-theme-select="glitchTone">${toneOptions(data.theme.glitchTone || "warm")}</select></div><div class="checks"><label><input type="checkbox" data-theme-check="glitchGlow" ${data.theme.glitchGlow ? "checked" : ""}>meerkleurige synth-glow</label></div></section>`;
+      const shadow = `<section class="text-card"><h3>Schaduw beelden</h3><div class="field"><label>kleur</label><input type="color" data-theme="shadowColor" value="${data.theme.shadowColor || "#1c1b19"}"></div><div class="field"><label>angle <span>${data.theme.shadowAngle ?? 45}°</span></label><input type="range" data-theme-range="shadowAngle" min="0" max="360" step="1" value="${data.theme.shadowAngle ?? 45}"></div><div class="field"><label>distance <span>${data.theme.shadowDistance ?? 0}px</span></label><input type="range" data-theme-range="shadowDistance" min="0" max="28" step="1" value="${data.theme.shadowDistance ?? 0}"></div><div class="field"><label>softness <span>${data.theme.shadowBlur ?? 0}px</span></label><input type="range" data-theme-range="shadowBlur" min="0" max="40" step="1" value="${data.theme.shadowBlur ?? 0}"></div></section>`;
+      textForm.innerHTML = colors + home + shadow + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key])}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key])}">`}</div>`).join("")}</section>`).join("");
+    }
+
+    async function renderDashboard() {
+      dashboardGrid.innerHTML = '<section class="metric"><h3>LADEN</h3></section>';
+      try {
+        const [stats, messages] = await Promise.all([request("/api/analytics"), request("/api/messages")]);
+        const days = Object.entries(stats.days || {}).sort(([a],[b]) => b.localeCompare(a));
+        const today = days[0]?.[1] || { views:0, sessions:0, pages:{}, devices:{}, referrers:{} };
+        const lastSeven = days.slice(0,7).reduce((sum,[,day]) => sum + day.views, 0);
+        const ranking = object => Object.entries(object || {}).sort((a,b) => b[1]-a[1]).slice(0,6);
+        const list = object => ranking(object).length ? '<ol>' + ranking(object).map(([name,count]) => `<li>${escapeHtml(name)} — ${count}</li>`).join("") + '</ol>' : '<p>nog geen gegevens</p>';
+        dashboardGrid.innerHTML = `
+          <section class="metric"><h3>BEZOEKEN VANDAAG</h3><strong>${today.views || 0}</strong></section>
+          <section class="metric"><h3>SESSIES VANDAAG</h3><strong>${today.sessions || 0}</strong></section>
+          <section class="metric"><h3>LAATSTE 7 DAGEN</h3><strong>${lastSeven}</strong></section>
+          <section class="metric"><h3>TOTAAL BEZOEKEN</h3><strong>${stats.totalViews || 0}</strong></section>
+          <section class="metric wide"><h3>POPULAIRE PAGINA’S</h3>${list(today.pages)}</section>
+          <section class="metric"><h3>APPARATEN</h3>${list(today.devices)}</section>
+          <section class="metric wide"><h3>HERKOMST</h3>${list(today.referrers)}</section>
+          <section class="metric"><h3>BERICHTEN</h3><strong>${messages.length}</strong></section>
+          <section class="metric wide"><h3>LAATSTE BERICHTEN</h3>${messages.length ? '<ul>' + messages.slice(0,8).map(item => `<li><strong style="font-size:1rem">${escapeHtml(item.name)}</strong> <a href="mailto:${encodeURIComponent(item.email)}">${escapeHtml(item.email)}</a><br><small>${new Date(item.createdAt).toLocaleString("nl-NL")}</small><br>${escapeHtml(item.message)}</li>`).join("") + '</ul>' : '<p>nog geen berichten</p>'}</section>`;
+      } catch (error) { dashboardGrid.innerHTML = `<section class="metric"><h3>GEEN VERBINDING</h3><p>${escapeHtml(error.message)}</p></section>`; }
+    }
+
+    function render() {
+      data.sections ||= [
+        { id:"inkt", label:data.texts.ink || "inkt & flash" },
+        { id:"verf", label:data.texts.paint || "schilderij" },
+        { id:"digitaal", label:data.texts.digital || "digitaal" },
+        { id:"proces", label:data.texts.process || "proces" }
+      ];
+      renderImages(); renderTexts();
+    }
+
+    function findItem(element) {
+      const card = element.closest(".item");
+      return card && data.items.find(item => item.id === card.dataset.id);
+    }
+
+    async function upload(file) {
+      if (file.size > 25 * 1024 * 1024) throw new Error("Afbeelding is groter dan 25 MB.");
+      const encoded = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
+      return request("/api/upload", { method:"POST", body:JSON.stringify({ name:file.name, data:encoded }) });
+    }
+
+    function showDropTarget(target, clientX, clientY) {
+      if (!target || target.dataset.id === draggedItemId) return;
+      imageList.querySelectorAll(".drag-before,.drag-after").forEach(card => card.classList.remove("drag-before","drag-after"));
+      const rect = target.getBoundingClientRect();
+      pointerAfter = clientY > rect.top + rect.height * .66 || (clientY >= rect.top + rect.height * .34 && clientX >= rect.left + rect.width / 2);
+      pointerTargetId = target.dataset.id;
+      target.classList.add(pointerAfter ? "drag-after" : "drag-before");
+    }
+    function commitMove(targetId, after) {
+      if (!draggedItemId || !targetId || draggedItemId === targetId) return false;
+      const from = data.items.findIndex(item => item.id === draggedItemId);
+      let to = data.items.findIndex(item => item.id === targetId);
+      if (from < 0 || to < 0) return false;
+      const [moved] = data.items.splice(from, 1);
+      if (from < to) to -= 1;
+      data.items.splice(to + (after ? 1 : 0), 0, moved);
+      return true;
+    }
+
+    imageList.addEventListener("pointerdown", event => {
+      if (imageList.classList.contains("is-single")) return;
+      const card = event.target.closest(".item");
+      if (!card || event.target.closest("button,input,select,textarea,label,a")) return;
+      event.preventDefault();
+      draggedItemId = card.dataset.id;
+      pointerTargetId = null;
+      pointerAfter = false;
+      card.classList.add("is-dragging");
+      document.body.classList.add("is-sorting");
+      card.setPointerCapture(event.pointerId);
+    });
+    imageList.addEventListener("pointermove", event => {
+      if (!document.body.classList.contains("is-sorting")) return;
+      event.preventDefault();
+      showDropTarget(document.elementFromPoint(event.clientX,event.clientY)?.closest(".item"), event.clientX, event.clientY);
+    });
+    imageList.addEventListener("pointerup", event => {
+      if (!document.body.classList.contains("is-sorting")) return;
+      event.preventDefault();
+      const moved = commitMove(pointerTargetId, pointerAfter);
+      draggedItemId = null; pointerTargetId = null;
+      document.body.classList.remove("is-sorting");
+      if (moved) { renderImages(); markDirty(); }
+      else imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
+    });
+    imageList.addEventListener("pointercancel", () => {
+      draggedItemId = null; pointerTargetId = null;
+      document.body.classList.remove("is-sorting");
+      imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
+    });
+    imageList.addEventListener("dragstart", event => {
+      if (event.target.closest(".drag-handle") || imageList.classList.contains("is-single")) return;
+      const card = event.target.closest(".item");
+      if (!card) return;
+      draggedItemId = card.dataset.id;
+      card.classList.add("is-dragging");
+      event.dataTransfer.effectAllowed = "move";
+    });
+    imageList.addEventListener("dragover", event => {
+      const target = event.target.closest(".item");
+      if (!target || target.dataset.id === draggedItemId) return;
+      event.preventDefault();
+      showDropTarget(target,event.clientX,event.clientY);
+    });
+    imageList.addEventListener("drop", event => {
+      const target = event.target.closest(".item");
+      if (!target || !draggedItemId || target.dataset.id === draggedItemId) return;
+      event.preventDefault();
+      const moved = commitMove(target.dataset.id,pointerAfter);
+      draggedItemId = null;
+      if (moved) { renderImages(); markDirty(); }
+    });
+    imageList.addEventListener("dragend", () => {
+      draggedItemId = null;
+      imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
+    });
+    imageList.addEventListener("click", event => {
+      if (adminViewMode !== "grid" || event.target.closest(".drag-handle") || document.body.classList.contains("is-sorting")) return;
+      const card = event.target.closest(".item");
+      if (!card) return;
+      const matching = data.items.filter(item => adminFilter === "hidden" ? (!item.visible || !item.gallery) : (item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter))));
+      const selectedIndex = matching.findIndex(item => item.id === card.dataset.id);
+      adminViewMode = "single";
+      adminPage = Math.max(0, selectedIndex);
+      renderImages();
+    });
+
+    imageList.addEventListener("input", event => {
+      const item = findItem(event.target);
+      if (!item) return;
+      if (event.target.dataset.category) {
+        item.categories = [...event.target.closest(".checks").querySelectorAll("[data-category]:checked")].map(input => input.dataset.category);
+      } else if (event.target.dataset.key) {
+        const key = event.target.dataset.key;
+        item[key] = event.target.type === "checkbox" ? event.target.checked : event.target.type === "range" ? Number(event.target.value) : event.target.value;
+      }
+      const image = event.target.closest(".item").querySelector(".item-preview img");
+      if (image) { image.style.objectPosition = `${item.x}% ${item.y}%`; image.style.transform = transformCss(item); image.style.filter = filterCss(item); }
+      const scaleLabel = event.target.closest(".item").querySelector('[data-key="scale"]')?.previousElementSibling?.querySelector("span");
+      if (scaleLabel) scaleLabel.textContent = `${Number(item.scale).toFixed(2)}×`;
+      event.target.closest(".item").classList.toggle("is-off", !item.visible);
+      markDirty();
+    });
+
+    imageList.addEventListener("change", async event => {
+      if (!event.target.matches("[data-upload]") || !event.target.files[0]) return;
+      const item = findItem(event.target);
+      saveState.textContent = "uploaden…";
+      try {
+        const result = await upload(event.target.files[0]);
+        item.src = result.src;
+        item.title ||= event.target.files[0].name.replace(/\.[^.]+$/, "");
+        ensureEmptyFrame();
+        renderImages();
+        markDirty();
+      }
+      catch (error) { alert(error.message); saveState.textContent = "upload mislukt"; }
+    });
+
+    imageList.addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+      const item = findItem(button);
+      const index = data.items.indexOf(item);
+      if (button.dataset.action === "left" && index > 0) [data.items[index - 1], data.items[index]] = [data.items[index], data.items[index - 1]];
+      if (button.dataset.action === "right" && index < data.items.length - 1) [data.items[index + 1], data.items[index]] = [data.items[index], data.items[index + 1]];
+      if (button.dataset.action === "remove") {
+        if (!confirm("Dit kader uit de website halen? Het afbeeldingsbestand blijft bewaard.")) return;
+        data.items.splice(index, 1);
+      }
+      renderImages(); markDirty();
+    });
+
+    textForm.addEventListener("input", event => {
+      if (event.target.dataset.text) data.texts[event.target.dataset.text] = event.target.value;
+      if (event.target.dataset.theme) {
+        data.theme[event.target.dataset.theme] = event.target.value;
+        textForm.querySelector(`[data-theme-text="${event.target.dataset.theme}"]`).value = event.target.value;
+      }
+      if (event.target.dataset.themeText && /^#[0-9a-f]{6}$/i.test(event.target.value)) {
+        data.theme[event.target.dataset.themeText] = event.target.value;
+        textForm.querySelector(`[data-theme="${event.target.dataset.themeText}"]`).value = event.target.value;
+      }
+      if (event.target.dataset.themeSelect) data.theme[event.target.dataset.themeSelect] = event.target.value;
+      if (event.target.dataset.themeRange) {
+        data.theme[event.target.dataset.themeRange] = Number(event.target.value);
+        const suffix = event.target.dataset.themeRange === "shadowAngle" ? "°" : "px";
+        event.target.previousElementSibling.querySelector("span").textContent = event.target.value + suffix;
+      }
+      if (event.target.dataset.themeCheck) data.theme[event.target.dataset.themeCheck] = event.target.checked;
+      if (event.target.dataset.text || event.target.dataset.theme || event.target.dataset.themeText || event.target.dataset.themeSelect || event.target.dataset.themeCheck || event.target.dataset.themeRange) markDirty();
+    });
+
+    galleryTabs.addEventListener("click", event => {
+      const button = event.target.closest("[data-gallery-filter]");
+      if (!button) return;
+      adminFilter = button.dataset.galleryFilter;
+      adminPage = 0;
+      renderImages();
+    });
+    sectionList.addEventListener("input", event => {
+      const row = event.target.closest("[data-section-id]");
+      const section = row && data.sections.find(entry => entry.id === row.dataset.sectionId);
+      if (!section) return;
+      if (event.target.matches("[data-section-label]")) section.label = event.target.value;
+      if (event.target.matches("[data-section-note]")) section.note = event.target.value;
+      markDirty();
+    });
+    sectionList.addEventListener("click", event => {
+      const button = event.target.closest("[data-remove-section]");
+      if (!button) return;
+      const id = button.closest("[data-section-id]").dataset.sectionId;
+      if (!confirm("Deze pagina verwijderen? De afbeeldingen zelf blijven bestaan.")) return;
+      data.sections = data.sections.filter(section => section.id !== id);
+      data.items.forEach(item => item.categories = item.categories.filter(category => category !== id));
+      if (adminFilter === id) adminFilter = "all";
+      renderImages(); markDirty();
+    });
+    document.getElementById("add-section").addEventListener("click", () => {
+      const label = prompt("Naam van de nieuwe pagina, bijvoorbeeld lino cuts:");
+      if (!label?.trim()) return;
+      const base = label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "pagina";
+      let id = base, number = 2;
+      while (data.sections.some(section => section.id === id)) id = base + "-" + number++;
+      data.sections.push({ id, label:label.trim(), note:"" });
+      adminFilter = id;
+      adminPage = 0;
+      renderImages(); markDirty();
+    });
+
+    document.querySelectorAll(".admin-view-button").forEach(button => button.addEventListener("click", () => {
+      adminViewMode = button.dataset.adminView;
+      adminPage = 0;
+      renderImages();
+    }));
+    document.getElementById("admin-prev").addEventListener("click", () => {
+      adminPage = Math.max(0, adminPage - 1);
+      renderImages();
+      imageList.scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+    document.getElementById("admin-next").addEventListener("click", () => {
+      adminPage += 1;
+      renderImages();
+      imageList.scrollIntoView({ behavior:"smooth", block:"start" });
+    });
+
+    document.getElementById("add-frame").addEventListener("click", () => {
+      ensureEmptyFrame();
+      const matching = data.items.filter(item => item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter)));
+      const emptyIndex = matching.findIndex(item => !item.src);
+      const pageSize = adminViewMode === "single" ? 1 : 9;
+      adminPage = Math.max(0, Math.floor(emptyIndex / pageSize));
+      renderImages();
+      imageList.querySelector(".item:not(:has(img))")?.scrollIntoView({ behavior:"smooth", block:"center" });
+    });
+
+    document.getElementById("save-button").addEventListener("click", async () => {
+      saveState.textContent = "opslaan…";
+      try {
+        await request("/api/data", { method:"POST", body:JSON.stringify(data) });
+        dirty = false; saveState.textContent = "opgeslagen"; saveState.style.color = "#344638";
+        preview.src = `/portfolio?preview=${Date.now()}`;
+      } catch (error) { saveState.textContent = "niet opgeslagen"; alert(error.message); }
+    });
+
+    document.getElementById("export-button").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
+      const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `portfolio-backup-${new Date().toISOString().slice(0,10)}.json`; link.click(); URL.revokeObjectURL(link.href);
+    });
+
+    document.querySelectorAll(".tab").forEach(button => button.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("is-active", tab === button));
+      document.querySelectorAll(".panel").forEach(panel => panel.hidden = panel.id !== `${button.dataset.tab}-panel`);
+      if (button.dataset.tab === "dashboard") renderDashboard();
+    }));
+    document.getElementById("refresh-dashboard").addEventListener("click", renderDashboard);
+
+    document.getElementById("login-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      try {
+        await request("/api/login", { method:"POST", body:JSON.stringify({ username:document.getElementById("username").value, password:document.getElementById("password").value }) });
+        await start();
+      } catch (error) { document.getElementById("login-error").textContent = error.message; }
+    });
+
+    document.getElementById("logout-button").addEventListener("click", async () => { await request("/api/logout", { method:"POST", body:"{}" }); location.reload(); });
+    document.getElementById("password-form").addEventListener("submit", async event => {
+      event.preventDefault(); const state = document.getElementById("password-state");
+      try { await request("/api/password", { method:"POST", body:JSON.stringify({ current:document.getElementById("current-password").value, next:document.getElementById("new-password").value }) }); state.textContent = "Wachtwoord gewijzigd. Log opnieuw in."; setTimeout(() => location.reload(), 1200); }
+      catch (error) { state.textContent = error.message; }
+    });
+
+    window.addEventListener("beforeunload", event => { if (dirty) { event.preventDefault(); event.returnValue = ""; } });
+
+    async function start() {
+      try {
+        data = await request("/api/data"); render(); loginView.hidden = true; adminView.hidden = false;
+      } catch { loginView.hidden = false; adminView.hidden = true; }
+    }
+    request("/api/session").then(result => result.authenticated ? start() : null).catch(() => null);
+  </script>
+</body>
+</html>
