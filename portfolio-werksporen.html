@@ -301,11 +301,14 @@
 
     .contact-signoff { align-self: center; white-space: nowrap; }
 
-    .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; gap:12px; }
+    .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; }
     .grid-controls[hidden] { display:none; }
-    .grid-controls button { width:28px; height:28px; display:grid; place-items:center; border:0; padding:0; background:transparent; color:var(--accent); cursor:pointer; }
-    .grid-next { font:700 12px var(--mono); }
-    .grid-next[hidden] { display:none; }
+    .grid-progress { width:100%; padding:10px 0 4px; }
+    .grid-progress-track { display:flex; width:100%; height:3px; gap:3px; }
+    .grid-progress-segment { position:relative; flex:1 1 0; min-width:0; border:0; padding:0; background:var(--hairline); cursor:pointer; transition:background .25s ease, transform .25s ease; }
+    .grid-progress-segment::after { content:""; position:absolute; inset:-9px 0; }
+    .grid-progress-segment:hover, .grid-progress-segment:focus-visible { background:var(--accent); outline:none; transform:scaleY(1.7); }
+    .grid-progress-segment.is-active { background:var(--accent); }
     .view-icon { width:14px; height:14px; display:grid; }
     .view-icon.single { border:1.5px solid currentColor; }
     .view-icon.dots { grid-template-columns:repeat(3,3px); grid-template-rows:repeat(4,3px); gap:1.5px 2px; }
@@ -472,7 +475,7 @@
         </aside>
         </div>
         <div class="grid-controls" aria-label="Galerijpaginering">
-          <button class="grid-next" type="button" hidden aria-label="Volgende werken">&lt;/&gt;</button>
+          <div class="grid-progress"><div class="grid-progress-track" id="grid-progress-track"></div></div>
         </div>
 
         <section class="detail-panel" id="about-panel" aria-live="polite">
@@ -1142,8 +1145,7 @@
     const overview = document.querySelector(".overview-work");
     const panels = document.querySelectorAll(".detail-panel");
     const gridControls = document.querySelector(".grid-controls");
-    const gridNext = document.querySelector(".grid-next");
-    const gridViewButtons = document.querySelectorAll(".grid-view-button");
+    const gridProgressTrack = document.getElementById("grid-progress-track");
     let activeFilter = "all";
     let gridPage = 0;
     let gridViewMode = "grid";
@@ -1153,11 +1155,6 @@
       const pages = Math.max(1, Math.ceil(matching.length / pageSize));
       gridPage = ((gridPage % pages) + pages) % pages;
       overviewGrid.classList.toggle("is-single", gridViewMode === "single");
-      gridViewButtons.forEach(button => {
-        const active = button.dataset.view === gridViewMode;
-        button.classList.toggle("is-active", active);
-        button.setAttribute("aria-pressed", String(active));
-      });
       const pageItems = matching.slice(gridPage * pageSize, gridPage * pageSize + pageSize);
       const visible = new Set(pageItems);
       stamps.forEach(stamp => stamp.classList.toggle("is-hidden", !visible.has(stamp)));
@@ -1179,22 +1176,26 @@
         document.getElementById("gallery-format-block").hidden = true;
         galleryNote.hidden = !generalNote.trim();
       }
-      gridControls.hidden = pages < 2;
-      gridNext.hidden = pages < 2;
+      gridProgressTrack.innerHTML = Array.from({ length:pages }, (_, index) => `<button class="grid-progress-segment ${index === gridPage ? "is-active" : ""}" type="button" data-grid-page="${index}" aria-label="Pagina ${index + 1} van ${pages}" aria-pressed="${index === gridPage}"></button>`).join("");
+      gridControls.hidden = false;
     }
-    gridViewButtons.forEach(button => button.addEventListener("click", () => {
-      if (pageTransitioning || morphing) return;
-      gridViewMode = button.dataset.view;
-      gridPage = 0;
-      renderGrid();
-    }));
     function turnGridPage(direction = 1) {
       if (pageTransitioning || morphing) return;
-      rollControl(gridNext);
       lockTransitionScroll();
       flipCellPage(() => activeGridVisuals(false), () => { gridPage += direction; renderGrid(); }).finally(unlockTransitionScroll);
     }
-    gridNext.addEventListener("click", () => turnGridPage(1));
+    function turnGridTo(target) {
+      if (pageTransitioning || morphing || target === gridPage) return;
+      lockTransitionScroll();
+      flipCellPage(() => activeGridVisuals(false), () => { gridPage = target; renderGrid(); }).finally(unlockTransitionScroll);
+    }
+    gridProgressTrack.addEventListener("click", event => {
+      const button = event.target.closest("[data-grid-page]");
+      if (!button || pageTransitioning || morphing) return;
+      const target = Number(button.dataset.gridPage);
+      if (!Number.isFinite(target) || target === gridPage) return;
+      turnGridTo(target);
+    });
     let gridSwipe = null;
     overviewGrid.addEventListener("touchstart", event => {
       if (overview.classList.contains("show-feature") || event.touches.length !== 1) return;
