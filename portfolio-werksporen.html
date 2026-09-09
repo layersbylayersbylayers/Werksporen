@@ -336,9 +336,9 @@
     /* Portrait mosaic home */
     .overview-work.show-feature .home-feature { display: grid; grid-template-columns: minmax(0, 715px) minmax(170px, 190px); gap: clamp(28px, 4vw, 58px); width: min(100%, 965px); align-items: start; }
     .home-feature .home-mosaic, .home-feature .feature-note { transition:opacity 2.08s cubic-bezier(.22,1,.36,1); }
-    .home-feature.intro-opening .home-mosaic { opacity:0; transform:translateX(-32px); }
+    .home-feature.intro-opening .home-mosaic { opacity:.04; transform:perspective(1200px) rotateY(-82deg) translateX(-18px); }
     .home-feature.intro-opening .feature-note { opacity:0; transform:translateY(7px); }
-    .home-feature .home-mosaic { transition:opacity 1.48s cubic-bezier(.22,1,.36,1), transform 1.48s cubic-bezier(.22,1,.36,1); }
+    .home-feature .home-mosaic { transform-origin:left center; backface-visibility:hidden; transition:opacity 1.82s cubic-bezier(.22,1,.36,1), transform 1.82s cubic-bezier(.16,1,.3,1); }
     .home-feature .feature-note { transition:opacity 1.12s cubic-bezier(.22,1,.36,1), transform 1.12s cubic-bezier(.22,1,.36,1); }
     .home-feature.intro-pending .home-mosaic, .home-feature.intro-pending .feature-note { opacity: 0 !important; pointer-events: none; }
     .overview-work.show-feature .home-image, .overview-work.show-feature .scroll-cue { display: none !important; }
@@ -582,9 +582,22 @@
     const languageToggle = document.getElementById("language-toggle");
     let currentLanguage = localStorage.getItem("werksporen-language") === "en" ? "en" : "nl";
     const translations = {
-      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERK NOTE", status:"STATUS", format:"FORMAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe tabs →" },
-      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe tabs →" }
+      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe tabs →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
+      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
     };
+    const contentTranslations = {
+      "Selected from the current image archive.":"Geselecteerd uit het huidige beeldarchief.",
+      "Selected image from the current archive.":"Geselecteerd beeld uit het huidige archief.",
+      "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.":"Een kleine selectie tekeningen, schilderijen en digitaal werk.\n\nLangzaam gemaakt, voortdurend in beweging.",
+      "selected":"geselecteerd", "image":"afbeelding", "photograph":"foto", "painting":"schilderij", "painting detail":"detail van schilderij", "digital image":"digitale afbeelding", "wall work":"muurwerk", "illustration":"illustratie", "mixed media":"gemengde techniek", "textile print":"textielprint"
+    };
+    function localizedContent(value) {
+      const raw = String(value || "");
+      if (currentLanguage === "nl") return contentTranslations[raw] || raw;
+      const english = Object.entries(contentTranslations).find(([,dutch]) => dutch === raw);
+      return english ? english[0] : raw;
+    }
+    const localizedStatusMarkup = value => String(value || "").split("<br>").map(localizedContent).join("<br>");
     function applyLanguage() {
       const t = translations[currentLanguage];
       const localize = (value, key, defaults) => defaults.includes(String(value || "").trim()) ? t[key] : value;
@@ -592,36 +605,44 @@
       languageToggle.textContent = t.location;
       languageToggle.setAttribute("aria-label", currentLanguage === "nl" ? "Schakel naar Engels" : "Switch to Dutch");
       setText("[data-filter=all]", localize(adminTexts.all, "all", ["00 Home", "alles / 06"])); setText("[data-filter=inkt]", localize(adminTexts.ink, "ink", ["inkt & flash", "01 Inkt & Flash", "01 Prints & Flash"])); setText("[data-filter=verf]", localize(adminTexts.paint, "paint", ["schilderij", "02 Schilderij", "02 Paintings"])); setText("[data-filter=digitaal]", localize(adminTexts.digital, "digital", ["digitaal", "03 Digitaal", "03 Digital"])); setText("[data-filter=proces]", localize(adminTexts.process, "process", ["proces", "04 Proces", "04 Process"])); setText("[data-filter=about]", localize(adminTexts.aboutLabel, "aboutLabel", ["about", "05 About", "05 Over"]));
-      setText(".work-number", localize(adminTexts.selection, "selection", ["00 SELECTIE", "00 SELECT"])); setText(".work-topline span:nth-child(2)", localize(adminTexts.overview, "overview", ["WERKOVERZICHT", "WORK OVERVIEW"])); setText(".contact-button", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT"])); setText(".contact-signoff", adminTexts.footer);
-      document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replace(" ",""); if (key === "worknote") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "format") element.textContent = t.format; });
+      setText(".work-number", localize(adminTexts.selection, "selection", ["00 SELECTIE", "00 SELECT"])); setText(".work-topline span:nth-child(2)", localize(adminTexts.overview, "overview", ["WERKOVERZICHT", "WORK OVERVIEW"])); setText(".contact-button", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT"])); setText(".contact-signoff", localize(adminTexts.footer, "footer", ["laatst bijgewerkt / september 2026", "last updated / September 2026"]));
+      document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replaceAll(" ",""); if (key === "worknote" || key === "werknotitie") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "format" || key === "formaat") element.textContent = t.format; });
       setText(".full-image-hint", t.fullImage); setText(".viewer-close", t.close); setText(".mobile-swipe-hint", t.swipe);
+      setText("#about-panel .detail-tag", t.about); setText("#contact-panel .detail-tag", "CONTACT");
+      setText('label[for="visitor-name"]', t.name); setText('label[for="visitor-email"]', t.email); setText('label[for="visitor-message"]', t.message); setText('#contact-form button[type="submit"]', t.send);
+      document.getElementById("image-viewer").setAttribute("aria-label", t.viewer);
+      document.querySelector(".viewer-info").setAttribute("aria-label", t.next);
       document.querySelectorAll(".project-menu .filter").forEach((button, index) => { button.dataset.mobileIndex = index === 0 ? "" : String(index).padStart(2,"0"); button.dataset.mobileLabel = button.textContent.trim(); });
-      if (typewriterText) typewriterText.textContent = `${t.welcome} ${t.scrollCue}`;
+      if (typeof today !== "undefined") today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).format(new Date());
       if (typeof welcome !== "undefined") welcome = `${t.welcome} ${t.scrollCue}\n\n${today}.`;
+      if (typeof introFinished !== "undefined" && introFinished && typewriterText) typewriterText.textContent = welcome;
       localStorage.setItem("werksporen-language", currentLanguage);
     }
-    setText("[data-filter=\"inkt\"]", adminTexts.ink); setText("[data-filter=\"verf\"]", adminTexts.paint); setText("[data-filter=\"digitaal\"]", adminTexts.digital); setText("[data-filter=\"proces\"]", adminTexts.process); setText("[data-filter=\"about\"]", adminTexts.aboutLabel);
-    setText(".work-number", adminTexts.selection); setText(".work-topline span:nth-child(2)", adminTexts.overview); setText(".contact-button", adminTexts.contactButton); setText(".contact-signoff", adminTexts.footer);
-    Array.from(document.querySelectorAll(".project-menu .filter")).forEach((button,index) => {
-      button.dataset.mobileIndex = index === 0 ? "" : String(index).padStart(2,"0");
-      button.dataset.mobileLabel = button.textContent.trim();
-    });
     const contactButton = document.querySelector(".contact-button"); if (contactButton && adminTexts.contactEmail) contactButton.href = "mailto:" + adminTexts.contactEmail;
 
     document.querySelector(".name").addEventListener("click", event => {
       event.preventDefault();
       window.location.reload();
     });
-    const today = new Intl.DateTimeFormat("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
+    let today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
     const welcomeLead = adminTexts.welcome || translations[currentLanguage].welcome;
     let welcome = `${welcomeLead} ${adminTexts.scrollCue || translations[currentLanguage].scrollCue}\n\n${today}.`;
     const typewriterText = document.getElementById("typewriter-text");
-    languageToggle.addEventListener("click", () => { currentLanguage = currentLanguage === "nl" ? "en" : "nl"; applyLanguage(); });
-    applyLanguage();
     let character = 0;
     const homeFeature = document.querySelector(".home-feature");
     let introFinished = false;
     let glitchesEnabled = false;
+    languageToggle.addEventListener("click", () => {
+      currentLanguage = currentLanguage === "nl" ? "en" : "nl";
+      applyLanguage();
+      character = welcome.length;
+      if (!introFinished) typewriterText.textContent = welcome;
+      setFeature(currentFeatureIndex, true);
+      renderGrid();
+      if (viewer.open && viewerImages[viewerIndex]) updateViewer(viewerImages[viewerIndex]);
+    });
+    typewriterText.textContent = "";
+    applyLanguage();
     function finishHomeIntro() {
       if (introFinished) return;
       introFinished = true;
@@ -629,7 +650,7 @@
         homeFeature.classList.add("intro-opening");
         document.body.classList.remove("intro-pending");
         homeFeature.classList.remove("intro-pending");
-        requestAnimationFrame(() => homeFeature.classList.remove("intro-opening"));
+        window.setTimeout(() => requestAnimationFrame(() => homeFeature.classList.remove("intro-opening")), 1050);
         window.setTimeout(() => {
           glitchesEnabled = true;
           placeGlitches();
@@ -899,9 +920,9 @@
         setMosaicImage(index);
         if (featureImage.complete) featureImage.classList.add("is-loaded");
 
-        featureNoteCopy.textContent = item.note;
-        featureStatusCopy.innerHTML = item.status;
-        featureFormatCopy.textContent = item.format;
+        featureNoteCopy.textContent = localizedContent(item.note);
+        featureStatusCopy.innerHTML = localizedStatusMarkup(item.status);
+        featureFormatCopy.textContent = localizedContent(item.format);
         featureNote.style.opacity = "1";
       }, immediate ? 0 : 180);
     }
@@ -1070,9 +1091,9 @@
     function updateViewer(image) {
       const source = image.getAttribute("src") || image.src;
       const item = featureItems.find(entry => entry.src === source) || { note: "Selected image from the current archive.", status: "selected<br>2026", format: image.alt || "image" };
-      viewerNote.textContent = item.note;
-      viewerStatus.innerHTML = item.status;
-      viewerFormat.textContent = item.format;
+      viewerNote.textContent = localizedContent(item.note);
+      viewerStatus.innerHTML = localizedStatusMarkup(item.status);
+      viewerFormat.textContent = localizedContent(item.format);
       viewerImage.src = image.currentSrc || image.src;
       viewerImage.alt = image.alt;
       const managed = item.managed || adminConfig?.items?.find(entry => entry.id === image.dataset.managedId || entry.src === source);
@@ -1187,22 +1208,23 @@
       galleryView.classList.toggle("is-single-mode", gridViewMode === "single");
       if (gridViewMode === "single" && pageItems[0]) {
         const stamp = pageItems[0];
-        galleryWorkNote.textContent = stamp.dataset.note || stamp.querySelector("img")?.alt || "Selected from the current image archive.";
-        galleryStatus.textContent = stamp.dataset.status || "selected";
+        galleryWorkNote.textContent = localizedContent(stamp.dataset.note || stamp.querySelector("img")?.alt || "Selected from the current image archive.");
+        galleryStatus.textContent = localizedContent(stamp.dataset.status || "selected");
         galleryYear.textContent = stamp.dataset.year || "2026";
-        galleryFormat.textContent = stamp.dataset.format || "image";
+        galleryFormat.textContent = localizedContent(stamp.dataset.format || "image");
         document.getElementById("gallery-status-block").hidden = false;
         document.getElementById("gallery-format-block").hidden = false;
         galleryNote.hidden = false;
       } else {
         const section = adminConfig?.sections?.find(entry => entry.id === activeFilter);
         const generalNote = activeFilter === "all" ? (adminTexts.galleryNote || "") : (section?.note || "");
-        galleryWorkNote.textContent = generalNote;
+        galleryWorkNote.textContent = localizedContent(generalNote);
         document.getElementById("gallery-status-block").hidden = true;
         document.getElementById("gallery-format-block").hidden = true;
         galleryNote.hidden = !generalNote.trim();
       }
-      gridProgressTrack.innerHTML = Array.from({ length:pages }, (_, index) => `<button class="grid-progress-segment ${index === gridPage ? "is-active" : ""}" type="button" data-grid-page="${index}" aria-label="Pagina ${index + 1} van ${pages}" aria-pressed="${index === gridPage}"></button>`).join("");
+      const language = translations[currentLanguage];
+      gridProgressTrack.innerHTML = Array.from({ length:pages }, (_, index) => `<button class="grid-progress-segment ${index === gridPage ? "is-active" : ""}" type="button" data-grid-page="${index}" aria-label="${language.page} ${index + 1} ${language.of} ${pages}" aria-pressed="${index === gridPage}"></button>`).join("");
       gridControls.hidden = false;
     }
     function turnGridPage(direction = 1) {
@@ -1235,10 +1257,10 @@
       if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) turnGridPage(dx < 0 ? 1 : -1);
     }, { passive:true });
 
-    const detailCopy = { about: adminTexts.about || "A small selection of drawing, painting and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram" };
+    const detailCopy = { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram" };
     function typeDetail(kind) {
       const target = document.getElementById(kind + "-text");
-      const copy = detailCopy[kind];
+      const copy = localizedContent(detailCopy[kind]);
       let index = 0;
       target.textContent = "";
       const type = () => {
@@ -1619,17 +1641,19 @@
       const form = event.currentTarget;
       const state = document.getElementById("contact-state");
       const payload = Object.fromEntries(new FormData(form));
-      state.textContent = "versturen…";
+      state.textContent = translations[currentLanguage].sending;
       try {
         if (location.protocol === "file:") throw new Error("offline");
         const response = await fetch(studioOrigin + "/api/contact", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "versturen mislukt");
         form.reset();
-        state.textContent = "bericht ontvangen ✓";
+        state.textContent = translations[currentLanguage].sent;
       } catch {
-        state.textContent = "mailprogramma wordt geopend";
-        location.href = `mailto:${encodeURIComponent(adminTexts.contactEmail || "jij@voorbeeld.nl")}?subject=${encodeURIComponent("Portfolio contact van " + payload.name)}&body=${encodeURIComponent(payload.message + "\n\nVan: " + payload.name + " <" + payload.email + ">")}`;
+        state.textContent = translations[currentLanguage].mail;
+        const subject = currentLanguage === "nl" ? `Portfolio-contact van ${payload.name}` : `Portfolio contact from ${payload.name}`;
+        const sender = currentLanguage === "nl" ? "Van" : "From";
+        location.href = `mailto:${encodeURIComponent(adminTexts.contactEmail || "jij@voorbeeld.nl")}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(payload.message + "\n\n" + sender + ": " + payload.name + " <" + payload.email + ">")}`;
       }
     });
 
