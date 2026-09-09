@@ -59,11 +59,14 @@
     .section-list { display:grid; gap:7px; margin:12px 0 8px; }
     .section-row { display:grid; grid-template-columns:auto minmax(120px,1fr) minmax(160px,1.35fr) auto; gap:7px; align-items:center; transition:transform .16s ease, opacity .16s ease, box-shadow .16s ease; }
     .section-row input { width:100%; border:1px solid var(--line); background:white; padding:8px; }
+    .section-name { min-width:0; padding:8px; border:1px solid var(--line); background:#f3f2ed; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .section-row button, #add-section { border:1px solid var(--line); background:transparent; padding:7px 9px; font-size:.7rem; }
     .section-drag { min-width:38px; min-height:38px; display:grid; place-items:center; color:var(--green); cursor:grab; touch-action:none; user-select:none; font-size:1rem!important; }
     .section-row.is-section-dragging { opacity:.42; transform:scale(.985); }
     .section-row.section-drop-before { box-shadow:0 -3px 0 var(--red); }
     .section-row.section-drop-after { box-shadow:0 3px 0 var(--red); }
+    .section-fixed-marker { min-width:38px; min-height:38px; display:grid; place-items:center; border:1px solid var(--line); color:#77736c; font-size:.62rem; }
+    .section-fixed-note { color:#77736c; font-size:.65rem; }
     #add-section { color:var(--green); }
     .image-stage { width:min(100%,610px); margin:0; }
     .home-editor { width:min(100%,610px); }
@@ -179,8 +182,9 @@
       .gallery-filter { min-height:44px; }
       .drag-handle { min-width:44px; min-height:44px; display:grid; place-items:center; top:5px; right:5px; }
       .section-row { grid-template-columns:44px minmax(0,1fr) auto; }
-      .section-row [data-section-note] { grid-column:2 / -1; }
+      .section-row [data-section-note], .section-row .section-fixed-note { grid-column:2 / -1; }
       .section-drag { min-width:44px; min-height:44px; grid-row:1 / span 2; }
+      .section-fixed-marker { min-width:44px; min-height:44px; grid-row:1 / span 2; }
     }
   </style>
 </head>
@@ -207,7 +211,7 @@
       <div class="actions">
         <span class="save-state" id="save-state">opgeslagen</span>
         <button class="secondary" id="export-button">BACKUP DOWNLOADEN</button>
-        <label class="secondary file-label" id="import-label">BACKUP IMPORTEREN<input id="import-backup" type="file" accept="application/json"></label>
+        <label class="secondary file-label" id="import-label" title="Zet een eerder gedownloade reservekopie terug">BACKUP TERUGZETTEN<input id="import-backup" type="file" accept="application/json"></label>
         <a class="mobile-preview" href="/portfolio" target="_blank">TEST SITE</a>
         <button id="save-button">CONCEPT OPSLAAN</button>
         <button class="primary" id="publish-button" title="Sla de definitieve versie op de SSD op">OPSLAAN OP SSD</button>
@@ -223,7 +227,7 @@
             <div class="section-actions"><button id="quick-add-section" type="button">+ NIEUWE SECTIE</button><button id="add-frame">+ NIEUW KADER</button></div>
           </div>
           <details class="page-manager" open>
-            <summary>PAGINAVOLGORDE — SLEEP ≡ OM TE SORTEREN</summary>
+            <summary>PAGINANAMEN &amp; VOLGORDE</summary>
             <div class="section-list" id="section-list"></div>
             <button id="add-section" type="button">+ NIEUWE PAGINA</button>
           </details>
@@ -356,9 +360,8 @@
 
     const textGroups = [
       { title:"Kop & locatie", fields:[["name","Naam"],["edition","Midden boven"],["location","Locatie / beschikbaarheid rechtsboven"],["welcome","Welkomsttekst"],["scrollCue","Tekst achter Welcome"]] },
-      { title:"Navigatie", fields:[["all","Alles"],["ink","Inkt & flash"],["paint","Schilderij"],["digital","Digitaal"],["process","Proces"],["aboutLabel","About"]] },
       { title:"Sectie", fields:[["selection","Selectielabel"],["overview","Werkoverzicht"],["galleryNote","Algemene work note bij alles (leeg = niets)","textarea"]] },
-      { title:"About & contact", fields:[["about","About-tekst","textarea"],["contact","Contacttekst","textarea"],["contactButton","Contactknop"],["contactEmail","E-mailadres"],["footer","Footer"]] }
+      { title:"About & contact", fields:[["about","About-tekst","textarea"],["contact","Contacttekst","textarea"],["contactButton","Contactknop linksonder"],["contactEmail","E-mailadres"],["disclaimerButton","Disclaimerknop linksonder"],["legal","Auteursrecht & privacy","textarea"],["footer","Footer"]] }
     ];
 
     async function request(url, options = {}) {
@@ -410,7 +413,7 @@
       return `<article class="item ${item.visible ? "" : "is-off"}" data-id="${item.id}">
         <div class="item-preview"><span class="order">${String(index + 1).padStart(2,"0")}</span><button class="drag-handle" type="button" aria-label="Sleep naar een andere positie">⠿</button><button class="item-edit-button" type="button" aria-label="Bewerk informatie en afbeelding">INFO / BEWERK</button>${item.src ? `<img src="${escapeHtml(assetUrl(item.src))}" alt="" style="object-fit:${item.thumbFit === "contain" ? "contain" : "cover"};object-position:${item.x}% ${item.y}%;transform:${transformCss(item)};filter:${filterCss(item)}">` : `<div class="empty">leeg kader<br>kies een afbeelding</div>`}</div>
         <div class="item-body">
-          <div class="field"><label>titel</label><input type="text" data-key="title" value="${escapeHtml(item.title)}"></div>
+          <div class="field"><label>naam / titel</label><input type="text" data-key="title" value="${escapeHtml(item.title)}"><p class="edit-hint">Deze naam wordt met alle bewerkingen in de SSD-hoofdbron opgeslagen.</p></div>
           <div class="field"><label>work note</label><textarea data-key="note">${escapeHtml(item.note || "Selected from the current image archive.")}</textarea></div>
           <div class="row">
             <div class="field"><label>status</label><input type="text" data-key="status" value="${escapeHtml(item.status || "selected")}"></div>
@@ -423,7 +426,7 @@
           <span class="field-label">indeling</span>
           <div class="checks">${categories.map(category => `<label><input type="checkbox" data-category="${category.id}" ${item.categories.includes(category.id) ? "checked" : ""}>${escapeHtml(category.label)}</label>`).join("")}</div>
           <div class="checks"><label><input type="checkbox" data-key="visible" ${item.visible ? "checked" : ""}>op website</label><label><input type="checkbox" data-key="gallery" ${item.gallery ? "checked" : ""}>in galerie</label><label><input type="checkbox" data-key="glitch" ${item.glitch ? "checked" : ""}>in glitches</label></div>
-          <div class="touch-tools" aria-label="Kadergereedschap"><button type="button" data-action="thumb-fill" class="${item.thumbFit !== "contain" ? "is-active" : ""}">VUL KADER</button><button type="button" data-action="thumb-fit" class="${item.thumbFit === "contain" ? "is-active" : ""}">HELE FOTO</button><button type="button" data-action="reset-thumb">HERSTEL UITSNEDE</button></div>
+          <div class="touch-tools" aria-label="Kadergereedschap"><button type="button" data-action="thumb-fill" class="${item.thumbFit !== "contain" ? "is-active" : ""}">VUL KADER</button><button type="button" data-action="thumb-fit" class="${item.thumbFit === "contain" ? "is-active" : ""}">HELE FOTO</button><button type="button" data-action="reset-thumb">HERSTEL UITSNEDE</button><button type="button" data-action="bake-crop">UITSNEDE VASTLEGGEN</button></div>
           <p class="gesture-hint">Eén vinger: verschuiven · twee vingers: zoomen. Het geruite vlak laat precies zien waar eventueel witruimte ontstaat.</p>
           <div class="row"><div class="field"><label>schaal <span>${Number(item.scale).toFixed(2)}×</span></label><input type="range" data-key="scale" min=".35" max="4" step=".02" value="${item.scale}"></div><div class="field"><label>horizontaal</label><input type="range" data-key="x" min="0" max="100" value="${item.x}"></div></div>
           <div class="field"><label>verticaal</label><input type="range" data-key="y" min="0" max="100" value="${item.y}"></div>
@@ -539,8 +542,19 @@
       homeEditor.querySelectorAll("[data-home-grid]").forEach(button => button.classList.toggle("is-active", Number(button.dataset.homeGrid) === sizeIndex));
     }
 
+    function fixedNavigationRow(key, note) {
+      return `<div class="section-row section-row-fixed"><span class="section-fixed-marker" aria-hidden="true">VAST</span><span class="section-name">${escapeHtml(data.texts[key] || "")}</span><span class="section-fixed-note">${escapeHtml(note)}</span></div>`;
+    }
+
     function sectionRowsMarkup() {
-      return data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(section.label)} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><input type="text" data-section-label value="${escapeHtml(section.label)}" aria-label="Paginanaam"><input type="text" data-section-note value="${escapeHtml(section.note || "")}" placeholder="algemene work note (optioneel)" aria-label="Algemene work note"><button type="button" data-remove-section>WEG</button></div>`).join("");
+      const workPages = data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(section.label)} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><span class="section-name">${escapeHtml(section.label)}</span><span class="section-fixed-note">sleep ≡ om deze pagina te verplaatsen</span><button type="button" data-remove-section>WEG</button></div>`).join("");
+      return fixedNavigationRow("all", "Home / alles") + workPages + fixedNavigationRow("aboutLabel", "About") + fixedNavigationRow("contactButton", "Contact");
+    }
+
+    function navigationEditorMarkup() {
+      const field = (label, key) => `<div class="field"><label>${label}</label><input type="text" data-text="${key}" value="${escapeHtml(data.texts[key] || "")}"></div>`;
+      const sections = data.sections.map(section => `<div class="field"><label>Werkpagina</label><input type="text" data-nav-section="${section.id}" value="${escapeHtml(section.label)}"></div>`).join("");
+      return `<section class="text-card pages-card"><h3>Tabnamen</h3><p class="gesture-hint">Pas hier de volledige tekst aan, inclusief het nummer.</p>${field("Home / alles","all")}${sections}${field("About","aboutLabel")}${field("Contact","contactButton")}${field("Disclaimer linksonder","disclaimerButton")}</section>`;
     }
 
     function renderSections() {
@@ -588,8 +602,7 @@
       data.theme.shadowHome ??= true;
       data.theme.shadowTabs ??= false;
       const shadow = `<section class="text-card"><h3>Schaduw beelden</h3><div class="checks"><label><input type="checkbox" data-theme-check="shadowHome" ${data.theme.shadowHome ? "checked" : ""}>home-achtergrond</label><label><input type="checkbox" data-theme-check="shadowTabs" ${data.theme.shadowTabs ? "checked" : ""}>afbeeldingen in tabs</label></div><div class="field"><label>kleur</label><input type="color" data-theme="shadowColor" value="${data.theme.shadowColor || "#1c1b19"}"></div><div class="field"><label>angle <span>${data.theme.shadowAngle ?? 45}°</span></label><input type="range" data-theme-range="shadowAngle" min="0" max="360" step="1" value="${data.theme.shadowAngle ?? 45}"></div><div class="field"><label>distance <span>${data.theme.shadowDistance ?? 0}px</span></label><input type="range" data-theme-range="shadowDistance" min="0" max="28" step="1" value="${data.theme.shadowDistance ?? 0}"></div><div class="field"><label>softness <span>${data.theme.shadowBlur ?? 0}px</span></label><input type="range" data-theme-range="shadowBlur" min="0" max="40" step="1" value="${data.theme.shadowBlur ?? 0}"></div></section>`;
-      const pages = `<section class="text-card pages-card"><h3>Pagina’s & volgorde</h3><p class="gesture-hint">Ook nieuwe pagina’s zoals Lino cuts verschijnen hier automatisch. Pak ≡ vast en sleep de pagina naar zijn plek.</p><div class="section-list" data-text-section-list>${sectionRowsMarkup()}</div></section>`;
-      textForm.innerHTML = pages + colors + home + shadow + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key])}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key])}">`}</div>`).join("")}</section>`).join("");
+      textForm.innerHTML = navigationEditorMarkup() + colors + home + shadow + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key] || "")}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key] || "")}">`}</div>`).join("")}</section>`).join("");
     }
 
     async function renderDashboard() {
@@ -655,6 +668,30 @@
       } catch {}
       const data = await encode(webBlob);
       return request("/api/upload", { method:"POST", body:JSON.stringify({ name:file.name, data, originalData }) });
+    }
+
+    async function bakeCrop(item) {
+      if (!item.src) throw new Error("Kies eerst een afbeelding.");
+      const response = await fetch(assetUrl(item.originalSrc || item.src));
+      if (!response.ok) throw new Error("Het bronbestand kon niet worden geopend.");
+      const bitmap = await createImageBitmap(await response.blob());
+      const width = 1200, height = 1600;
+      const canvas = document.createElement("canvas"); canvas.width = width; canvas.height = height;
+      const context = canvas.getContext("2d", { alpha:false });
+      context.fillStyle = data.theme.background || "#f6f5f0"; context.fillRect(0,0,width,height);
+      const fit = item.thumbFit === "contain" ? Math.min(width / bitmap.width,height / bitmap.height) : Math.max(width / bitmap.width,height / bitmap.height);
+      const drawnWidth = bitmap.width * fit, drawnHeight = bitmap.height * fit;
+      const left = (width - drawnWidth) * Number(item.x ?? 50) / 100;
+      const top = (height - drawnHeight) * Number(item.y ?? 50) / 100;
+      context.save(); context.translate(width / 2,height / 2);
+      context.scale(Number(item.scale ?? 1),Number(item.scale ?? 1));
+      context.rotate(Number(item.rotate ?? 0) * Math.PI / 180);
+      context.transform(1,Math.tan(Number(item.skewY ?? 0) * Math.PI / 180),Math.tan(Number(item.skewX ?? 0) * Math.PI / 180),1,0,0);
+      context.drawImage(bitmap,left - width / 2,top - height / 2,drawnWidth,drawnHeight); context.restore(); bitmap.close?.();
+      const blob = await new Promise(resolve => canvas.toBlob(resolve,"image/jpeg",.92));
+      if (!blob) throw new Error("De uitsnede kon niet worden gemaakt.");
+      const safeName = (item.title || "werk").replace(/[^a-zA-Z0-9_-]+/g,"-").replace(/^-|-$/g,"") || "werk";
+      return upload(new File([blob],`${safeName}-uitsnede.jpg`,{ type:"image/jpeg" }));
     }
 
     function showDropTarget(target, clientX, clientY) {
@@ -769,7 +806,7 @@
       document.body.classList.remove("is-sorting");
       imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
     });
-    imageList.addEventListener("click", event => {
+    imageList.addEventListener("click", async event => {
       if (adminViewMode !== "grid" || event.target.closest(".drag-handle") || document.body.classList.contains("is-sorting")) return;
       const card = event.target.closest(".item");
       if (!card) return;
@@ -826,11 +863,22 @@
       catch (error) { alert(error.message); saveState.textContent = "upload mislukt"; }
     });
 
-    imageList.addEventListener("click", event => {
+    imageList.addEventListener("click", async event => {
       const button = event.target.closest("button[data-action]");
       if (!button) return;
       const item = findItem(button);
       const index = data.items.indexOf(item);
+      if (button.dataset.action === "bake-crop") {
+        if (!confirm("Deze zichtbare uitsnede als nieuw fotobestand op de SSD vastleggen? Het oude bronbestand blijft bewaard.")) return;
+        button.disabled = true; saveState.textContent = "uitsnede opslaan…";
+        try {
+          const result = await bakeCrop(item);
+          item.src = result.src; item.originalSrc = result.originalSrc || result.src;
+          item.thumbFit = "cover"; item.scale = 1; item.x = 50; item.y = 50; item.rotate = 0; item.skewX = 0; item.skewY = 0;
+          renderImages(); markDirty(); saveState.textContent = "uitsnede staat op SSD — nog opslaan";
+        } catch (error) { button.disabled = false; saveState.textContent = "uitsnede mislukt"; alert(error.message); }
+        return;
+      }
       if (button.dataset.action === "thumb-fit") { item.thumbFit = "contain"; item.scale = 1; item.x = 50; item.y = 50; }
       if (button.dataset.action === "thumb-fill") { item.thumbFit = "cover"; item.scale = 1; item.x = 50; item.y = 50; }
       if (button.dataset.action === "reset-thumb") { item.thumbFit = "cover"; item.scale = 1; item.x = 50; item.y = 50; item.rotate = 0; item.skewX = 0; item.skewY = 0; }
@@ -848,6 +896,10 @@
 
     textForm.addEventListener("input", event => {
       if (event.target.dataset.text) data.texts[event.target.dataset.text] = event.target.value;
+      if (event.target.dataset.navSection) {
+        const section = data.sections.find(entry => entry.id === event.target.dataset.navSection);
+        if (section) section.label = event.target.value;
+      }
       if (event.target.dataset.theme) {
         data.theme[event.target.dataset.theme] = event.target.value;
         const pairedText = textForm.querySelector(`[data-theme-text="${event.target.dataset.theme}"]`);
@@ -866,7 +918,7 @@
       }
       if (event.target.dataset.themeCheck) data.theme[event.target.dataset.themeCheck] = event.target.checked;
       if (["shadowColor","shadowAngle","shadowDistance","shadowBlur","shadowHome","shadowTabs"].includes(event.target.dataset.theme || event.target.dataset.themeRange || event.target.dataset.themeCheck)) updateAdminShadowPreview();
-      if (event.target.dataset.text || event.target.dataset.theme || event.target.dataset.themeText || event.target.dataset.themeSelect || event.target.dataset.themeCheck || event.target.dataset.themeRange) markDirty();
+      if (event.target.dataset.text || event.target.dataset.navSection || event.target.dataset.theme || event.target.dataset.themeText || event.target.dataset.themeSelect || event.target.dataset.themeCheck || event.target.dataset.themeRange) markDirty();
     });
 
     homeEditor.addEventListener("input", event => {

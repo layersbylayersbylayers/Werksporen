@@ -117,6 +117,8 @@ function buildInitialData() {
       contact: "[ your name ]\nhello@yourdomain.com\n@yourinstagram",
       contactButton: "04 / CONTACT",
       contactEmail: "jij@voorbeeld.nl",
+      disclaimerButton: "DISCLAIMER",
+      legal: "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message.",
       footer: "laatst bijgewerkt / september 2026"
     },
     items

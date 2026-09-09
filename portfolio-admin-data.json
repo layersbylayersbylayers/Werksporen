@@ -23,27 +23,27 @@
   "sections": [
     {
       "id": "inkt",
-      "label": "inkt & flash",
+      "label": "01 Prints & Flash",
       "note": ""
     },
     {
       "id": "verf",
-      "label": "schilderij",
+      "label": "02 Paintings",
       "note": ""
     },
     {
       "id": "lino-cuts",
-      "label": "lino cuts",
+      "label": "03 Lino cuts",
       "note": ""
     },
     {
       "id": "digitaal",
-      "label": "digitaal",
+      "label": "04 Digital",
       "note": ""
     },
     {
       "id": "proces",
-      "label": "proces",
+      "label": "05 Process",
       "note": ""
     }
   ],
@@ -55,14 +55,16 @@
     "all": "00 Home",
     "ink": "01 Prints & Flash",
     "paint": "02 Paintings",
-    "digital": "03 Digital ",
-    "process": "04 Process",
-    "aboutLabel": "05 About",
+    "digital": "04 Digital",
+    "process": "05 Process",
+    "aboutLabel": "06 About",
     "selection": "00 SELECTIE",
     "overview": "WERKOVERZICHT",
     "about": "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.",
     "contact": "Lars Kramer\nhello@yourdomain.com\n@yourinstagram",
-    "contactButton": "06 CONTACT",
+    "contactButton": "07 Contact",
+    "disclaimerButton": "DISCLAIMER",
+    "legal": "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message.",
     "contactEmail": "jij@voorbeeld.nl",
     "footer": "laatst bijgewerkt / september 2026",
     "galleryNote": ""
@@ -499,9 +501,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.6,
+      "viewerX": 50.03017703862661,
+      "viewerY": 29.824050859598856,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -536,9 +538,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.56,
+      "viewerX": 52.56840128755365,
+      "viewerY": 25.321230300859597,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -573,9 +575,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.58,
+      "viewerX": 44.09452119098712,
+      "viewerY": 28.442872492836678,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -812,7 +814,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -828,9 +830,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.6,
+      "viewerX": 51.40993830472103,
+      "viewerY": 28.06679799426934,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -849,7 +851,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -865,9 +867,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.5,
+      "viewerX": 50.714189914163086,
+      "viewerY": 26.750537249283667,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1505,7 +1507,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -1521,9 +1523,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.52,
+      "viewerX": 48.769447424892704,
+      "viewerY": 27.7690723495702,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1616,13 +1618,13 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
       "visible": true,
       "thumbFit": "cover",
-      "scale": 1,
+      "scale": 1.17,
       "x": 50,
       "y": 50,
       "filter": "normal",
@@ -1669,9 +1671,9 @@
       "skewX": -0.5,
       "skewY": 1.25,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.56,
+      "viewerX": 49.61608100858369,
+      "viewerY": 27.2351808739255,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1690,7 +1692,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -1706,9 +1708,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.56,
+      "viewerX": 48.69065182403433,
+      "viewerY": 28.84804799426934,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,

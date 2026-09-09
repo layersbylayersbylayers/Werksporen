@@ -210,7 +210,8 @@
     .overview-thumb.has-image img { display:block; } .overview-thumb:hover { transform:translateY(-3px); border-color:var(--ink); }
     .overview-thumb.is-hidden { display: none; }
     .overview-work .work-grid { padding-top: 66px; padding-bottom: 210px; }
-    .contact-button { grid-column: 1; grid-row: 1; justify-self: start; border: 0; padding: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; }
+    .contact-button { border: 0; padding: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; }
+    .disclaimer-button { grid-column:1; grid-row:1; justify-self:start; border:0; padding:0; background:none; color:var(--accent); cursor:pointer; font:inherit; }
     .contact-links { grid-column: 1; grid-row: 1; margin-top: 42px; }
     .contact-signoff { grid-column: 3; grid-row: 1; justify-self: end; color: var(--accent); text-align: right; }
     .overview-thumb::after { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(28,27,25,.28); pointer-events: none; }
@@ -366,7 +367,7 @@
     .home-feature.intro-opening .home-mosaic::before { opacity:1; }
     .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); border-radius:inherit; }
     .home-tile { position:relative; z-index:1; background-color:transparent; background-image:none; background-size:auto; box-shadow:none; }
-    .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; }
+    .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; overflow:hidden; clip-path:inset(0 round var(--frame-radius,0px)); }
 
     .home-mosaic { perspective: 900px; }
     .home-tile.is-arriving { transform-origin:center; animation:tileFlipIn .52s cubic-bezier(.2,.75,.25,1) both; }
@@ -396,6 +397,7 @@
     .contact-message { grid-column:1 / -1; }
     .contact-form button { justify-self:start; border:1px solid var(--ink); background:var(--ink); color:var(--paper); padding:9px 14px; cursor:pointer; }
     .contact-state { align-self:center; color:var(--accent); }
+    .legal-copy { width:min(100%,610px); margin:34px 0 0; padding-top:14px; border-top:1px solid var(--hairline); color:#77736c; font-size:11px; line-height:1.55; white-space:pre-line; }
     .contact-trap { position:absolute!important; left:-9999px!important; width:1px!important; height:1px!important; }
     @media (max-width:700px) { .contact-form { grid-template-columns:1fr; } .contact-message { grid-column:auto; } }
 
@@ -411,6 +413,7 @@
     .raster-morph-line { position:absolute; background:rgba(246,245,240,.96); transform-origin:center; }
     .raster-morph-line.is-vertical { top:0; bottom:0; width:1px; transform:translateX(-50%); }
     .raster-morph-line.is-horizontal { left:0; right:0; height:1px; transform:translateY(-50%); }
+    .raster-morph-corner { position:absolute; z-index:2; border-radius:50%; background:rgba(246,245,240,.96); transform:translate(-50%,-50%); }
     .home-raster-snapshot { position:fixed; z-index:998; pointer-events:none; overflow:hidden; background-repeat:no-repeat; transform:none !important; }
     .return-home-face { position:absolute; inset:0; z-index:3; background-repeat:no-repeat; transform-origin:center; pointer-events:none; border-radius:inherit; }
     .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:transparent; border:0; outline:0; box-shadow:none; border-radius:var(--frame-radius,0px); backface-visibility:hidden; -webkit-backface-visibility:hidden; transform:translateZ(0); }
@@ -505,12 +508,16 @@
             <button type="submit">VERSTUUR</button><span class="contact-state" id="contact-state" role="status"></span>
           </form>
         </section>
+        <section class="detail-panel" id="disclaimer-panel" aria-live="polite">
+          <p class="detail-tag">DISCLAIMER</p>
+          <p class="detail-copy"><span id="disclaimer-text"></span></p>
+        </section>
       </div>
     </article>
 
 
     <footer class="contact">
-      <a class="contact-button" href="mailto:jij@voorbeeld.nl">04 / CONTACT</a>
+      <button class="disclaimer-button" type="button">DISCLAIMER</button>
       <span class="contact-signoff">laatst bijgewerkt / september 2026</span>
     </footer>
     <dialog class="image-viewer" id="image-viewer" aria-label="Full image viewer">
@@ -584,7 +591,8 @@
       menu.replaceChildren(
         makeFilter("all", adminTexts.all || "alles", true),
         ...adminConfig.sections.map(section => makeFilter(section.id, section.label)),
-        makeFilter("about", adminTexts.aboutLabel || "about")
+        makeFilter("about", adminTexts.aboutLabel || "about"),
+        makeFilter("contact", adminTexts.contactButton || "contact")
       );
     }
     setText(".name", adminTexts.name); setText(".edition", adminTexts.edition);
@@ -592,13 +600,14 @@
     const languageStorageKey = "werksporen-language-v2";
     let currentLanguage = localStorage.getItem(languageStorageKey) === "nl" ? "nl" : "en";
     const translations = {
-      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", medium:"MEDIUM", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe door pagina’s →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
-      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", medium:"MEDIUM", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe pages + tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
+      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"04 Digitaal", process:"05 Proces", aboutLabel:"06 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", medium:"MEDIUM", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"07 Contact", swipe:"← swipe door pagina’s →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
+      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"04 Digital", process:"05 Process", aboutLabel:"06 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", medium:"MEDIUM", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"07 Contact", swipe:"← swipe pages + tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
     };
     const contentTranslations = {
       "Selected from the current image archive.":"Geselecteerd uit het huidige beeldarchief.",
       "Selected image from the current archive.":"Geselecteerd beeld uit het huidige archief.",
       "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.":"Een kleine selectie tekeningen, schilderijen en digitaal werk.\n\nLangzaam gemaakt, voortdurend in beweging.",
+      "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message.":"© 2026 Lars Kramer. Alle kunstwerken, afbeeldingen, teksten en visuele animaties op deze website zijn eigen werk. Gebruik of reproductie zonder voorafgaande toestemming is niet toegestaan. Contactgegevens worden uitsluitend gebruikt om je bericht te beantwoorden.",
       "selected":"geselecteerd", "image":"afbeelding", "photograph":"foto", "painting":"schilderij", "painting detail":"detail van schilderij", "digital image":"digitale afbeelding", "wall work":"muurwerk", "illustration":"illustratie", "mixed media":"gemengde techniek", "textile print":"textielprint"
     };
     function localizedContent(value) {
@@ -614,11 +623,12 @@
       document.documentElement.lang = currentLanguage;
       languageToggle.innerHTML = `LANGUAGE · <span class="language-option ${currentLanguage === "en" ? "is-active" : ""}">EN</span> / <span class="language-option ${currentLanguage === "nl" ? "is-active" : ""}">NL</span>`;
       languageToggle.setAttribute("aria-label", currentLanguage === "nl" ? "Schakel naar Engels" : "Switch to Dutch");
-      setText("[data-filter=all]", localize(adminTexts.all, "all", ["00 Home", "alles / 06"])); setText("[data-filter=inkt]", localize(adminTexts.ink, "ink", ["inkt & flash", "01 Inkt & Flash", "01 Prints & Flash"])); setText("[data-filter=verf]", localize(adminTexts.paint, "paint", ["schilderij", "02 Schilderij", "02 Paintings"])); setText("[data-filter=digitaal]", localize(adminTexts.digital, "digital", ["digitaal", "03 Digitaal", "03 Digital"])); setText("[data-filter=proces]", localize(adminTexts.process, "process", ["proces", "04 Proces", "04 Process"])); setText("[data-filter=about]", localize(adminTexts.aboutLabel, "aboutLabel", ["about", "05 About", "05 Over"]));
+      setText("[data-filter=all]", localize(adminTexts.all, "all", ["00 Home", "alles / 06"])); setText("[data-filter=inkt]", localize(adminTexts.ink, "ink", ["inkt & flash", "01 Inkt & Flash", "01 Prints & Flash"])); setText("[data-filter=verf]", localize(adminTexts.paint, "paint", ["schilderij", "02 Schilderij", "02 Paintings"])); setText("[data-filter=digitaal]", localize(adminTexts.digital, "digital", ["digitaal", "03 Digitaal", "03 Digital", "04 Digitaal", "04 Digital"])); setText("[data-filter=proces]", localize(adminTexts.process, "process", ["proces", "04 Proces", "04 Process", "05 Proces", "05 Process"])); setText("[data-filter=about]", localize(adminTexts.aboutLabel, "aboutLabel", ["about", "05 About", "05 Over", "06 About", "06 Over"])); setText("[data-filter=contact]", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT", "07 Contact"]));
       setText(".work-number", localize(adminTexts.selection, "selection", ["00 SELECTIE", "00 SELECT"])); setText(".work-topline span:nth-child(2)", localize(adminTexts.overview, "overview", ["WERKOVERZICHT", "WORK OVERVIEW"])); setText(".contact-button", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT"])); setText(".contact-signoff", localize(adminTexts.footer, "footer", ["laatst bijgewerkt / september 2026", "last updated / September 2026"]));
       document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replaceAll(" ",""); if (key === "worknote" || key === "werknotitie") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "medium") element.textContent = t.medium; if (key === "format" || key === "formaat") element.textContent = t.format; });
       setText(".full-image-hint", t.fullImage); setText(".viewer-close", t.close); setText(".mobile-swipe-hint", t.swipe);
       setText("#about-panel .detail-tag", t.about); setText("#contact-panel .detail-tag", "CONTACT");
+      setText(".disclaimer-button", adminTexts.disclaimerButton || "DISCLAIMER");
       setText('label[for="visitor-name"]', t.name); setText('label[for="visitor-email"]', t.email); setText('label[for="visitor-message"]', t.message); setText('#contact-form button[type="submit"]', t.send);
       document.getElementById("image-viewer").setAttribute("aria-label", t.viewer);
       document.querySelector(".viewer-info").setAttribute("aria-label", t.next);
@@ -628,7 +638,6 @@
       if (typeof introFinished !== "undefined" && introFinished && typewriterText) typewriterText.textContent = welcome;
       localStorage.setItem(languageStorageKey, currentLanguage);
     }
-    const contactButton = document.querySelector(".contact-button"); if (contactButton && adminTexts.contactEmail) contactButton.href = "mailto:" + adminTexts.contactEmail;
 
     document.querySelector(".name").addEventListener("click", event => {
       event.preventDefault();
@@ -1324,7 +1333,7 @@
       if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) turnGridOrSection(dx < 0 ? 1 : -1);
     }, { passive:true });
 
-    const detailCopy = { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram" };
+    const detailCopy = { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram", disclaimer: adminTexts.legal || "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message." };
     function typeDetail(kind) {
       const target = document.getElementById(kind + "-text");
       const copy = localizedContent(detailCopy[kind]);
@@ -1479,6 +1488,17 @@
           ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
         });
       });
+      const targetWidth = (frame.width - cssGap * 2) / 3;
+      const targetHeight = (frame.height - cssGap * 3) / 4;
+      const cornerRadius = Math.max(0, Number.parseFloat(getComputedStyle(sampleFrame || homeMosaic).borderRadius) || 0);
+      if (cornerRadius > 0) {
+        for (let row=1; row<4; row += 1) for (let column=1; column<3; column += 1) {
+          const dot = document.createElement("i"); dot.className = "raster-morph-corner";
+          Object.assign(dot.style,{ left:`${column * targetWidth + (column - .5) * cssGap}px`, top:`${row * targetHeight + (row - .5) * cssGap}px`, width:`${cornerRadius * 2}px`, height:`${cornerRadius * 2}px` });
+          layer.appendChild(dot);
+          animations.push(dot.animate([{ opacity:0, transform:"translate(-50%,-50%) scale(0)" },{ opacity:1, transform:"translate(-50%,-50%) scale(1)" }],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+        }
+      }
       homeMosaic.classList.add("is-morphing-out");
       homeMosaic.style.visibility = "hidden";
       document.body.appendChild(layer);
@@ -1522,6 +1542,18 @@
           ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
         }
       });
+      const sourceWidth = (frame.width - sourceGap * 2) / 3;
+      const sourceHeight = (frame.height - sourceGap * 3) / 4;
+      const sampleFrame = overviewGrid.querySelector(".overview-thumb");
+      const cornerRadius = Math.max(0, Number.parseFloat(getComputedStyle(sampleFrame || homeMosaic).borderRadius) || 0);
+      if (cornerRadius > 0) {
+        for (let row=1; row<4; row += 1) for (let column=1; column<3; column += 1) {
+          const dot = document.createElement("i"); dot.className = "raster-morph-corner";
+          Object.assign(dot.style,{ left:`${column * sourceWidth + (column - .5) * sourceGap}px`, top:`${row * sourceHeight + (row - .5) * sourceGap}px`, width:`${cornerRadius * 2}px`, height:`${cornerRadius * 2}px` });
+          layer.appendChild(dot);
+          animations.push(dot.animate([{ opacity:1, transform:"translate(-50%,-50%) scale(1)" },{ opacity:0, transform:"translate(-50%,-50%) scale(0)" }],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+        }
+      }
       homeMosaic.classList.add("is-morphing-out"); document.body.appendChild(layer);
       return Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
         layer.remove(); homeMosaic.classList.remove("is-morphing-out"); morphing = false;
@@ -1626,7 +1658,7 @@
       if (pageTransitioning || morphing) return;
       if (button.classList.contains("is-active")) return;
       const selected = button.dataset.filter;
-      if (selected === "about") { showDetail("about"); return; }
+      if (selected === "about" || selected === "contact") { showDetail(selected); return; }
       if (selected === "all") {
         lockTransitionScroll();
         freezeHomeGlitches();
@@ -1698,10 +1730,9 @@
       if (elapsed > 850 || Math.abs(dx) < 62 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
       stepSection(dx < 0 ? 1 : -1);
     }, { passive:true });
-    document.querySelector(".contact-button").addEventListener("click", event => {
-      event.preventDefault();
-      showDetail("contact");
-      overview.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelector(".disclaimer-button").addEventListener("click", () => {
+      showDetail("disclaimer");
+      overview.scrollIntoView({ behavior:"smooth", block:"start" });
     });
     document.getElementById("contact-form").addEventListener("submit", async event => {
       event.preventDefault();
