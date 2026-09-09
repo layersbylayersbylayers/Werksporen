@@ -196,7 +196,7 @@
         <label class="secondary file-label" id="import-label">BACKUP IMPORTEREN<input id="import-backup" type="file" accept="application/json"></label>
         <a class="mobile-preview" href="/portfolio" target="_blank">TEST SITE</a>
         <button id="save-button">CONCEPT OPSLAAN</button>
-        <button class="primary" id="publish-button">PUBLICEREN</button>
+        <button class="primary" id="publish-button" title="Zet wijzigingen live op de Studio- en GitHub-pagina">BEIDE LIVE ZETTEN</button>
         <button class="secondary" id="logout-button">UITLOGGEN</button>
       </div>
     </header>
@@ -967,15 +967,15 @@
     });
 
     document.getElementById("publish-button").addEventListener("click", async () => {
-      saveState.textContent = "publiceren…";
+      saveState.textContent = "beide links bijwerken…";
       try {
         await flushOfflineImages();
         const result = await request("/api/publish", { method:"POST", body:JSON.stringify(data) });
         if (result.data) data = result.data;
         localStorage.removeItem(draftKey);
-        dirty = false; saveState.textContent = "staat live"; saveState.style.color = "#344638";
+        dirty = false; saveState.textContent = "beide links staan live"; saveState.style.color = "#344638";
         preview.src = `/portfolio?published=${Date.now()}`;
-      } catch (error) { saveState.textContent = "publiceren mislukt"; alert(error.message); }
+      } catch (error) { saveState.textContent = "bijwerken mislukt"; alert(error.message); }
     });
 
     document.getElementById("export-button").addEventListener("click", () => {
