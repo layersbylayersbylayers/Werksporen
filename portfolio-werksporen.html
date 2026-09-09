@@ -513,7 +513,9 @@
     </dialog>
   </main>
   <script src="portfolio-admin-data.js"></script>
+  <script src="https://werksporen-studio.written-by-mi.chatgpt.site/portfolio-admin-data.js"></script>
   <script>
+    const studioOrigin = window.WERKSPOREN_STUDIO_ORIGIN || "";
     if (location.protocol === "http:" || location.protocol === "https:") {
       try {
         if (navigator.doNotTrack !== "1") {
@@ -522,7 +524,7 @@
           if (!session) { session = crypto.randomUUID(); sessionStorage.setItem(sessionKey, session); }
           const width = Math.min(screen.width, screen.height);
           const device = width < 700 ? "mobile" : width < 1050 ? "tablet" : "desktop";
-          fetch("/api/track", { method:"POST", headers:{ "Content-Type":"application/json" }, keepalive:true, body:JSON.stringify({ page:location.pathname, referrer:document.referrer, device, session }) }).catch(() => {});
+          fetch(studioOrigin + "/api/track", { method:"POST", headers:{ "Content-Type":"application/json" }, keepalive:true, body:JSON.stringify({ page:location.pathname, referrer:document.referrer, device, session }) }).catch(() => {});
         }
       } catch {}
     }
@@ -1584,7 +1586,7 @@
       state.textContent = "versturen…";
       try {
         if (location.protocol === "file:") throw new Error("offline");
-        const response = await fetch("/api/contact", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(payload) });
+        const response = await fetch(studioOrigin + "/api/contact", { method:"POST", headers:{ "Content-Type":"application/json" }, body:JSON.stringify(payload) });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "versturen mislukt");
         form.reset();

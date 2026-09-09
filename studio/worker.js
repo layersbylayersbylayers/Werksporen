@@ -137,26 +137,31 @@ function publicContent(data, request) {
 
 async function handleApi(request, env, path) {
   const owner = await requireOwner(request, env);
+  const requestOrigin = request.headers.get("origin") || "";
+  const publicCors = requestOrigin === GITHUB_ORIGIN ? { "Access-Control-Allow-Origin":GITHUB_ORIGIN, "Vary":"Origin" } : {};
+  if (["/api/public/content", "/api/contact", "/api/track"].includes(path) && request.method === "OPTIONS") {
+    return new Response(null, { status:204, headers:{ ...securityHeaders("text/plain; charset=utf-8"), ...publicCors, "Access-Control-Allow-Methods":"GET, POST, OPTIONS", "Access-Control-Allow-Headers":"Content-Type", "Access-Control-Max-Age":"86400" } });
+  }
   if (path === "/api/session") return json({ authenticated:Boolean(owner), email:owner?.email || null });
   if (path === "/api/public/content" && request.method === "GET") {
     const content = await readContent(request, env, "published");
-    return json({ ...publicContent(content.data,request), _revision:content.revision }, 200, { "Cache-Control":"public, max-age=30, stale-while-revalidate=300", "ETag":`W/\"${content.revision}\"`, "Access-Control-Allow-Origin":GITHUB_ORIGIN });
+    return json({ ...publicContent(content.data,request), _revision:content.revision }, 200, { "Cache-Control":"public, max-age=30, stale-while-revalidate=300", "ETag":`W/\"${content.revision}\"`, ...publicCors });
   }
   if (path === "/api/contact" && request.method === "POST") {
     await rateLimit(request, env, "contact", 5, 900);
     const body = await readJson(request, 16 * 1024);
-    if (body.website) return json({ ok:true });
+    if (body.website) return json({ ok:true }, 200, publicCors);
     const name = String(body.name || "").trim().slice(0,120), email = String(body.email || "").trim().toLowerCase().slice(0,254), message = String(body.message || "").trim().slice(0,5000);
-    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || message.length < 3) return json({ error:"Vul alle velden correct in" }, 400);
+    if (name.length < 2 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || message.length < 3) return json({ error:"Vul alle velden correct in" }, 400, publicCors);
     await env.DB.prepare("INSERT INTO messages(id,created_at,name,email,message,status) VALUES(?,?,?,?,?,'new')").bind(crypto.randomUUID(),new Date().toISOString(),name,email,message).run();
-    return json({ ok:true });
+    return json({ ok:true }, 200, publicCors);
   }
   if (path === "/api/track" && request.method === "POST") {
     await rateLimit(request, env, "track", 120, 900);
     const body = await readJson(request, 8 * 1024), now = new Date(), referrer = (() => { try { return body.referrer ? new URL(String(body.referrer)).hostname : "direct"; } catch { return "direct"; } })();
     const sessionHash = await hash(`${String(body.session || "")}:${now.toISOString().slice(0,10)}`);
     await env.DB.prepare("INSERT INTO visits(created_at,day,page,device,referrer,session_hash) VALUES(?,?,?,?,?,?)").bind(now.toISOString(),now.toISOString().slice(0,10),String(body.page || "/portfolio").slice(0,120),["mobile","tablet","desktop"].includes(body.device) ? body.device : "other",referrer.slice(0,100),sessionHash).run();
-    return json({ ok:true });
+    return json({ ok:true }, 200, publicCors);
   }
   if (!owner) return json({ error:"Log veilig in om de Admin te gebruiken" }, 401);
   if (path === "/api/data" && request.method === "GET") {
