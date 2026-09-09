@@ -221,7 +221,7 @@ async function handleApi(request, env, path) {
     if(next.length<10) return json({error:"Gebruik minimaal 10 tekens"},400);
     if(auth && !constantEqual(await passwordDigest(String(body.current||""),auth.salt,Number(auth.iterations)),auth.passwordHash)) return json({error:"Huidig wachtwoord klopt niet"},403);
     if(!auth && owner.method!=="chatgpt") return json({error:"Activeer eerst via de eigenaar-login"},403);
-    const salt=bytesToBase64(crypto.getRandomValues(new Uint8Array(18))), iterations=260000, passwordHash=await passwordDigest(next,salt,iterations), now=new Date().toISOString();
+    const salt=bytesToBase64(crypto.getRandomValues(new Uint8Array(18))), iterations=100000, passwordHash=await passwordDigest(next,salt,iterations), now=new Date().toISOString();
     await env.DB.batch([env.DB.prepare("INSERT INTO admin_auth(id,username,salt,password_hash,iterations,updated_at) VALUES('owner','admin',?,?,?,?) ON CONFLICT(id) DO UPDATE SET salt=excluded.salt,password_hash=excluded.password_hash,iterations=excluded.iterations,updated_at=excluded.updated_at").bind(salt,passwordHash,iterations,now),env.DB.prepare("DELETE FROM admin_sessions")]);
     return json({ok:true},200,{"Set-Cookie":await createPasswordSession(env)});
   }
