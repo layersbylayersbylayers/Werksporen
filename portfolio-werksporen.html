@@ -402,7 +402,7 @@
     .raster-morph-line.is-horizontal { left:0; right:0; height:1px; transform:translateY(-50%); }
     .home-raster-snapshot { position:fixed; z-index:998; pointer-events:none; overflow:hidden; background-repeat:no-repeat; transform:none !important; }
     .return-home-face { position:absolute; inset:0; z-index:3; background-repeat:no-repeat; transform-origin:center; pointer-events:none; border-radius:inherit; }
-    .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:var(--paper); border-radius:var(--frame-radius,0px); }
+    .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:#d8d5cd; border-radius:var(--frame-radius,0px); backface-visibility:hidden; -webkit-backface-visibility:hidden; transform:translateZ(0); }
     .flip-content-shell img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; }
     .home-panel-face { background-repeat:no-repeat; }
     .home-panel-glitch { position:absolute; display:block; background-repeat:no-repeat; pointer-events:none; }
@@ -999,7 +999,7 @@
       const outgoingTargets = outgoing.map(makeFlipTarget);
       const outgoingAnimations = outgoingTargets.map(({node},index) => node.animate([
         { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" },
-        { opacity:.05, transform:"perspective(900px) rotateY(88deg) scale(.94)" }
+        { opacity:.05, transform:"perspective(900px) rotateY(88deg) scale(1)" }
       ],{ duration:560 + Math.min(index,11) * 18, easing:"cubic-bezier(.5,0,.8,.2)", fill:"forwards" }));
       await Promise.allSettled(outgoingAnimations.map(animation => animation.finished));
       update();
@@ -1007,7 +1007,7 @@
       const incomingTargets = incoming.map(makeFlipTarget);
       outgoingTargets.forEach(target => target.cleanup());
       const incomingAnimations = incomingTargets.map(({node},index) => node.animate([
-        { opacity:.05, transform:"perspective(900px) rotateY(-88deg) scale(.94)" },
+        { opacity:.05, transform:"perspective(900px) rotateY(-88deg) scale(1)" },
         { opacity:1, transform:"perspective(900px) rotateY(0deg) scale(1)" }
       ],{ duration:720 + Math.min(index,11) * 18, delay:Math.min(index,11) * 20, easing:"cubic-bezier(.2,.75,.25,1)", fill:"backwards" }));
       await Promise.allSettled(incomingAnimations.map(animation => animation.finished));
