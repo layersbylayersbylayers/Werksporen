@@ -627,10 +627,10 @@
       let webBlob = file;
       try {
         const bitmap = await createImageBitmap(file);
-        const maximum = 2560, ratio = Math.min(1, maximum / Math.max(bitmap.width, bitmap.height));
+        const maximum = 1600, ratio = Math.min(1, maximum / Math.max(bitmap.width, bitmap.height));
         const canvas = document.createElement("canvas"); canvas.width = Math.max(1,Math.round(bitmap.width * ratio)); canvas.height = Math.max(1,Math.round(bitmap.height * ratio));
         canvas.getContext("2d", { alpha:false }).drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
-        webBlob = await new Promise(resolve => canvas.toBlob(resolve,"image/jpeg",.88)) || file;
+        webBlob = await new Promise(resolve => canvas.toBlob(resolve,"image/jpeg",.82)) || file;
       } catch {}
       const data = await encode(webBlob);
       return request("/api/upload", { method:"POST", body:JSON.stringify({ name:file.name, data, originalData }) });

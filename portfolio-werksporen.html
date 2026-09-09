@@ -467,15 +467,15 @@
         </section>
         <div class="gallery-view">
         <div class="overview-grid" aria-label="Selectie van werk">
-          <figure class="overview-thumb has-image" data-kind="digitaal"><img src="portfolio-images/IMG_0469.JPG" alt="Skull study"><figcaption><span>skull study</span><span>01</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="digitaal"><img src="portfolio-images/IMG_0488.JPG" alt="Double skull study"><figcaption><span>double study</span><span>02</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="inkt proces"><img src="portfolio-images/Untitled_Artwork 8.JPG" alt="Illustration sheet"><figcaption><span>illustration</span><span>03</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="verf"><img src="portfolio-images/IMG_1218.jpg" alt="Red and yellow wall painting"><figcaption><span>wall piece</span><span>04</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="inkt"><img src="portfolio-images/Untitled_Artwork 10.JPG" alt="Botanical skull drawing"><figcaption><span>line work</span><span>05</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="digitaal"><img src="portfolio-images/Untitled_Artwork 12.JPG" alt="Blue interior drawing"><figcaption><span>blue study</span><span>06</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="verf proces"><img src="portfolio-images/IMG_1219.jpg" alt="Frog wall painting"><figcaption><span>frog wall</span><span>07</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="inkt"><img src="portfolio-images/Untitled_Artwork 11.JPG" alt="Armored insect drawing"><figcaption><span>beetle study</span><span>08</span></figcaption></figure>
-          <figure class="overview-thumb has-image" data-kind="proces"><img src="portfolio-images/IMG_1226.jpg" alt="Orange wall painting"><figcaption><span>orange wall</span><span>09</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="digitaal"><img src="portfolio-thumbs/IMG_0469.JPG.thumb.jpg" data-full-src="portfolio-images/IMG_0469.JPG" loading="lazy" decoding="async" alt="Skull study"><figcaption><span>skull study</span><span>01</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="digitaal"><img src="portfolio-thumbs/IMG_0488.JPG.thumb.jpg" data-full-src="portfolio-images/IMG_0488.JPG" loading="lazy" decoding="async" alt="Double skull study"><figcaption><span>double study</span><span>02</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="inkt proces"><img src="portfolio-thumbs/Untitled_Artwork 8.JPG.thumb.jpg" data-full-src="portfolio-images/Untitled_Artwork 8.JPG" loading="lazy" decoding="async" alt="Illustration sheet"><figcaption><span>illustration</span><span>03</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="verf"><img src="portfolio-thumbs/IMG_1218.jpg.thumb.jpg" data-full-src="portfolio-images/IMG_1218.jpg" loading="lazy" decoding="async" alt="Red and yellow wall painting"><figcaption><span>wall piece</span><span>04</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="inkt"><img src="portfolio-thumbs/Untitled_Artwork 10.JPG.thumb.jpg" data-full-src="portfolio-images/Untitled_Artwork 10.JPG" loading="lazy" decoding="async" alt="Botanical skull drawing"><figcaption><span>line work</span><span>05</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="digitaal"><img src="portfolio-thumbs/Untitled_Artwork 12.JPG.thumb.jpg" data-full-src="portfolio-images/Untitled_Artwork 12.JPG" loading="lazy" decoding="async" alt="Blue interior drawing"><figcaption><span>blue study</span><span>06</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="verf proces"><img src="portfolio-thumbs/IMG_1219.jpg.thumb.jpg" data-full-src="portfolio-images/IMG_1219.jpg" loading="lazy" decoding="async" alt="Frog wall painting"><figcaption><span>frog wall</span><span>07</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="inkt"><img src="portfolio-thumbs/Untitled_Artwork 11.JPG.thumb.jpg" data-full-src="portfolio-images/Untitled_Artwork 11.JPG" loading="lazy" decoding="async" alt="Armored insect drawing"><figcaption><span>beetle study</span><span>08</span></figcaption></figure>
+          <figure class="overview-thumb has-image" data-kind="proces"><img src="portfolio-thumbs/IMG_1226.jpg.thumb.jpg" data-full-src="portfolio-images/IMG_1226.jpg" loading="lazy" decoding="async" alt="Orange wall painting"><figcaption><span>orange wall</span><span>09</span></figcaption></figure>
         </div>
         <aside class="gallery-note" id="gallery-note" hidden>
           <p id="gallery-work-block"><strong>WORK NOTE</strong><br><span id="gallery-work-note"></span></p>
@@ -744,9 +744,13 @@
     const galleryStatus = document.getElementById("gallery-status");
     const galleryYear = document.getElementById("gallery-year");
     const galleryFormat = document.getElementById("gallery-format");
-    overviewGrid.querySelectorAll("img[src=\"portfolio-images/IMG_1218.jpg\"]").forEach(image => image.closest("figure").remove());
+    function thumbnailSource(source) {
+      const value = String(source || "");
+      return value.startsWith("portfolio-images/") ? `portfolio-thumbs/${value.slice("portfolio-images/".length)}.thumb.jpg` : value;
+    }
+    overviewGrid.querySelectorAll('img[data-full-src="portfolio-images/IMG_1218.jpg"]').forEach(image => image.closest("figure").remove());
     const archiveKinds = ["inkt", "verf", "digitaal", "proces"];
-    extraArchiveImages.forEach((number, index) => {
+    if (!adminConfig?.items?.length) extraArchiveImages.forEach((number, index) => {
       if (excludedArchiveImages.includes(number)) return;
       const paintNumbers = ["0488", "0492", "0493", "0495", "0497", "0683", "0745", "0879"];
       const inkNumbers = ["0472", "0477", "0483"];
@@ -755,15 +759,17 @@
       const figure = document.createElement("figure");
       figure.className = "overview-thumb has-image";
       figure.dataset.kind = kind;
-      figure.innerHTML = "<img src=\"portfolio-images/" + imageName + "\" alt=\"Archive image " + (index + 10) + "\"><figcaption><span></span><span>" + String(index + 10).padStart(2, "0") + "</span></figcaption>";
+      const fullSource = "portfolio-images/" + imageName;
+      figure.innerHTML = `<img src="${thumbnailSource(fullSource)}" data-full-src="${fullSource}" loading="lazy" decoding="async" alt="Archive image ${index + 10}"><figcaption><span></span><span>${String(index + 10).padStart(2, "0")}</span></figcaption>`;
       overviewGrid.appendChild(figure);
     });
 
-    refreshedArchiveItems.forEach((item, index) => {
+    if (!adminConfig?.items?.length) refreshedArchiveItems.forEach((item, index) => {
       const figure = document.createElement("figure");
       figure.className = "overview-thumb has-image";
       figure.dataset.kind = item.kind;
-      figure.innerHTML = "<img src=\"portfolio-images/IMG_" + item.number + ".jpg\" alt=\"Updated archive image " + (index + 1) + "\"><figcaption><span></span><span>" + String(index + 1).padStart(2, "0") + "</span></figcaption>";
+      const fullSource = "portfolio-images/IMG_" + item.number + ".jpg";
+      figure.innerHTML = `<img src="${thumbnailSource(fullSource)}" data-full-src="${fullSource}" loading="lazy" decoding="async" alt="Updated archive image ${index + 1}"><figcaption><span></span><span>${String(index + 1).padStart(2, "0")}</span></figcaption>`;
       overviewGrid.appendChild(figure);
     });
 
@@ -791,7 +797,7 @@
         figure.dataset.status = item.status || "selected";
         figure.dataset.year = item.year || "2026";
         figure.dataset.format = item.format || "image";
-        const image = document.createElement("img"); image.src = item.src; image.alt = item.title || "Portfolio work"; image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); image.dataset.managedId = item.id;
+        const image = document.createElement("img"); image.dataset.fullSrc = item.src; image.dataset.thumbSrc = thumbnailSource(item.src); image.loading = "lazy"; image.decoding = "async"; image.alt = item.title || "Portfolio work"; image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); image.dataset.managedId = item.id;
         const caption = document.createElement("figcaption"); caption.innerHTML = `<span>${item.title || ""}</span><span>${String(index + 1).padStart(2,"0")}</span>`;
         figure.append(image, caption); overviewGrid.appendChild(figure);
       });
@@ -840,7 +846,7 @@
       if (!alternatives.length) return;
       const alternate = alternatives[Math.floor(Math.random() * alternatives.length)];
       tile.dataset.src = alternate.src;
-      tile.style.setProperty("--tile-image", "url(\"" + alternate.src + "\")");
+      tile.style.setProperty("--tile-image", "url(\"" + thumbnailSource(alternate.src) + "\")");
       tile.classList.add("is-alternate");
       tile.classList.add("is-arriving");
       window.setTimeout(() => tile.classList.remove("is-arriving"), 360);
@@ -1097,12 +1103,12 @@
     let viewerClosing = false;
 
     function updateViewer(image) {
-      const source = image.getAttribute("src") || image.src;
+      const source = image.dataset.fullSrc || image.getAttribute("src") || image.src;
       const item = featureItems.find(entry => entry.src === source) || { note: "Selected image from the current archive.", status: "selected<br>2026", format: image.alt || "image" };
       viewerNote.textContent = localizedContent(item.note);
       viewerStatus.innerHTML = localizedStatusMarkup(item.status);
       viewerFormat.textContent = localizedContent(item.format);
-      viewerImage.src = image.currentSrc || image.src;
+      viewerImage.src = source;
       viewerImage.alt = image.alt;
       const managed = item.managed || adminConfig?.items?.find(entry => entry.id === image.dataset.managedId || entry.src === source);
       viewerImage.style.filter = managed ? managedFilter(managed) : "";
@@ -1204,6 +1210,32 @@
     let activeFilter = "all";
     let gridPage = 0;
     let gridViewMode = "grid";
+    let galleryPreloadTimer = 0;
+    function loadGalleryStamp(stamp, priority = "low") {
+      const image = stamp?.querySelector("img");
+      if (!image) return;
+      image.fetchPriority = priority;
+      image.loading = "eager";
+      if (!image.getAttribute("src")) image.src = image.dataset.thumbSrc || thumbnailSource(image.dataset.fullSrc);
+    }
+    function queueAdjacentGalleryPage(matching, pageSize, pages) {
+      window.clearTimeout(galleryPreloadTimer);
+      galleryPreloadTimer = window.setTimeout(() => {
+        let targets = [];
+        if (gridPage < pages - 1) targets = matching.slice((gridPage + 1) * pageSize, (gridPage + 2) * pageSize);
+        else {
+          const buttons = Array.from(filters);
+          const currentIndex = buttons.findIndex(button => button.dataset.filter === activeFilter);
+          const nextFilter = buttons.slice(currentIndex + 1).map(button => button.dataset.filter).find(value => value && value !== "about");
+          if (nextFilter) targets = Array.from(stamps).filter(stamp => stamp.dataset.kind.includes(nextFilter)).slice(0, pageSize);
+        }
+        targets.forEach(stamp => loadGalleryStamp(stamp, "low"));
+      }, 420);
+    }
+    window.setTimeout(() => {
+      const firstSection = Array.from(filters).map(button => button.dataset.filter).find(value => value && value !== "all" && value !== "about");
+      if (firstSection) Array.from(stamps).filter(stamp => stamp.dataset.kind.includes(firstSection)).slice(0, 12).forEach(stamp => loadGalleryStamp(stamp, "low"));
+    }, 900);
     function renderGrid() {
       const matching = Array.from(stamps).filter(stamp => activeFilter === "all" || stamp.dataset.kind.includes(activeFilter));
       const pageSize = gridViewMode === "single" ? 1 : 12;
@@ -1211,6 +1243,7 @@
       gridPage = ((gridPage % pages) + pages) % pages;
       overviewGrid.classList.toggle("is-single", gridViewMode === "single");
       const pageItems = matching.slice(gridPage * pageSize, gridPage * pageSize + pageSize);
+      pageItems.forEach(stamp => loadGalleryStamp(stamp, "high"));
       const visible = new Set(pageItems);
       stamps.forEach(stamp => stamp.classList.toggle("is-hidden", !visible.has(stamp)));
       galleryView.classList.toggle("is-single-mode", gridViewMode === "single");
@@ -1234,6 +1267,7 @@
       const language = translations[currentLanguage];
       gridProgressTrack.innerHTML = Array.from({ length:pages }, (_, index) => `<button class="grid-progress-segment ${index === gridPage ? "is-active" : ""}" type="button" data-grid-page="${index}" aria-label="${language.page} ${index + 1} ${language.of} ${pages}" aria-pressed="${index === gridPage}"></button>`).join("");
       gridControls.hidden = false;
+      queueAdjacentGalleryPage(matching, pageSize, pages);
     }
     function turnGridPage(direction = 1) {
       if (pageTransitioning || morphing) return;
