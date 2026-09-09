@@ -217,6 +217,9 @@ export default {
         if (!owner) return Response.redirect(new URL(`/signin-with-chatgpt?return_to=${encodeURIComponent("/admin")}`,request.url),302);
         return env.ASSETS.fetch(new Request(new URL("/portfolio-admin.html",request.url),request));
       }
+      if (["/portfolio-admin", "/portfolio-admin/", "/portfolio-admin.html"].includes(url.pathname)) {
+        return Response.redirect(new URL("/admin", request.url), 302);
+      }
       if (url.pathname === "/" || url.pathname === "/portfolio" || url.pathname === "/portfolio/") return env.ASSETS.fetch(new Request(new URL("/portfolio-werksporen.html",request.url),request));
       const asset = await env.ASSETS.fetch(request);
       return asset.status === 404 ? new Response("Niet gevonden",{status:404,headers:securityHeaders("text/plain; charset=utf-8")}) : asset;
