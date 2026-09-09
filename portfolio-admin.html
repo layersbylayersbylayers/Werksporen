@@ -105,7 +105,9 @@
     .empty { height:100%; display:grid; place-items:center; padding:20px; color:#777; text-align:center; }
     .order { position:absolute; top:8px; left:8px; background:var(--ink); color:white; padding:4px 7px; font-size:.7rem; z-index:2; }
     .drag-handle { position:absolute; z-index:3; top:8px; right:8px; border:1px solid rgba(255,255,255,.72); background:rgba(28,27,25,.88); color:white; padding:5px 7px; font:700 .65rem "Courier New",monospace; cursor:grab; touch-action:none; user-select:none; }
+    .item-edit-button { position:absolute; z-index:3; right:8px; bottom:8px; border:1px solid rgba(255,255,255,.72); background:rgba(28,27,25,.88); color:white; padding:6px 8px; font:700 .6rem "Courier New",monospace; cursor:pointer; }
     .image-list.is-single .drag-handle { display:none; }
+    .image-list.is-single .item-edit-button { display:none; }
     body.is-sorting { overflow:hidden; cursor:grabbing; }
     .item-body { padding:12px; }
     .row { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:10px; }
@@ -127,6 +129,7 @@
     .danger { color:var(--red); margin-left:auto; }
     .text-form { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
     .text-card { border-top:2px solid var(--ink); padding-top:16px; }
+    .text-card.pages-card { grid-column:1 / -1; }
     .text-card h3 { margin:0 0 14px; font-size:.9rem; color:var(--green); }
     .text-card .field { margin-bottom:13px; }
     .text-card textarea { min-height:130px; resize:vertical; }
@@ -215,8 +218,8 @@
             <div><h2>01 / BEELDEN</h2><p>Sleep de beelden naar hun plek; de rest schuift vanzelf op. Schaal en positie bepalen de uitsnede.</p></div>
             <div class="section-actions"><button id="quick-add-section" type="button">+ NIEUWE SECTIE</button><button id="add-frame">+ NIEUW KADER</button></div>
           </div>
-          <details class="page-manager">
-            <summary>PAGINA’S BEHEREN / HERNOEMEN</summary>
+          <details class="page-manager" open>
+            <summary>PAGINAVOLGORDE — SLEEP ≡ OM TE SORTEREN</summary>
             <div class="section-list" id="section-list"></div>
             <button id="add-section" type="button">+ NIEUWE PAGINA</button>
           </details>
@@ -401,16 +404,17 @@
     function itemCard(item, index) {
       const categories = data.sections;
       return `<article class="item ${item.visible ? "" : "is-off"}" data-id="${item.id}">
-        <div class="item-preview"><span class="order">${String(index + 1).padStart(2,"0")}</span><button class="drag-handle" type="button" aria-label="Sleep naar een andere positie">⠿</button>${item.src ? `<img src="${escapeHtml(assetUrl(item.src))}" alt="" style="object-fit:${item.thumbFit === "contain" ? "contain" : "cover"};object-position:${item.x}% ${item.y}%;transform:${transformCss(item)};filter:${filterCss(item)}">` : `<div class="empty">leeg kader<br>kies een afbeelding</div>`}</div>
+        <div class="item-preview"><span class="order">${String(index + 1).padStart(2,"0")}</span><button class="drag-handle" type="button" aria-label="Sleep naar een andere positie">⠿</button><button class="item-edit-button" type="button" aria-label="Bewerk informatie en afbeelding">INFO / BEWERK</button>${item.src ? `<img src="${escapeHtml(assetUrl(item.src))}" alt="" style="object-fit:${item.thumbFit === "contain" ? "contain" : "cover"};object-position:${item.x}% ${item.y}%;transform:${transformCss(item)};filter:${filterCss(item)}">` : `<div class="empty">leeg kader<br>kies een afbeelding</div>`}</div>
         <div class="item-body">
-          <div class="row">
-            <div class="field"><label>titel</label><input type="text" data-key="title" value="${escapeHtml(item.title)}"></div>
-            <div class="field"><label>formaat</label><input type="text" data-key="format" value="${escapeHtml(item.format)}"></div>
-          </div>
+          <div class="field"><label>titel</label><input type="text" data-key="title" value="${escapeHtml(item.title)}"></div>
           <div class="field"><label>work note</label><textarea data-key="note">${escapeHtml(item.note || "Selected from the current image archive.")}</textarea></div>
           <div class="row">
             <div class="field"><label>status</label><input type="text" data-key="status" value="${escapeHtml(item.status || "selected")}"></div>
             <div class="field"><label>jaar</label><input type="text" data-key="year" value="${escapeHtml(item.year || "2026")}"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>medium / techniek</label><input type="text" data-key="medium" value="${escapeHtml(item.medium || "")}" placeholder="bijv. lino op papier"></div>
+            <div class="field"><label>formaat / afmetingen</label><input type="text" data-key="format" value="${escapeHtml(item.format)}" placeholder="bijv. 21 × 29,7 cm"></div>
           </div>
           <span class="field-label">indeling</span>
           <div class="checks">${categories.map(category => `<label><input type="checkbox" data-category="${category.id}" ${item.categories.includes(category.id) ? "checked" : ""}>${escapeHtml(category.label)}</label>`).join("")}</div>
@@ -441,7 +445,7 @@
     }
 
     function createEmptyItem(categoryId) {
-      return { id:crypto.randomUUID().replaceAll("-",""), src:"", title:"", categories:[categoryId || data.sections[0]?.id || "proces"], gallery:true, glitch:true, visible:true, thumbFit:"cover", scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0, viewerFit:"contain", viewerScale:1, viewerX:50, viewerY:50, viewerRotate:0, viewerSkewX:0, viewerSkewY:0, viewerPerspectiveX:0, viewerPerspectiveY:0, note:"Selected from the current image archive.", status:"selected", year:"2026", format:"image" };
+      return { id:crypto.randomUUID().replaceAll("-",""), src:"", title:"", categories:[categoryId || data.sections[0]?.id || "proces"], gallery:true, glitch:true, visible:true, thumbFit:"cover", scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0, viewerFit:"contain", viewerScale:1, viewerX:50, viewerY:50, viewerRotate:0, viewerSkewX:0, viewerSkewY:0, viewerPerspectiveX:0, viewerPerspectiveY:0, note:"Selected from the current image archive.", status:"selected", year:"2026", medium:"", format:"image" };
     }
 
     function ensureEmptyFrame() {
@@ -531,6 +535,10 @@
       homeEditor.querySelectorAll("[data-home-grid]").forEach(button => button.classList.toggle("is-active", Number(button.dataset.homeGrid) === sizeIndex));
     }
 
+    function sectionRowsMarkup() {
+      return data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(section.label)} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><input type="text" data-section-label value="${escapeHtml(section.label)}" aria-label="Paginanaam"><input type="text" data-section-note value="${escapeHtml(section.note || "")}" placeholder="algemene work note (optioneel)" aria-label="Algemene work note"><button type="button" data-remove-section>WEG</button></div>`).join("");
+    }
+
     function renderSections() {
       galleryTabs.innerHTML = [
         `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${escapeHtml(data.texts.all || "home")}</button>`,
@@ -538,7 +546,7 @@
         ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" data-gallery-filter="${section.id}">${escapeHtml(section.label)}</button>`),
         `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
       ].join("");
-      sectionList.innerHTML = data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(section.label)} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><input type="text" data-section-label value="${escapeHtml(section.label)}" aria-label="Paginanaam"><input type="text" data-section-note value="${escapeHtml(section.note || "")}" placeholder="algemene work note (optioneel)" aria-label="Algemene work note"><button type="button" data-remove-section>WEG</button></div>`).join("");
+      sectionList.innerHTML = sectionRowsMarkup();
     }
 
     function renderImages() {
@@ -576,7 +584,8 @@
       data.theme.shadowHome ??= true;
       data.theme.shadowTabs ??= false;
       const shadow = `<section class="text-card"><h3>Schaduw beelden</h3><div class="checks"><label><input type="checkbox" data-theme-check="shadowHome" ${data.theme.shadowHome ? "checked" : ""}>home-achtergrond</label><label><input type="checkbox" data-theme-check="shadowTabs" ${data.theme.shadowTabs ? "checked" : ""}>afbeeldingen in tabs</label></div><div class="field"><label>kleur</label><input type="color" data-theme="shadowColor" value="${data.theme.shadowColor || "#1c1b19"}"></div><div class="field"><label>angle <span>${data.theme.shadowAngle ?? 45}°</span></label><input type="range" data-theme-range="shadowAngle" min="0" max="360" step="1" value="${data.theme.shadowAngle ?? 45}"></div><div class="field"><label>distance <span>${data.theme.shadowDistance ?? 0}px</span></label><input type="range" data-theme-range="shadowDistance" min="0" max="28" step="1" value="${data.theme.shadowDistance ?? 0}"></div><div class="field"><label>softness <span>${data.theme.shadowBlur ?? 0}px</span></label><input type="range" data-theme-range="shadowBlur" min="0" max="40" step="1" value="${data.theme.shadowBlur ?? 0}"></div></section>`;
-      textForm.innerHTML = colors + home + shadow + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key])}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key])}">`}</div>`).join("")}</section>`).join("");
+      const pages = `<section class="text-card pages-card"><h3>Pagina’s & volgorde</h3><p class="gesture-hint">Ook nieuwe pagina’s zoals Lino cuts verschijnen hier automatisch. Pak ≡ vast en sleep de pagina naar zijn plek.</p><div class="section-list" data-text-section-list>${sectionRowsMarkup()}</div></section>`;
+      textForm.innerHTML = pages + colors + home + shadow + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key])}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key])}">`}</div>`).join("")}</section>`).join("");
     }
 
     async function renderDashboard() {
@@ -610,6 +619,7 @@
       if (currentHome) data.home.baseItemId = currentHome.id;
       data.items.forEach(item => {
         item.thumbFit ??= "cover"; item.viewerFit ??= "contain";
+        item.medium ??= "";
         item.viewerScale ??= 1; item.viewerX ??= 50; item.viewerY ??= 50; item.viewerRotate ??= 0;
         item.viewerSkewX ??= 0; item.viewerSkewY ??= 0; item.viewerPerspectiveX ??= 0; item.viewerPerspectiveY ??= 0;
       });
@@ -905,7 +915,7 @@
       adminPage = 0;
       renderImages();
     });
-    sectionList.addEventListener("input", event => {
+    function updateSectionField(event) {
       const row = event.target.closest("[data-section-id]");
       const section = row && data.sections.find(entry => entry.id === row.dataset.sectionId);
       if (!section) return;
@@ -916,43 +926,55 @@
       }
       if (event.target.matches("[data-section-note]")) section.note = event.target.value;
       markDirty();
-    });
+    }
+    sectionList.addEventListener("input", updateSectionField);
+    textForm.addEventListener("input", event => { if (event.target.closest("[data-text-section-list]")) updateSectionField(event); });
     let draggedSectionId = null;
+    let draggedSectionList = null;
     function clearSectionDragState() {
       draggedSectionId = null;
-      sectionList.querySelectorAll(".is-section-dragging,.section-drop-before,.section-drop-after").forEach(row => row.classList.remove("is-section-dragging","section-drop-before","section-drop-after"));
+      draggedSectionList?.querySelectorAll(".is-section-dragging,.section-drop-before,.section-drop-after").forEach(row => row.classList.remove("is-section-dragging","section-drop-before","section-drop-after"));
+      draggedSectionList = null;
     }
-    sectionList.addEventListener("pointerdown", event => {
+    function beginSectionDrag(event) {
       const handle = event.target.closest("[data-section-drag]");
       if (!handle) return;
       const row = handle.closest("[data-section-id]");
       event.preventDefault();
       draggedSectionId = row.dataset.sectionId;
+      draggedSectionList = row.closest(".section-list");
       row.classList.add("is-section-dragging");
       handle.setPointerCapture(event.pointerId);
-    });
-    sectionList.addEventListener("pointermove", event => {
-      if (!draggedSectionId) return;
+    }
+    function moveSectionDrag(event) {
+      if (!draggedSectionId || !draggedSectionList) return;
       event.preventDefault();
-      const dragged = sectionList.querySelector(`[data-section-id="${CSS.escape(draggedSectionId)}"]`);
+      const dragged = draggedSectionList.querySelector(`[data-section-id="${CSS.escape(draggedSectionId)}"]`);
       const target = document.elementFromPoint(event.clientX,event.clientY)?.closest("[data-section-id]");
-      if (!dragged || !target || target === dragged || target.parentElement !== sectionList) return;
-      sectionList.querySelectorAll(".section-drop-before,.section-drop-after").forEach(row => row.classList.remove("section-drop-before","section-drop-after"));
+      if (!dragged || !target || target === dragged || target.parentElement !== draggedSectionList) return;
+      draggedSectionList.querySelectorAll(".section-drop-before,.section-drop-after").forEach(row => row.classList.remove("section-drop-before","section-drop-after"));
       const after = event.clientY >= target.getBoundingClientRect().top + target.getBoundingClientRect().height / 2;
       target.classList.add(after ? "section-drop-after" : "section-drop-before");
       if (after) target.after(dragged); else target.before(dragged);
-    });
-    sectionList.addEventListener("pointerup", event => {
-      if (!draggedSectionId) return;
+    }
+    function finishSectionDrag(event) {
+      if (!draggedSectionId || !draggedSectionList) return;
       event.preventDefault();
       const sectionById = new Map(data.sections.map(section => [section.id,section]));
-      data.sections = [...sectionList.querySelectorAll("[data-section-id]")].map(row => sectionById.get(row.dataset.sectionId)).filter(Boolean);
+      data.sections = [...draggedSectionList.querySelectorAll("[data-section-id]")].map(row => sectionById.get(row.dataset.sectionId)).filter(Boolean);
       clearSectionDragState();
       renderSections();
+      renderTexts();
       markDirty();
+    }
+    function cancelSectionDrag() { clearSectionDragState(); renderSections(); renderTexts(); }
+    [sectionList,textForm].forEach(list => {
+      list.addEventListener("pointerdown", beginSectionDrag);
+      list.addEventListener("pointermove", moveSectionDrag);
+      list.addEventListener("pointerup", finishSectionDrag);
+      list.addEventListener("pointercancel", cancelSectionDrag);
     });
-    sectionList.addEventListener("pointercancel", () => { clearSectionDragState(); renderSections(); });
-    sectionList.addEventListener("click", event => {
+    function removeSection(event) {
       const button = event.target.closest("[data-remove-section]");
       if (!button) return;
       const id = button.closest("[data-section-id]").dataset.sectionId;
@@ -960,8 +982,10 @@
       data.sections = data.sections.filter(section => section.id !== id);
       data.items.forEach(item => item.categories = item.categories.filter(category => category !== id));
       if (adminFilter === id) adminFilter = "all";
-      renderImages(); markDirty();
-    });
+      renderImages(); renderTexts(); markDirty();
+    }
+    sectionList.addEventListener("click", removeSection);
+    textForm.addEventListener("click", removeSection);
     document.getElementById("quick-add-section").addEventListener("click", () => document.getElementById("add-section").click());
     document.getElementById("add-section").addEventListener("click", () => {
       const label = prompt("Naam van de nieuwe pagina, bijvoorbeeld lino cuts:");
@@ -972,7 +996,7 @@
       data.sections.push({ id, label:label.trim(), note:"" });
       adminFilter = id;
       adminPage = 0;
-      renderImages(); markDirty();
+      renderImages(); renderTexts(); markDirty();
     });
 
     document.querySelectorAll(".admin-view-button").forEach(button => button.addEventListener("click", () => {
@@ -1042,6 +1066,7 @@
     document.querySelectorAll(".tab").forEach(button => button.addEventListener("click", () => {
       document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("is-active", tab === button));
       document.querySelectorAll(".panel").forEach(panel => panel.hidden = panel.id !== `${button.dataset.tab}-panel`);
+      if (button.dataset.tab === "texts") renderTexts();
       if (button.dataset.tab === "dashboard") renderDashboard();
     }));
     document.getElementById("refresh-dashboard").addEventListener("click", renderDashboard);

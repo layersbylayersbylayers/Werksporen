@@ -462,6 +462,7 @@
           <aside class="feature-note">
             <p><strong>WORK NOTE</strong><br><span id="feature-note-copy">Een wisselende selectie uit tekeningen, flash, schilderijen en digitaal werk.</span><br><span class="full-image-hint">click for full image</span></p>
             <p><strong>STATUS</strong><br><span id="feature-status-copy">in ontwikkeling<br>2026</span></p>
+            <p id="feature-medium-block"><strong>MEDIUM</strong><br><span id="feature-medium-copy"></span></p>
             <p><strong>FORMAT</strong><br><span id="feature-format-copy">werk in beweging</span></p>
           </aside>
         </section>
@@ -480,6 +481,7 @@
         <aside class="gallery-note" id="gallery-note" hidden>
           <p id="gallery-work-block"><strong>WORK NOTE</strong><br><span id="gallery-work-note"></span></p>
           <p id="gallery-status-block"><strong>STATUS</strong><br><span id="gallery-status"></span><br><span id="gallery-year"></span></p>
+          <p id="gallery-medium-block"><strong>MEDIUM</strong><br><span id="gallery-medium"></span></p>
           <p id="gallery-format-block"><strong>FORMAT</strong><br><span id="gallery-format"></span></p>
         </aside>
         </div>
@@ -520,6 +522,7 @@
       <div class="viewer-detail" id="viewer-detail">
         <p><strong>WORK NOTE</strong><br><span id="viewer-note"></span></p>
         <p><strong>STATUS</strong><br><span id="viewer-status"></span></p>
+        <p id="viewer-medium-block"><strong>MEDIUM</strong><br><span id="viewer-medium"></span></p>
         <p><strong>FORMAT</strong><br><span id="viewer-format"></span></p>
       </div>
     </dialog>
@@ -590,8 +593,8 @@
     const languageStorageKey = "werksporen-language-v2";
     let currentLanguage = localStorage.getItem(languageStorageKey) === "nl" ? "nl" : "en";
     const translations = {
-      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe door pagina’s →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
-      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe pages + tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
+      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", medium:"MEDIUM", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe door pagina’s →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
+      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", medium:"MEDIUM", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe pages + tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
     };
     const contentTranslations = {
       "Selected from the current image archive.":"Geselecteerd uit het huidige beeldarchief.",
@@ -614,7 +617,7 @@
       languageToggle.setAttribute("aria-label", currentLanguage === "nl" ? "Schakel naar Engels" : "Switch to Dutch");
       setText("[data-filter=all]", localize(adminTexts.all, "all", ["00 Home", "alles / 06"])); setText("[data-filter=inkt]", localize(adminTexts.ink, "ink", ["inkt & flash", "01 Inkt & Flash", "01 Prints & Flash"])); setText("[data-filter=verf]", localize(adminTexts.paint, "paint", ["schilderij", "02 Schilderij", "02 Paintings"])); setText("[data-filter=digitaal]", localize(adminTexts.digital, "digital", ["digitaal", "03 Digitaal", "03 Digital"])); setText("[data-filter=proces]", localize(adminTexts.process, "process", ["proces", "04 Proces", "04 Process"])); setText("[data-filter=about]", localize(adminTexts.aboutLabel, "aboutLabel", ["about", "05 About", "05 Over"]));
       setText(".work-number", localize(adminTexts.selection, "selection", ["00 SELECTIE", "00 SELECT"])); setText(".work-topline span:nth-child(2)", localize(adminTexts.overview, "overview", ["WERKOVERZICHT", "WORK OVERVIEW"])); setText(".contact-button", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT"])); setText(".contact-signoff", localize(adminTexts.footer, "footer", ["laatst bijgewerkt / september 2026", "last updated / September 2026"]));
-      document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replaceAll(" ",""); if (key === "worknote" || key === "werknotitie") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "format" || key === "formaat") element.textContent = t.format; });
+      document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replaceAll(" ",""); if (key === "worknote" || key === "werknotitie") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "medium") element.textContent = t.medium; if (key === "format" || key === "formaat") element.textContent = t.format; });
       setText(".full-image-hint", t.fullImage); setText(".viewer-close", t.close); setText(".mobile-swipe-hint", t.swipe);
       setText("#about-panel .detail-tag", t.about); setText("#contact-panel .detail-tag", "CONTACT");
       setText('label[for="visitor-name"]', t.name); setText('label[for="visitor-email"]', t.email); setText('label[for="visitor-message"]', t.message); setText('#contact-form button[type="submit"]', t.send);
@@ -679,6 +682,8 @@
     const featureNote = document.querySelector(".feature-note");
     const featureNoteCopy = document.getElementById("feature-note-copy");
     const featureStatusCopy = document.getElementById("feature-status-copy");
+    const featureMediumCopy = document.getElementById("feature-medium-copy");
+    const featureMediumBlock = document.getElementById("feature-medium-block");
     const featureFormatCopy = document.getElementById("feature-format-copy");
     const featureItems = [
       { src: "portfolio-images/IMG_0469.JPG", note: "Selected from the current image archive.", status: "selected<br>2026", format: "photograph" },
@@ -743,6 +748,7 @@
     const galleryWorkNote = document.getElementById("gallery-work-note");
     const galleryStatus = document.getElementById("gallery-status");
     const galleryYear = document.getElementById("gallery-year");
+    const galleryMedium = document.getElementById("gallery-medium");
     const galleryFormat = document.getElementById("gallery-format");
     function thumbnailSource(source) {
       const value = String(source || "");
@@ -786,8 +792,8 @@
     if (adminConfig?.items?.length) {
       const managedItems = adminConfig.items.filter(item => item.visible && item.src);
       const configuredHome = managedItems.find(item => item.id === adminConfig.home?.baseItemId);
-      if (configuredHome) homeBaseItem = { src:configuredHome.src, note:configuredHome.note || "Selected from the current image archive.", status:`${configuredHome.status || "selected"}<br>${configuredHome.year || "2026"}`, format:configuredHome.format || "image", glitch:false, managed:configuredHome };
-      featureItems.splice(0, featureItems.length, homeBaseItem, ...managedItems.filter(item => item.id !== configuredHome?.id).map(item => ({ src:item.src, note:item.note || "Selected from the current image archive.", status:`${item.status || "selected"}<br>${item.year || "2026"}`, format:item.format || "image", glitch:item.glitch, managed:item })));
+      if (configuredHome) homeBaseItem = { src:configuredHome.src, note:configuredHome.note || "Selected from the current image archive.", status:`${configuredHome.status || "selected"}<br>${configuredHome.year || "2026"}`, medium:configuredHome.medium || "", format:configuredHome.format || "image", glitch:false, managed:configuredHome };
+      featureItems.splice(0, featureItems.length, homeBaseItem, ...managedItems.filter(item => item.id !== configuredHome?.id).map(item => ({ src:item.src, note:item.note || "Selected from the current image archive.", status:`${item.status || "selected"}<br>${item.year || "2026"}`, medium:item.medium || "", format:item.format || "image", glitch:item.glitch, managed:item })));
       overviewGrid.replaceChildren();
       managedItems.filter(item => item.gallery).forEach((item, index) => {
         const figure = document.createElement("figure");
@@ -796,6 +802,7 @@
         figure.dataset.note = item.note || "Selected from the current image archive.";
         figure.dataset.status = item.status || "selected";
         figure.dataset.year = item.year || "2026";
+        figure.dataset.medium = item.medium || "";
         figure.dataset.format = item.format || "image";
         const image = document.createElement("img"); image.dataset.fullSrc = item.src; image.dataset.thumbSrc = thumbnailSource(item.src); image.loading = "lazy"; image.decoding = "async"; image.alt = item.title || "Portfolio work"; image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); image.dataset.managedId = item.id;
         const caption = document.createElement("figcaption"); caption.innerHTML = `<span>${item.title || ""}</span><span>${String(index + 1).padStart(2,"0")}</span>`;
@@ -936,6 +943,8 @@
 
         featureNoteCopy.textContent = localizedContent(item.note);
         featureStatusCopy.innerHTML = localizedStatusMarkup(item.status);
+        featureMediumCopy.textContent = item.medium || "";
+        featureMediumBlock.hidden = !String(item.medium || "").trim();
         featureFormatCopy.textContent = localizedContent(item.format);
         featureNote.style.opacity = "1";
       }, immediate ? 0 : 180);
@@ -1097,6 +1106,7 @@
     const viewerDetail = document.getElementById("viewer-detail");
     const viewerNote = document.getElementById("viewer-note");
     const viewerStatus = document.getElementById("viewer-status");
+    const viewerMedium = document.getElementById("viewer-medium");
     const viewerFormat = document.getElementById("viewer-format");
     let viewerImages = [];
     let viewerIndex = 0;
@@ -1108,6 +1118,8 @@
       const item = featureItems.find(entry => entry.src === source) || { note: "Selected image from the current archive.", status: "selected<br>2026", format: image.alt || "image" };
       viewerNote.textContent = localizedContent(item.note);
       viewerStatus.innerHTML = localizedStatusMarkup(item.status);
+      viewerMedium.textContent = item.medium || "";
+      document.getElementById("viewer-medium-block").hidden = !String(item.medium || "").trim();
       viewerFormat.textContent = localizedContent(item.format);
       viewerImage.src = source;
       viewerImage.alt = image.alt;
@@ -1253,8 +1265,10 @@
         galleryWorkNote.textContent = localizedContent(stamp.dataset.note || stamp.querySelector("img")?.alt || "Selected from the current image archive.");
         galleryStatus.textContent = localizedContent(stamp.dataset.status || "selected");
         galleryYear.textContent = stamp.dataset.year || "2026";
+        galleryMedium.textContent = stamp.dataset.medium || "";
         galleryFormat.textContent = localizedContent(stamp.dataset.format || "image");
         document.getElementById("gallery-status-block").hidden = false;
+        document.getElementById("gallery-medium-block").hidden = !String(stamp.dataset.medium || "").trim();
         document.getElementById("gallery-format-block").hidden = false;
         galleryNote.hidden = false;
       } else {
@@ -1262,6 +1276,7 @@
         const generalNote = activeFilter === "all" ? (adminTexts.galleryNote || "") : (section?.note || "");
         galleryWorkNote.textContent = localizedContent(generalNote);
         document.getElementById("gallery-status-block").hidden = true;
+        document.getElementById("gallery-medium-block").hidden = true;
         document.getElementById("gallery-format-block").hidden = true;
         galleryNote.hidden = !generalNote.trim();
       }

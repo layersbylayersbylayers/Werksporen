@@ -279,6 +279,7 @@ function safeData(input) {
       note: String(item.note || "Selected from the current image archive.").slice(0, 1000),
       status: String(item.status || "selected").slice(0, 100),
       year: String(item.year || "2026").slice(0, 20),
+      medium: String(item.medium || "").slice(0, 120),
       categories: Array.isArray(item.categories) ? item.categories.filter(value => categories.has(value)) : ["proces"],
       gallery: Boolean(item.gallery), glitch: Boolean(item.glitch), visible: Boolean(item.visible),
       thumbFit: item.thumbFit === "contain" ? "contain" : "cover",
