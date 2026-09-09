@@ -336,6 +336,10 @@
     /* Portrait mosaic home */
     .overview-work.show-feature .home-feature { display: grid; grid-template-columns: minmax(0, 715px) minmax(170px, 190px); gap: clamp(28px, 4vw, 58px); width: min(100%, 965px); align-items: start; }
     .home-feature .home-mosaic, .home-feature .feature-note { transition:opacity 2.08s cubic-bezier(.22,1,.36,1); }
+    .home-feature.intro-opening .home-mosaic { opacity:0; transform:translateX(-32px); }
+    .home-feature.intro-opening .feature-note { opacity:0; transform:translateY(7px); }
+    .home-feature .home-mosaic { transition:opacity 1.48s cubic-bezier(.22,1,.36,1), transform 1.48s cubic-bezier(.22,1,.36,1); }
+    .home-feature .feature-note { transition:opacity 1.12s cubic-bezier(.22,1,.36,1), transform 1.12s cubic-bezier(.22,1,.36,1); }
     .home-feature.intro-pending .home-mosaic, .home-feature.intro-pending .feature-note { opacity: 0 !important; pointer-events: none; }
     .overview-work.show-feature .home-image, .overview-work.show-feature .scroll-cue { display: none !important; }
     .overview-work.show-feature .feature-note { display: block !important; position: static; grid-column: 2; grid-row: 1; width: auto; margin: 0; padding-top: 3px; }
@@ -622,12 +626,14 @@
       if (introFinished) return;
       introFinished = true;
       window.setTimeout(() => requestAnimationFrame(() => {
+        homeFeature.classList.add("intro-opening");
         document.body.classList.remove("intro-pending");
         homeFeature.classList.remove("intro-pending");
+        requestAnimationFrame(() => homeFeature.classList.remove("intro-opening"));
         window.setTimeout(() => {
           glitchesEnabled = true;
           placeGlitches();
-        }, 4060);
+        }, 5200);
       }), 180);
     }
     function typeWelcome() {
