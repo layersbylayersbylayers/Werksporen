@@ -87,9 +87,7 @@
     }
     .filter:first-child { padding-left:14px; padding-right:20px; }
     .filter:hover, .filter.is-active { color:var(--paper); background:var(--ink); }
-    .desktop-tab-controls { position:sticky; right:0; margin-left:auto; display:flex; background:var(--paper); border-left:1px solid var(--hairline); }
-    .desktop-tab-controls button { width:38px; min-height:38px; border:0; border-left:1px solid var(--hairline); background:var(--paper); color:var(--accent); cursor:pointer; }
-    .desktop-tab-controls button:hover { background:var(--ink); color:var(--paper); }
+    .mobile-swipe-hint { display:none; }
 
     .work { border-bottom: 1px solid var(--hairline); }
     .work-topline {
@@ -157,7 +155,7 @@
     .contact-signoff { color: var(--soft); text-align: right; }
 
     @media (max-width: 700px) {
-      .desktop-tab-controls { display:none; }
+      .mobile-swipe-hint { display:block; margin:5px 0 0; color:var(--soft); font-size:11px; text-align:right; letter-spacing:.02em; }
       .page { padding: 14px 15px 36px; }
       .masthead { min-height:44px; grid-template-columns: 1fr auto; }
       .name { padding-top:2px; }
@@ -440,6 +438,7 @@
       <button class="filter" data-filter="proces">proces</button>
       <button class="filter" type="button" data-filter="about">about</button>
     </nav>
+    <span class="mobile-swipe-hint" aria-hidden="true">← swipe tabs →</span>
 
     <article class="work overview-work show-feature" data-kind="inkt verf digitaal proces">
       <div class="work-topline"><span class="work-number">01 / SELECTIE</span><span>WERKOVERZICHT</span></div>
@@ -580,10 +579,6 @@
       button.dataset.mobileIndex = index === 0 ? "" : String(index).padStart(2,"0");
       button.dataset.mobileLabel = button.textContent.trim();
     });
-    const tabControls = document.createElement("span");
-    tabControls.className = "desktop-tab-controls";
-    tabControls.innerHTML = '<button type="button" data-tab-step="-1" aria-label="Vorige pagina">&lt;</button><button type="button" data-tab-step="1" aria-label="Volgende pagina">&gt;</button>';
-    document.querySelector(".project-menu").appendChild(tabControls);
     const contactButton = document.querySelector(".contact-button"); if (contactButton && adminTexts.contactEmail) contactButton.href = "mailto:" + adminTexts.contactEmail;
 
     document.querySelector(".name").addEventListener("click", event => {
@@ -1554,11 +1549,20 @@
       const next = Math.min(buttons.length - 1, Math.max(0, current + direction));
       if (next !== current) buttons[next].click();
     }
-    tabControls.addEventListener("click", event => {
-      const button = event.target.closest("[data-tab-step]");
-      if (button) stepSection(Number(button.dataset.tabStep));
-    });
     let sectionSwipe = null;
+    let trackpadDelta = 0;
+    let trackpadReset = 0;
+    document.querySelector(".page").addEventListener("wheel", event => {
+      if (Math.abs(event.deltaX) <= Math.abs(event.deltaY) || Math.abs(event.deltaX) < 1 || pageTransitioning || morphing || viewer.open) return;
+      trackpadDelta += event.deltaX;
+      window.clearTimeout(trackpadReset);
+      trackpadReset = window.setTimeout(() => { trackpadDelta = 0; }, 180);
+      if (Math.abs(trackpadDelta) < 70) return;
+      event.preventDefault();
+      const direction = trackpadDelta > 0 ? 1 : -1;
+      trackpadDelta = 0;
+      stepSection(direction);
+    }, { passive:false });
     document.querySelector(".page").addEventListener("touchstart", event => {
       if (event.touches.length !== 1 || event.target.closest("dialog,input,textarea,select,.overview-grid")) return;
       const touch = event.touches[0];
