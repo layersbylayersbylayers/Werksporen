@@ -590,8 +590,8 @@
     const languageStorageKey = "werksporen-language-v2";
     let currentLanguage = localStorage.getItem(languageStorageKey) === "nl" ? "nl" : "en";
     const translations = {
-      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe tabs →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
-      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
+      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe door pagina’s →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
+      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe pages + tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
     };
     const contentTranslations = {
       "Selected from the current image archive.":"Geselecteerd uit het huidige beeldarchief.",
@@ -1240,6 +1240,16 @@
       lockTransitionScroll();
       flipCellPage(() => activeGridVisuals(false), () => { gridPage += direction; renderGrid(); }).finally(unlockTransitionScroll);
     }
+    function turnGridOrSection(direction = 1) {
+      const matching = Array.from(stamps).filter(stamp => activeFilter === "all" || stamp.dataset.kind.includes(activeFilter));
+      const pageSize = gridViewMode === "single" ? 1 : 12;
+      const lastPage = Math.max(0, Math.ceil(matching.length / pageSize) - 1);
+      if ((direction > 0 && gridPage < lastPage) || (direction < 0 && gridPage > 0)) {
+        turnGridPage(direction);
+        return;
+      }
+      stepSection(direction);
+    }
     function turnGridTo(target) {
       if (pageTransitioning || morphing || target === gridPage) return;
       lockTransitionScroll();
@@ -1262,7 +1272,7 @@
       const touch = event.changedTouches[0];
       const dx = touch.clientX - gridSwipe.x, dy = touch.clientY - gridSwipe.y;
       const elapsed = performance.now() - gridSwipe.time; gridSwipe = null;
-      if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) turnGridPage(dx < 0 ? 1 : -1);
+      if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) turnGridOrSection(dx < 0 ? 1 : -1);
     }, { passive:true });
 
     const detailCopy = { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram" };
