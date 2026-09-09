@@ -277,6 +277,7 @@ function safeData(input) {
       id: String(item.id || makeId()).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64),
       src: String(item.src || "").replace(/^\/+/, "").slice(0, 500),
       originalSrc: String(item.originalSrc || item.src || "").replace(/^\/+/, "").slice(0, 500),
+      mediaType: item.mediaType === "html" ? "html" : "image",
       title: String(item.title || "").slice(0, 200),
       note: String(item.note || "Selected from the current image archive.").slice(0, 1000),
       status: String(item.status || "selected").slice(0, 100),

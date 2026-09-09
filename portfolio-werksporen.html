@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Werksporen — portfolio van beeldend werk.">
   <title>werksporen — portfolio</title>
+  <script>(()=>{const now=new Date(),automatic=now.getHours()>=21||now.getHours()<9?"night":"day",saved=localStorage.getItem("werksporen-theme-v1"),until=Number(localStorage.getItem("werksporen-theme-until-v1")||0);document.documentElement.dataset.theme=saved&&Date.now()<until?saved:automatic;})();</script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap');
 
@@ -14,9 +15,14 @@
       --soft: #77736c;
       --hairline: #c9c6bd;
       --accent: #a3442e;
+      --grid-line: #f6f5f0;
       --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
       --mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
     }
+    html[data-theme="night"] { --paper:#141613; --ink:#e3e4dc; --soft:#aaa69d; --hairline:#45473f; --accent:#d97a64; --grid-line:#252922; color-scheme:dark; }
+    body, .page, .filter, .detail-panel, .contact-form input, .contact-form textarea { transition:background-color .45s cubic-bezier(.22,1,.36,1),color .45s cubic-bezier(.22,1,.36,1),border-color .45s ease; }
+    html[data-theme="night"] .overview-thumb.has-image { background:#1d1f1b !important; }
+    html[data-theme="night"] .viewer-canvas { background:#10110f; }
 
     * { box-sizing: border-box; }
     html { scroll-behavior:smooth; }
@@ -50,6 +56,11 @@
     .language-toggle .language-option { opacity:.48; transition:opacity .18s ease,color .18s ease; }
     .language-toggle .language-option.is-active { opacity:1; color:var(--accent); font-weight:600; }
     .language-toggle:hover, .language-toggle:focus-visible { color:var(--accent); outline:none; }
+    .masthead-controls { justify-self:end; display:flex; align-items:center; gap:14px; padding-top:3px; color:var(--soft); font-size:10px; }
+    .theme-toggle { border:0; padding:0; background:transparent; color:inherit; cursor:pointer; font:inherit; letter-spacing:.025em; white-space:nowrap; }
+    .theme-toggle span { opacity:.42; transition:opacity .18s ease,color .18s ease; }
+    .theme-toggle span.is-active { opacity:1; color:var(--accent); font-weight:600; }
+    .theme-toggle:hover, .theme-toggle:focus-visible { color:var(--accent); outline:none; }
 
     .intro {
       display: grid;
@@ -73,24 +84,37 @@
 
     .project-menu {
       display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      padding-top: 8px;
       border-bottom: 1px solid var(--ink);
       overflow-x: auto;
       scrollbar-width: none;
     }
     .project-menu::-webkit-scrollbar { display: none; }
     .filter {
-      flex: 0 0 auto;
+      flex: 0 0 52px;
+      min-width: 0;
       appearance: none;
-      border: 0;
-      border-right: 1px solid var(--hairline);
-      padding: 13px 16px 12px;
+      border: 1px solid var(--hairline);
+      border-bottom: 0;
+      border-radius: 5px 5px 0 0;
+      padding: 11px 9px 10px;
       background: transparent;
       color: var(--soft);
       cursor: pointer;
-      transition: background .15s ease, color .15s ease;
+      overflow: hidden;
+      white-space: nowrap;
+      text-align: left;
+      font: inherit;
+      transform-origin: bottom left;
+      will-change: flex-basis, transform;
+      transition: flex-basis .48s cubic-bezier(.22,.72,.18,1), background-color .28s ease, color .28s ease, border-color .28s ease, transform .48s cubic-bezier(.22,.72,.18,1), padding .48s cubic-bezier(.22,.72,.18,1);
     }
-    .filter:first-child { padding-left:14px; padding-right:20px; }
-    .filter:hover, .filter.is-active { color:var(--paper); background:var(--ink); }
+    .filter::before { content:attr(data-mobile-index); display:inline-block; min-width:2.25ch; color:inherit; font-size:14px; font-weight:500; letter-spacing:-.04em; vertical-align:middle; }
+    .filter::after { content:attr(data-mobile-label); display:inline-block; max-width:0; margin-left:0; overflow:hidden; opacity:0; vertical-align:middle; font-size:11px; letter-spacing:0; transform:translateX(-5px); transition:max-width .48s cubic-bezier(.22,.72,.18,1), margin-left .48s cubic-bezier(.22,.72,.18,1), opacity .22s ease, transform .48s cubic-bezier(.22,.72,.18,1); }
+    .filter:is(:hover,:focus-visible,.is-active) { flex-basis:158px; padding-left:12px; color:var(--paper); background:var(--ink); border-color:var(--ink); transform:translateY(-3px); outline:none; }
+    .filter:is(:hover,:focus-visible,.is-active)::after { max-width:118px; margin-left:7px; opacity:1; transform:translateX(0); }
     .mobile-swipe-hint { display:none; }
 
     .work { border-bottom: 1px solid var(--hairline); }
@@ -165,6 +189,7 @@
       .name { padding-top:2px; }
       .location { padding-top:2px; }
       .edition { display: none; }
+      .masthead-controls { gap:9px; font-size:9px; }
       .intro, .work-topline, .work-grid, .archive-note, .contact { grid-template-columns: 1fr; gap: 12px; }
       .intro { padding: 14vh 0 11vh; }
       .intro-aside { margin-top: 28px; }
@@ -180,17 +205,12 @@
       .archive-note { padding: 72px 0; }
       .archive-note h2, .archive-note p, .contact-links { grid-column: auto; }
       .contact-signoff { text-align: left; }
-      .project-menu { width:100%; overflow-x:hidden; }
-      .filter { flex:0 0 38px; min-width:38px; padding:11px 8px 10px; justify-content:center; font-size:0; overflow:hidden; white-space:nowrap; will-change:flex-basis; transition:flex-basis .28s cubic-bezier(.2,.75,.25,1), background-color .2s ease, color .2s ease; }
-      .filter::before { content:attr(data-mobile-index); font-size:10px; }
-      .filter[data-filter="all"] { flex-basis:70px; padding-left:8px; padding-right:8px; }
-      .filter[data-filter="all"]::before { content:"Home"; }
-      .filter:not([data-filter="all"]):is(:focus-visible,.is-active) { flex-basis:min(132px,34vw); }
-      .filter:not([data-filter="all"]):is(:focus-visible,.is-active)::before { content:attr(data-mobile-label); }
-      @media (hover:hover) and (pointer:fine) {
-        .filter:not([data-filter="all"]):hover { flex-basis:min(132px,34vw); }
-        .filter:not([data-filter="all"]):hover::before { content:attr(data-mobile-label); }
-      }
+      .project-menu { width:100%; overflow-x:auto; gap:1px; }
+      .filter { flex-basis:34px; padding:10px 6px 9px; }
+      .filter::before { min-width:2ch; font-size:13px; }
+      .filter:is(:focus-visible,.is-active) { flex-basis:min(116px,31vw); padding-left:9px; transform:translateY(-2px); }
+      .filter:is(:focus-visible,.is-active)::after { max-width:78px; margin-left:5px; }
+      @media (hover:hover) and (pointer:fine) { .filter:hover { flex-basis:min(116px,31vw); padding-left:9px; transform:translateY(-2px); } .filter:hover::after { max-width:78px; margin-left:5px; } }
     }
     @media (prefers-reduced-motion: no-preference) { .work { transition: opacity .25s ease; } .work.is-hidden { display: none; } }
   
@@ -208,6 +228,7 @@
     .overview-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: none; transform: scale(1.22); display: none; transition: transform .35s ease; }
     .overview-thumb.has-image { background:var(--paper) !important; }
     .overview-thumb.has-image img { display:block; } .overview-thumb:hover { transform:translateY(-3px); border-color:var(--ink); }
+    .overview-thumb iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#020504; pointer-events:none; }
     .overview-thumb.is-hidden { display: none; }
     .overview-work .work-grid { padding-top: 66px; padding-bottom: 210px; }
     .contact-button { border: 0; padding: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; }
@@ -318,8 +339,9 @@
     .view-icon.dots i { width:3px; height:3px; border-radius:50%; background:currentColor; }
     .grid-view-button { border:1px solid transparent !important; opacity:.48; }
     .grid-view-button.is-active { border-color:currentColor !important; opacity:1; }
-    .overview-grid { aspect-ratio:9 / 13; grid-template-rows:repeat(4,minmax(0,1fr)); }
+    .overview-grid { position:relative; aspect-ratio:9 / 13; grid-template-rows:repeat(4,minmax(0,1fr)); }
     .overview-grid:not(.is-single) { gap:12px; }
+    .overview-grid:not(.is-single)::before { content:""; position:absolute; inset:0; z-index:4; pointer-events:none; --intersection-radius:max(2px,var(--frame-radius,0px)); background-image:radial-gradient(circle at calc(33.333% - 2px) calc(25% - 3px),var(--paper) 0 var(--intersection-radius),transparent calc(var(--intersection-radius) + 1px)),radial-gradient(circle at calc(66.667% + 2px) calc(25% - 3px),var(--paper) 0 var(--intersection-radius),transparent calc(var(--intersection-radius) + 1px)),radial-gradient(circle at calc(33.333% - 2px) 50%,var(--paper) 0 var(--intersection-radius),transparent calc(var(--intersection-radius) + 1px)),radial-gradient(circle at calc(66.667% + 2px) 50%,var(--paper) 0 var(--intersection-radius),transparent calc(var(--intersection-radius) + 1px)),radial-gradient(circle at calc(33.333% - 2px) calc(75% + 3px),var(--paper) 0 var(--intersection-radius),transparent calc(var(--intersection-radius) + 1px)),radial-gradient(circle at calc(66.667% + 2px) calc(75% + 3px),var(--paper) 0 var(--intersection-radius),transparent calc(var(--intersection-radius) + 1px)); }
     .overview-grid:not(.is-single) .overview-thumb { width:100%; height:100%; aspect-ratio:auto; }
     .overview-grid.is-single { grid-template-columns:1fr; grid-template-rows:1fr; gap:0; }
     .overview-grid.is-single .overview-thumb { width:100%; height:100%; aspect-ratio:auto; }
@@ -365,7 +387,7 @@
     .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:0; background-image:var(--mosaic-image); background-size:cover; background-position:center; background-repeat:no-repeat; }
     .home-mosaic::before { content:""; position:absolute; inset:0; z-index:4; pointer-events:none; opacity:0; border-radius:inherit; background:linear-gradient(90deg,rgba(255,255,255,.08),transparent 24%,transparent 68%,rgba(255,255,255,.24) 86%,rgba(28,27,25,.16)); transition:opacity 1.35s ease; }
     .home-feature.intro-opening .home-mosaic::before { opacity:1; }
-    .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); border-radius:inherit; }
+    .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; --home-corner-radius:max(2px,var(--frame-radius,0px)); background-image:radial-gradient(circle at 100% 100%,var(--grid-line) 0 var(--home-corner-radius),transparent calc(var(--home-corner-radius) + 1px)),repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),var(--grid-line) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),var(--grid-line) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); background-size:var(--mosaic-cell-width) var(--mosaic-cell-height),auto,auto; border-radius:inherit; }
     .home-tile { position:relative; z-index:1; background-color:transparent; background-image:none; background-size:auto; box-shadow:none; }
     .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; overflow:hidden; clip-path:inset(0 round var(--frame-radius,0px)); }
 
@@ -410,10 +432,10 @@
     .grid-morph-cell { position:fixed; overflow:hidden; background-repeat:no-repeat; background-color:var(--paper); transform-origin:center; }
     .grid-morph-cell img { width:100%; height:100%; object-fit:cover; display:block; }
     .raster-morph-layer { position:fixed; z-index:999; pointer-events:none; overflow:hidden; }
-    .raster-morph-line { position:absolute; background:rgba(246,245,240,.96); transform-origin:center; }
+    .raster-morph-line { position:absolute; background:var(--grid-line); transform-origin:center; }
     .raster-morph-line.is-vertical { top:0; bottom:0; width:1px; transform:translateX(-50%); }
     .raster-morph-line.is-horizontal { left:0; right:0; height:1px; transform:translateY(-50%); }
-    .raster-morph-corner { position:absolute; z-index:2; border-radius:50%; background:rgba(246,245,240,.96); transform:translate(-50%,-50%); }
+    .raster-morph-corner { position:absolute; z-index:2; border-radius:50%; background:var(--paper); transform:translate(-50%,-50%); }
     .home-raster-snapshot { position:fixed; z-index:998; pointer-events:none; overflow:hidden; background-repeat:no-repeat; transform:none !important; }
     .return-home-face { position:absolute; inset:0; z-index:3; background-repeat:no-repeat; transform-origin:center; pointer-events:none; border-radius:inherit; }
     .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:transparent; border:0; outline:0; box-shadow:none; border-radius:var(--frame-radius,0px); backface-visibility:hidden; -webkit-backface-visibility:hidden; transform:translateZ(0); }
@@ -436,7 +458,7 @@
     <header class="masthead">
       <a class="name" href="#top">[ Lars Kramer ]</a>
       <div class="edition">WERKSPOREN / 01 — 2026</div>
-      <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">NL · OPEN VOOR WERK</button>
+      <div class="masthead-controls"><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch between day and night"><span data-theme-label="day">DAY</span> / <span data-theme-label="night">NIGHT</span></button><button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">NL · OPEN VOOR WERK</button></div>
     </header>
 
     <section class="intro" id="top">
@@ -597,6 +619,62 @@
     }
     setText(".name", adminTexts.name); setText(".edition", adminTexts.edition);
     const languageToggle = document.getElementById("language-toggle");
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeStorageKey = "werksporen-theme-v1";
+    const themeOverrideUntilKey = "werksporen-theme-until-v1";
+    const automaticTheme = () => { const hour = new Date().getHours(); return hour >= 21 || hour < 9 ? "night" : "day"; };
+    const savedTheme = localStorage.getItem(themeStorageKey);
+    const savedThemeUntil = Number(localStorage.getItem(themeOverrideUntilKey) || 0);
+    let currentTheme = savedTheme && Date.now() < savedThemeUntil ? savedTheme : automaticTheme();
+    function nextThemeBoundary() {
+      const now = new Date(), boundary = new Date(now);
+      if (now.getHours() < 9) boundary.setHours(9,0,0,0);
+      else if (now.getHours() < 21) boundary.setHours(21,0,0,0);
+      else { boundary.setDate(boundary.getDate() + 1); boundary.setHours(9,0,0,0); }
+      return boundary.getTime();
+    }
+    const dayTheme = {
+      paper: adminConfig?.theme?.background || "#f6f5f0",
+      accent: adminConfig?.theme?.accent || "#a3442e"
+    };
+    function mirrorThemeTone(hex, minimumLightness = 58, maximumLightness = 82) {
+      const match = String(hex || "").trim().match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
+      if (!match) return hex;
+      let [red,green,blue] = match.slice(1).map(value => parseInt(value,16) / 255);
+      const max = Math.max(red,green,blue), min = Math.min(red,green,blue);
+      let hue = 0, saturation = 0;
+      const lightness = (max + min) / 2;
+      const delta = max - min;
+      if (delta) {
+        saturation = delta / (1 - Math.abs(2 * lightness - 1));
+        if (max === red) hue = ((green - blue) / delta) % 6;
+        else if (max === green) hue = (blue - red) / delta + 2;
+        else hue = (red - green) / delta + 4;
+        hue = (hue * 60 + 360) % 360;
+      }
+      const mirrored = Math.min(maximumLightness,Math.max(minimumLightness,(1 - lightness) * 100)) / 100;
+      const chroma = (1 - Math.abs(2 * mirrored - 1)) * saturation;
+      const segment = hue / 60;
+      const x = chroma * (1 - Math.abs(segment % 2 - 1));
+      const rgb = segment < 1 ? [chroma,x,0] : segment < 2 ? [x,chroma,0] : segment < 3 ? [0,chroma,x] : segment < 4 ? [0,x,chroma] : segment < 5 ? [x,0,chroma] : [chroma,0,x];
+      const offset = mirrored - chroma / 2;
+      return "#" + rgb.map(channel => Math.round((channel + offset) * 255).toString(16).padStart(2,"0")).join("");
+    }
+    function applyTheme() {
+      document.documentElement.dataset.theme = currentTheme;
+      const night = currentTheme === "night";
+      document.documentElement.style.setProperty("--paper",night ? mirrorThemeTone(dayTheme.paper,7,13) : dayTheme.paper);
+      document.documentElement.style.setProperty("--ink",night ? "#e3e4dc" : "#1c1b19");
+      document.documentElement.style.setProperty("--soft",night ? "#aaa69d" : "#77736c");
+      document.documentElement.style.setProperty("--hairline",night ? "#45473f" : "#c9c6bd");
+      document.documentElement.style.setProperty("--accent",night ? mirrorThemeTone(dayTheme.accent) : dayTheme.accent);
+      document.documentElement.style.setProperty("--grid-line",night ? "#252922" : "#f6f5f0");
+      themeToggle.querySelectorAll("[data-theme-label]").forEach(label => label.classList.toggle("is-active",label.dataset.themeLabel === currentTheme));
+      themeToggle.setAttribute("aria-label",currentTheme === "night" ? "Switch to day mode" : "Switch to night mode");
+      localStorage.setItem(themeStorageKey,currentTheme);
+    }
+    themeToggle.addEventListener("click",() => { currentTheme = currentTheme === "night" ? "day" : "night"; localStorage.setItem(themeOverrideUntilKey,String(nextThemeBoundary())); applyTheme(); });
+    applyTheme();
     const languageStorageKey = "werksporen-language-v2";
     let currentLanguage = localStorage.getItem(languageStorageKey) === "nl" ? "nl" : "en";
     const translations = {
@@ -632,7 +710,13 @@
       setText('label[for="visitor-name"]', t.name); setText('label[for="visitor-email"]', t.email); setText('label[for="visitor-message"]', t.message); setText('#contact-form button[type="submit"]', t.send);
       document.getElementById("image-viewer").setAttribute("aria-label", t.viewer);
       document.querySelector(".viewer-info").setAttribute("aria-label", t.next);
-      document.querySelectorAll(".project-menu .filter").forEach((button, index) => { button.dataset.mobileIndex = index === 0 ? "" : String(index).padStart(2,"0"); button.dataset.mobileLabel = button.textContent.trim(); });
+      document.querySelectorAll(".project-menu .filter").forEach((button, index) => {
+        const fullLabel = button.textContent.trim();
+        const match = fullLabel.match(/^(\d{2})\s*(.*)$/);
+        button.dataset.mobileIndex = match?.[1] || String(index).padStart(2,"0");
+        button.dataset.mobileLabel = match?.[2] || fullLabel;
+        button.setAttribute("aria-label",fullLabel);
+      });
       if (typeof today !== "undefined") today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).format(new Date());
       if (typeof welcome !== "undefined") welcome = `${t.welcome} ${t.scrollCue}\n\n${today}.`;
       if (typeof introFinished !== "undefined" && introFinished && typewriterText) typewriterText.textContent = welcome;
@@ -812,7 +896,11 @@
         figure.dataset.year = item.year || "2026";
         figure.dataset.medium = item.medium || "";
         figure.dataset.format = item.format || "image";
-        const image = document.createElement("img"); image.dataset.fullSrc = item.src; image.dataset.thumbSrc = thumbnailSource(item.src); image.loading = "lazy"; image.decoding = "async"; image.alt = item.title || "Portfolio work"; image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); image.dataset.managedId = item.id;
+        const animated = item.mediaType === "html" || /\.html?$/i.test(item.src);
+        const image = document.createElement(animated ? "iframe" : "img");
+        if (animated) { image.src = item.src; image.title = item.title || "Animated portfolio work"; image.setAttribute("sandbox","allow-scripts"); image.dataset.fullSrc = item.src; image.style.transform = managedTransform(item); image.style.transformOrigin = `${item.x ?? 50}% ${item.y ?? 50}%`; }
+        else { image.dataset.fullSrc = item.src; image.dataset.thumbSrc = thumbnailSource(item.src); image.loading = "lazy"; image.decoding = "async"; image.alt = item.title || "Portfolio work"; image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); }
+        image.dataset.managedId = item.id;
         const caption = document.createElement("figcaption"); caption.innerHTML = `<span>${item.title || ""}</span><span>${String(index + 1).padStart(2,"0")}</span>`;
         figure.append(image, caption); overviewGrid.appendChild(figure);
       });
@@ -1056,7 +1144,7 @@
       }
     }
     function makeFlipTarget(cell) {
-      if (!(cell instanceof HTMLImageElement)) return { node:cell, cleanup() {} };
+      if (!(cell instanceof HTMLImageElement) && !(cell instanceof HTMLIFrameElement)) return { node:cell, cleanup() {} };
       const frame = cell.closest(".overview-thumb");
       const outer = (frame || cell).getBoundingClientRect();
       const insetX = frame?.clientLeft || 0, insetY = frame?.clientTop || 0;
@@ -1357,13 +1445,13 @@
     }
 
     function activeGridVisuals(home) {
-      return home ? homeTiles.slice() : activeGridCells(false).map(frame => frame.querySelector("img")).filter(Boolean);
+      return home ? homeTiles.slice() : activeGridCells(false).map(frame => frame.querySelector("img,iframe")).filter(Boolean);
     }
 
     let returnHomePanels = [];
     async function flipGalleryToHomeFaces() {
       const frames = activeGridCells(false);
-      const images = frames.map(frame => frame.querySelector("img")).filter(Boolean);
+      const images = frames.map(frame => frame.querySelector("img,iframe")).filter(Boolean);
       const gridRect = overviewGrid.getBoundingClientRect();
       if (reducedMotion.matches || !gridRect.width) return;
       pageTransitioning = true;
