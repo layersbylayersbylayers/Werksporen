@@ -257,8 +257,9 @@
         <div class="panel" id="account-panel" hidden>
           <div class="section-head"><div><h2>03 / ACCOUNT</h2><p>Wijzig het tijdelijke wachtwoord admin.</p></div></div>
           <form class="account-card" id="password-form">
-            <div class="field"><label for="current-password">huidig wachtwoord</label><input id="current-password" type="password" required></div>
-            <div class="field"><label for="new-password">nieuw wachtwoord (minimaal 8 tekens)</label><input id="new-password" type="password" minlength="8" required></div>
+            <p class="edit-hint">Online eerste activatie: laat huidig wachtwoord leeg. Daarna gebruik je hier steeds je bestaande wachtwoord.</p>
+            <div class="field"><label for="current-password">huidig wachtwoord</label><input id="current-password" type="password" autocomplete="current-password"></div>
+            <div class="field"><label for="new-password">nieuw wachtwoord (minimaal 10 tekens)</label><input id="new-password" type="password" minlength="10" autocomplete="new-password" required></div>
             <button type="submit">WACHTWOORD WIJZIGEN</button>
             <p id="password-state" role="status"></p>
           </form>
@@ -1018,10 +1019,6 @@
     async function start() {
       try {
         data = await request("/api/data");
-        if (!["localhost", "127.0.0.1"].includes(location.hostname)) {
-          const accountTab = document.querySelector('[data-tab="account"]');
-          if (accountTab) accountTab.hidden = true;
-        }
         try {
           const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
           if (draft?.data?.items && draft?.data?.sections) { data = draft.data; dirty = true; saveState.textContent = "lokaal concept hersteld"; }

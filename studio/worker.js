@@ -28,7 +28,8 @@ function ownerIdentity(request, env) {
 
 async function requireOwner(request, env) {
   const identity = ownerIdentity(request, env);
-  return identity || null;
+  if (identity) return { ...identity, method:"chatgpt" };
+  return passwordSession(request, env);
 }
 
 async function seedData(request, env) {
@@ -94,6 +95,26 @@ async function hash(value) {
   return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2,"0")).join("").slice(0,32);
 }
 
+function cookies(request) { return Object.fromEntries((request.headers.get("cookie") || "").split(";").map(part => part.trim().split("=")).filter(pair => pair.length === 2)); }
+function bytesToBase64(bytes) { let binary=""; for (const byte of bytes) binary += String.fromCharCode(byte); return btoa(binary).replaceAll("+","-").replaceAll("/","_").replaceAll("=",""); }
+async function passwordDigest(password,salt,iterations) {
+  const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveBits"]);
+  return bytesToBase64(new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",hash:"SHA-256",salt:new TextEncoder().encode(salt),iterations},key,256)));
+}
+function constantEqual(a,b) { if (a.length!==b.length) return false; let difference=0; for(let i=0;i<a.length;i+=1) difference|=a.charCodeAt(i)^b.charCodeAt(i); return difference===0; }
+async function credential(env) { return env.DB.prepare("SELECT username,salt,password_hash passwordHash,iterations FROM admin_auth WHERE id='owner'").first(); }
+async function passwordSession(request,env) {
+  const token=cookies(request).werksporen_admin; if(!token) return null;
+  const tokenHash=await hash(token), now=Math.floor(Date.now()/1000);
+  const row=await env.DB.prepare("SELECT expires_at FROM admin_sessions WHERE token_hash=? AND expires_at>?").bind(tokenHash,now).first();
+  return row ? {email:"admin",id:"password",method:"password",tokenHash} : null;
+}
+async function createPasswordSession(env) {
+  const token=bytesToBase64(crypto.getRandomValues(new Uint8Array(32))), tokenHash=await hash(token), now=Math.floor(Date.now()/1000), expires=now+2592000;
+  await env.DB.batch([env.DB.prepare("DELETE FROM admin_sessions WHERE expires_at<=?").bind(now),env.DB.prepare("INSERT INTO admin_sessions(token_hash,created_at,expires_at) VALUES(?,?,?)").bind(tokenHash,new Date().toISOString(),expires)]);
+  return `werksporen_admin=${token}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=2592000`;
+}
+
 async function rateLimit(request, env, kind, limit, seconds) {
   const source = request.headers.get("cf-connecting-ip") || "unknown";
   const windowId = Math.floor(Date.now() / (seconds * 1000));
@@ -142,7 +163,12 @@ async function handleApi(request, env, path) {
   if (["/api/public/content", "/api/contact", "/api/track"].includes(path) && request.method === "OPTIONS") {
     return new Response(null, { status:204, headers:{ ...securityHeaders("text/plain; charset=utf-8"), ...publicCors, "Access-Control-Allow-Methods":"GET, POST, OPTIONS", "Access-Control-Allow-Headers":"Content-Type", "Access-Control-Max-Age":"86400" } });
   }
-  if (path === "/api/session") return json({ authenticated:Boolean(owner), email:owner?.email || null });
+  if (path === "/api/session") return json({ authenticated:Boolean(owner), email:owner?.email || null, method:owner?.method || null });
+  if (path === "/api/login" && request.method === "POST") {
+    await rateLimit(request,env,"admin-login",8,900); const body=await readJson(request,8192), auth=await credential(env);
+    if(!auth || String(body.username||"").trim()!==auth.username || !constantEqual(await passwordDigest(String(body.password||""),auth.salt,Number(auth.iterations)),auth.passwordHash)) return json({error:"Naam of wachtwoord klopt niet"},401);
+    return json({ok:true},200,{"Set-Cookie":await createPasswordSession(env)});
+  }
   if (path === "/api/public/content" && request.method === "GET") {
     const content = await readContent(request, env, "published");
     return json({ ...publicContent(content.data,request), _revision:content.revision }, 200, { "Cache-Control":"public, max-age=30, stale-while-revalidate=300", "ETag":`W/\"${content.revision}\"`, ...publicCors });
@@ -164,6 +190,7 @@ async function handleApi(request, env, path) {
     return json({ ok:true }, 200, publicCors);
   }
   if (!owner) return json({ error:"Log veilig in om de Admin te gebruiken" }, 401);
+  if (request.method !== "GET" && request.headers.get("origin") && request.headers.get("origin") !== new URL(request.url).origin) return json({error:"Ongeldige aanvraag"},403);
   if (path === "/api/data" && request.method === "GET") {
     const content = await readContent(request, env, "draft"); return json({ ...content.data, _revision:content.revision });
   }
@@ -189,7 +216,19 @@ async function handleApi(request, env, path) {
   }
   if (path === "/api/analytics" && request.method === "GET") return json(await analytics(env));
   if (path === "/api/messages" && request.method === "GET") return json(await messages(env));
-  if (path === "/api/logout" && request.method === "POST") return json({ ok:true, signOut:"/signout-with-chatgpt?return_to=/" });
+  if (path === "/api/password" && request.method === "POST") {
+    const body=await readJson(request,8192), next=String(body.next||""), auth=await credential(env);
+    if(next.length<10) return json({error:"Gebruik minimaal 10 tekens"},400);
+    if(auth && !constantEqual(await passwordDigest(String(body.current||""),auth.salt,Number(auth.iterations)),auth.passwordHash)) return json({error:"Huidig wachtwoord klopt niet"},403);
+    if(!auth && owner.method!=="chatgpt") return json({error:"Activeer eerst via de eigenaar-login"},403);
+    const salt=bytesToBase64(crypto.getRandomValues(new Uint8Array(18))), iterations=260000, passwordHash=await passwordDigest(next,salt,iterations), now=new Date().toISOString();
+    await env.DB.batch([env.DB.prepare("INSERT INTO admin_auth(id,username,salt,password_hash,iterations,updated_at) VALUES('owner','admin',?,?,?,?) ON CONFLICT(id) DO UPDATE SET salt=excluded.salt,password_hash=excluded.password_hash,iterations=excluded.iterations,updated_at=excluded.updated_at").bind(salt,passwordHash,iterations,now),env.DB.prepare("DELETE FROM admin_sessions")]);
+    return json({ok:true},200,{"Set-Cookie":await createPasswordSession(env)});
+  }
+  if (path === "/api/logout" && request.method === "POST") {
+    if(owner.tokenHash) await env.DB.prepare("DELETE FROM admin_sessions WHERE token_hash=?").bind(owner.tokenHash).run();
+    return json({ok:true,signOut:owner.method==="chatgpt"?"/signout-with-chatgpt?return_to=/admin":null},200,{"Set-Cookie":"werksporen_admin=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0"});
+  }
   return json({ error:"Niet gevonden" }, 404);
 }
 
@@ -204,7 +243,7 @@ export default {
       }
       if (url.pathname.startsWith("/media/")) {
         const key = decodeURIComponent(url.pathname.slice(7));
-        if (key.startsWith("originals/") && !ownerIdentity(request, env)) return json({ error:"Geen toegang" }, 403);
+        if (key.startsWith("originals/") && !(await requireOwner(request, env))) return json({ error:"Geen toegang" }, 403);
         if (!key.startsWith("public/") && !key.startsWith("originals/")) return json({ error:"Ongeldig bestand" }, 400);
         const object = await env.MEDIA.get(key); if (!object) return new Response("Niet gevonden", { status:404 });
         const headers = new Headers(securityHeaders(object.httpMetadata?.contentType || "application/octet-stream"));
@@ -213,8 +252,8 @@ export default {
       }
       if (url.pathname.startsWith("/portfolio-images/")) return Response.redirect(`${GITHUB_FALLBACK}${url.pathname}`, 302);
       if (url.pathname === "/admin" || url.pathname === "/admin/") {
-        const owner = ownerIdentity(request, env);
-        if (!owner) return Response.redirect(new URL(`/signin-with-chatgpt?return_to=${encodeURIComponent("/admin")}`,request.url),302);
+        const owner = await requireOwner(request, env), auth = await credential(env);
+        if (!owner && !auth) return Response.redirect(new URL(`/signin-with-chatgpt?return_to=${encodeURIComponent("/admin")}`,request.url),302);
         return env.ASSETS.fetch(new Request(new URL("/portfolio-admin.html",request.url),request));
       }
       if (["/portfolio-admin", "/portfolio-admin/", "/portfolio-admin.html"].includes(url.pathname)) {
