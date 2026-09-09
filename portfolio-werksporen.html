@@ -46,6 +46,8 @@
     .name { letter-spacing: -.05em; font-size: 21px; font-weight: 500; color: var(--accent); padding-top: 8px; }
     .edition { color: var(--soft); text-align: center; font-size: 10px; padding-top: 3px; }
     .location { text-align: right; color: var(--soft); font-size: 10px; padding-top: 3px; }
+    .language-toggle { border:0; padding:0; background:transparent; color:inherit; font:inherit; cursor:pointer; text-align:right; }
+    .language-toggle:hover, .language-toggle:focus-visible { color:var(--accent); outline:none; }
 
     .intro {
       display: grid;
@@ -423,7 +425,7 @@
     <header class="masthead">
       <a class="name" href="#top">[ Lars Kramer ]</a>
       <div class="edition">WERKSPOREN / 01 — 2026</div>
-      <div class="location">NL · OPEN VOOR WERK</div>
+      <button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">NL · OPEN VOOR WERK</button>
     </header>
 
     <section class="intro" id="top">
@@ -572,7 +574,26 @@
         makeFilter("about", adminTexts.aboutLabel || "about")
       );
     }
-    setText(".name", adminTexts.name); setText(".edition", adminTexts.edition); setText(".location", adminTexts.location);
+    setText(".name", adminTexts.name); setText(".edition", adminTexts.edition);
+    const languageToggle = document.getElementById("language-toggle");
+    let currentLanguage = localStorage.getItem("werksporen-language") === "en" ? "en" : "nl";
+    const translations = {
+      nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERK NOTE", status:"STATUS", format:"FORMAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe tabs →" },
+      en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe tabs →" }
+    };
+    function applyLanguage() {
+      const t = translations[currentLanguage];
+      document.documentElement.lang = currentLanguage;
+      languageToggle.textContent = t.location;
+      languageToggle.setAttribute("aria-label", currentLanguage === "nl" ? "Schakel naar Engels" : "Switch to Dutch");
+      setText("[data-filter=inkt]", adminTexts.ink || t.ink); setText("[data-filter=verf]", adminTexts.paint || t.paint); setText("[data-filter=digitaal]", adminTexts.digital || t.digital); setText("[data-filter=proces]", adminTexts.process || t.process); setText("[data-filter=about]", adminTexts.aboutLabel || t.aboutLabel);
+      setText(".work-number", adminTexts.selection || t.selection); setText(".work-topline span:nth-child(2)", adminTexts.overview || t.overview); setText(".contact-button", adminTexts.contactButton || t.contact); setText(".contact-signoff", adminTexts.footer);
+      document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replace(" ",""); if (key === "worknote") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "format") element.textContent = t.format; });
+      setText(".full-image-hint", t.fullImage); setText(".viewer-close", t.close); setText(".mobile-swipe-hint", t.swipe);
+      if (typewriterText) typewriterText.textContent = `${t.welcome} ${t.scrollCue}`;
+      if (typeof welcome !== "undefined") welcome = `${t.welcome} ${t.scrollCue}\n\n${today}.`;
+      localStorage.setItem("werksporen-language", currentLanguage);
+    }
     setText("[data-filter=\"inkt\"]", adminTexts.ink); setText("[data-filter=\"verf\"]", adminTexts.paint); setText("[data-filter=\"digitaal\"]", adminTexts.digital); setText("[data-filter=\"proces\"]", adminTexts.process); setText("[data-filter=\"about\"]", adminTexts.aboutLabel);
     setText(".work-number", adminTexts.selection); setText(".work-topline span:nth-child(2)", adminTexts.overview); setText(".contact-button", adminTexts.contactButton); setText(".contact-signoff", adminTexts.footer);
     Array.from(document.querySelectorAll(".project-menu .filter")).forEach((button,index) => {
@@ -586,9 +607,11 @@
       window.location.reload();
     });
     const today = new Intl.DateTimeFormat("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
-    const welcomeLead = adminTexts.welcome || "Welcome;";
-    const welcome = `${welcomeLead} ${adminTexts.scrollCue || "scroll to explore"}\n\n${today}.`;
+    const welcomeLead = adminTexts.welcome || translations[currentLanguage].welcome;
+    let welcome = `${welcomeLead} ${adminTexts.scrollCue || translations[currentLanguage].scrollCue}\n\n${today}.`;
     const typewriterText = document.getElementById("typewriter-text");
+    languageToggle.addEventListener("click", () => { currentLanguage = currentLanguage === "nl" ? "en" : "nl"; applyLanguage(); });
+    applyLanguage();
     let character = 0;
     const homeFeature = document.querySelector(".home-feature");
     let introFinished = false;
