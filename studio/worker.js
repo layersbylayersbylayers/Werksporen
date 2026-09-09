@@ -198,7 +198,7 @@ export default {
     const url = new URL(request.url);
     try {
       if (url.pathname.startsWith("/api/")) return await handleApi(request, env, url.pathname);
-      if (url.pathname === "/portfolio-admin-data.js") {
+      if (url.pathname === "/studio-data.js" || url.pathname === "/portfolio-admin-data.js") {
         const content = await readContent(request, env, "published");
         return new Response(`window.PORTFOLIO_ADMIN_DATA=${JSON.stringify(publicContent(content.data,request))};window.WERKSPOREN_STUDIO_ORIGIN=${JSON.stringify(new URL(request.url).origin)};`, { headers:{ ...securityHeaders("application/javascript; charset=utf-8"), "Cache-Control":"public,max-age=30", "Access-Control-Allow-Origin":"*" } });
       }
