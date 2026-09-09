@@ -336,9 +336,9 @@
     /* Portrait mosaic home */
     .overview-work.show-feature .home-feature { display: grid; grid-template-columns: minmax(0, 715px) minmax(170px, 190px); gap: clamp(28px, 4vw, 58px); width: min(100%, 965px); align-items: start; }
     .home-feature .home-mosaic, .home-feature .feature-note { transition:opacity 2.08s cubic-bezier(.22,1,.36,1); }
-    .home-feature.intro-opening .home-mosaic { opacity:.04; transform:perspective(1200px) rotateY(-82deg) translateX(-18px); }
+    .home-feature.intro-opening .home-mosaic { opacity:0; transform:perspective(1450px) rotateY(-76deg) translateX(-10px) scaleY(.985); filter:brightness(.9) saturate(.94); border-radius:var(--frame-radius,0) calc(var(--frame-radius,0px) + 16px) calc(var(--frame-radius,0px) + 16px) var(--frame-radius,0); }
     .home-feature.intro-opening .feature-note { opacity:0; transform:translateY(7px); }
-    .home-feature .home-mosaic { transform-origin:left center; backface-visibility:hidden; transition:opacity 1.82s cubic-bezier(.22,1,.36,1), transform 1.82s cubic-bezier(.16,1,.3,1); }
+    .home-feature .home-mosaic { transform-origin:left center; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform,opacity; transition:opacity 1.95s cubic-bezier(.22,1,.36,1), transform 2.05s cubic-bezier(.18,.72,.18,1), filter 2.05s ease, border-radius 2.05s cubic-bezier(.18,.72,.18,1); }
     .home-feature .feature-note { transition:opacity 1.12s cubic-bezier(.22,1,.36,1), transform 1.12s cubic-bezier(.22,1,.36,1); }
     .home-feature.intro-pending .home-mosaic, .home-feature.intro-pending .feature-note { opacity: 0 !important; pointer-events: none; }
     .overview-work.show-feature .home-image, .overview-work.show-feature .scroll-cue { display: none !important; }
@@ -360,6 +360,8 @@
 
     /* Proportional source photo behind the 10 × 14 clipping grid. */
     .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:0; background-image:var(--mosaic-image); background-size:cover; background-position:center; background-repeat:no-repeat; }
+    .home-mosaic::before { content:""; position:absolute; inset:0; z-index:4; pointer-events:none; opacity:0; border-radius:inherit; background:linear-gradient(90deg,rgba(255,255,255,.08),transparent 24%,transparent 68%,rgba(255,255,255,.24) 86%,rgba(28,27,25,.16)); transition:opacity 1.35s ease; }
+    .home-feature.intro-opening .home-mosaic::before { opacity:1; }
     .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),rgba(246,245,240,.94) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); border-radius:inherit; }
     .home-tile { position:relative; z-index:1; background-color:transparent; background-image:none; background-size:auto; box-shadow:none; }
     .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; }
