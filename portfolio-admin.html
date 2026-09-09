@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f2ed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Werksporen Admin">
+  <link rel="manifest" href="/manifest.webmanifest">
   <title>Portfolio admin — Lars Kramer</title>
   <style>
     :root { --paper:#f3f2ed; --ink:#1e1f1c; --line:#b7b5ad; --red:#a3442e; --green:#344638; --soft:#e7e5de; --white:#faf9f5; --admin-image-shadow:none; }
@@ -65,7 +69,7 @@
     .home-grid-presets button.is-active { border-color:var(--red); color:var(--red); background:#f4eee8; }
     .edit-divider { margin:16px 0 12px; padding-top:12px; border-top:1px solid var(--ink); color:var(--green); font-size:.72rem; font-weight:700; }
     .edit-hint { margin:0 0 10px; color:#666; font-size:.68rem; }
-    .viewer-edit-preview { position:relative; width:100%; aspect-ratio:4 / 3; overflow:hidden; display:grid; place-items:center; background:#deddd6; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); box-shadow:var(--admin-image-shadow); transition:box-shadow .18s ease; cursor:grab; touch-action:none; }
+    .viewer-edit-preview { position:relative; width:100%; aspect-ratio:4 / 3; overflow:hidden; display:grid; place-items:center; background:repeating-conic-gradient(#e7e5de 0 25%,#f6f5f0 0 50%) 50% / 18px 18px; border:1px solid var(--line); border-radius:var(--admin-frame-radius,0px); box-shadow:var(--admin-image-shadow); transition:box-shadow .18s ease; cursor:grab; touch-action:none; }
     .viewer-edit-preview img { width:100%; height:100%; object-fit:contain; transform-origin:center; }
     .viewer-edit-preview::after { content:"WEERGAVE NA KLIK"; position:absolute; left:7px; top:7px; padding:3px 5px; background:rgba(28,27,25,.8); color:white; font-size:.58rem; pointer-events:none; }
     .image-list { display:grid; width:100%; aspect-ratio:9 / 13; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:12px; align-items:stretch; }
@@ -92,7 +96,7 @@
     .admin-view-button { opacity:.48; }
     .admin-view-button.is-active { opacity:1; border-color:var(--red); background:#f4eee8; }
     .item.is-off { opacity:.52; }
-    .item-preview { position:relative; aspect-ratio:4 / 5; height:auto; overflow:hidden; background:#d6d4cd; border-bottom:1px solid var(--line); box-shadow:var(--admin-image-shadow); transition:box-shadow .18s ease; }
+    .item-preview { position:relative; aspect-ratio:4 / 5; height:auto; overflow:hidden; background:repeating-conic-gradient(#d9d7d0 0 25%,#efeee8 0 50%) 50% / 18px 18px; border-bottom:1px solid var(--line); box-shadow:var(--admin-image-shadow); transition:box-shadow .18s ease; touch-action:none; }
     .item-preview img { width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; }
     .empty { height:100%; display:grid; place-items:center; padding:20px; color:#777; text-align:center; }
     .order { position:absolute; top:8px; left:8px; background:var(--ink); color:white; padding:4px 7px; font-size:.7rem; z-index:2; }
@@ -110,6 +114,10 @@
     .checks input { accent-color:var(--red); }
     .item-actions { display:flex; flex-wrap:wrap; gap:6px; padding-top:4px; border-top:1px solid var(--soft); }
     .item-actions button, .file-label { border:1px solid var(--line); background:transparent; padding:7px 9px; font-size:.7rem; }
+    .touch-tools { position:sticky; bottom:8px; z-index:5; display:flex; flex-wrap:wrap; gap:6px; margin:12px 0; padding:8px; border:1px solid var(--line); background:rgba(243,242,237,.94); backdrop-filter:blur(12px); }
+    .touch-tools button { min-height:38px; border:1px solid var(--line); background:var(--white); padding:7px 10px; font-size:.68rem; }
+    .touch-tools button.is-active { background:var(--ink); color:var(--white); }
+    .gesture-hint { margin:7px 0 12px; color:#666; font-size:.68rem; line-height:1.5; }
     .file-label { cursor:pointer; }
     .file-label input { display:none; }
     .danger { color:var(--red); margin-left:auto; }
@@ -136,14 +144,29 @@
       .mobile-preview { display:inline-block!important; }
     }
     @media (max-width:720px) {
-      .admin-header { height:auto; min-height:66px; flex-wrap:wrap; padding:10px 14px; }
+      .admin-header { height:auto; min-height:58px; flex-wrap:wrap; padding:8px 12px calc(8px + env(safe-area-inset-top)); }
+      .brand { width:100%; font-size:.82rem; }
       .tabs { order:3; width:100%; margin:0; }
-      .tab { flex:1; }
+      .tab { flex:1; min-height:44px; padding:9px 5px; font-size:.7rem; }
+      .actions { width:100%; margin:0; display:grid; grid-template-columns:1fr 1fr; }
+      .actions .save-state { position:absolute; right:12px; top:12px; }
       .actions .secondary { display:none; }
-      .editor { padding:16px; }
+      .actions .primary, .actions .mobile-preview { min-height:44px; display:grid!important; place-items:center; }
+      .editor { padding:14px 12px 96px; }
+      .section-head { align-items:flex-start; }
+      .section-head p { line-height:1.45; }
       .text-form, .dashboard-grid { grid-template-columns:1fr; }
       .metric.wide { grid-column:auto; }
       .image-list:not(.is-single) { grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(4,minmax(0,1fr)); gap:8px; }
+      .image-stage, .home-editor { width:100%; }
+      .image-list.is-single .item-preview { aspect-ratio:1 / 1; max-height:62dvh; }
+      .viewer-edit-preview { aspect-ratio:1 / 1; max-height:62dvh; }
+      .row { grid-template-columns:1fr; }
+      .field input[type="range"] { min-height:34px; }
+      .checks label, .item-actions button, .file-label { min-height:44px; align-items:center; display:flex; }
+      .touch-tools { bottom:calc(8px + env(safe-area-inset-bottom)); }
+      .gallery-filter { min-height:44px; }
+      .drag-handle { min-width:44px; min-height:44px; display:grid; place-items:center; top:5px; right:5px; }
     }
   </style>
 </head>
@@ -170,8 +193,10 @@
       <div class="actions">
         <span class="save-state" id="save-state">opgeslagen</span>
         <button class="secondary" id="export-button">BACKUP DOWNLOADEN</button>
+        <label class="secondary file-label" id="import-label">BACKUP IMPORTEREN<input id="import-backup" type="file" accept="application/json"></label>
         <a class="mobile-preview" href="/portfolio" target="_blank">TEST SITE</a>
-        <button class="primary" id="save-button">OPSLAAN + TESTEN</button>
+        <button id="save-button">CONCEPT OPSLAAN</button>
+        <button class="primary" id="publish-button">PUBLICEREN</button>
         <button class="secondary" id="logout-button">UITLOGGEN</button>
       </div>
     </header>
@@ -268,10 +293,54 @@
     let pointerTargetId = null;
     let pointerAfter = false;
     let panState = null;
+    const activeEditPointers = new Map();
     let adminFilter = "home";
+    let draftTimer = 0;
+    const draftKey = "werksporen-admin-draft-v2";
+    const pendingUrls = new Map();
+
+    function openOfflineFiles() {
+      return new Promise((resolve,reject) => {
+        const request = indexedDB.open("werksporen-admin",1);
+        request.onupgradeneeded = () => request.result.createObjectStore("files");
+        request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);
+      });
+    }
+    async function putOfflineFile(file) {
+      const key = crypto.randomUUID(), database = await openOfflineFiles();
+      await new Promise((resolve,reject) => { const transaction = database.transaction("files","readwrite"); transaction.objectStore("files").put(file,key); transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error); });
+      database.close(); return key;
+    }
+    async function getOfflineFile(key) {
+      const database = await openOfflineFiles();
+      const file = await new Promise((resolve,reject) => { const request = database.transaction("files").objectStore("files").get(key); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
+      database.close(); return file;
+    }
+    async function deleteOfflineFile(key) {
+      const database = await openOfflineFiles();
+      await new Promise((resolve,reject) => { const transaction = database.transaction("files","readwrite"); transaction.objectStore("files").delete(key); transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error); });
+      database.close();
+    }
+    async function restoreOfflineImages() {
+      for (const item of data.items.filter(entry => entry.pendingUploadKey)) {
+        const file = await getOfflineFile(item.pendingUploadKey).catch(() => null);
+        if (file) { const url = URL.createObjectURL(file); pendingUrls.set(item.pendingUploadKey,url); item.src = url; }
+      }
+    }
+    async function flushOfflineImages() {
+      for (const item of data.items.filter(entry => entry.pendingUploadKey)) {
+        const file = await getOfflineFile(item.pendingUploadKey);
+        if (!file) throw new Error("Een offline foto ontbreekt. Kies deze foto opnieuw.");
+        saveState.textContent = "offline foto uploaden…";
+        const result = await upload(file);
+        pendingUrls.get(item.pendingUploadKey) && URL.revokeObjectURL(pendingUrls.get(item.pendingUploadKey));
+        await deleteOfflineFile(item.pendingUploadKey);
+        item.src = result.src; item.originalSrc = result.originalSrc || result.src; delete item.pendingUploadKey;
+      }
+    }
 
     const textGroups = [
-      { title:"Kop", fields:[["name","Naam"],["edition","Midden boven"],["location","Rechts boven"],["welcome","Welkomsttekst"]] },
+      { title:"Kop & locatie", fields:[["name","Naam"],["edition","Midden boven"],["location","Locatie / beschikbaarheid rechtsboven"],["welcome","Welkomsttekst"],["scrollCue","Tekst achter Welcome"]] },
       { title:"Navigatie", fields:[["all","Alles"],["ink","Inkt & flash"],["paint","Schilderij"],["digital","Digitaal"],["process","Proces"],["aboutLabel","About"]] },
       { title:"Sectie", fields:[["selection","Selectielabel"],["overview","Werkoverzicht"],["galleryNote","Algemene work note bij alles (leeg = niets)","textarea"]] },
       { title:"About & contact", fields:[["about","About-tekst","textarea"],["contact","Contacttekst","textarea"],["contactButton","Contactknop"],["contactEmail","E-mailadres"],["footer","Footer"]] }
@@ -288,10 +357,22 @@
       dirty = true;
       saveState.textContent = "niet opgeslagen";
       saveState.style.color = "#a3442e";
+      window.clearTimeout(draftTimer);
+      draftTimer = window.setTimeout(() => {
+        try {
+          localStorage.setItem(draftKey, JSON.stringify({ savedAt:Date.now(), data }));
+          saveState.textContent = navigator.onLine ? "concept lokaal bewaard" : "offline bewaard";
+        } catch { saveState.textContent = "lokaal concept vol"; }
+      }, 350);
     }
 
     function escapeHtml(value) {
       return String(value || "").replace(/[&<>'"]/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[character]));
+    }
+
+    function assetUrl(value) {
+      const source = String(value || "");
+      return /^(?:blob:|data:|https?:\/\/)/i.test(source) ? source : `/${source.replace(/^\/+/,"")}`;
     }
 
     function filterCss(item) {
@@ -312,7 +393,7 @@
     function itemCard(item, index) {
       const categories = data.sections;
       return `<article class="item ${item.visible ? "" : "is-off"}" data-id="${item.id}">
-        <div class="item-preview"><span class="order">${String(index + 1).padStart(2,"0")}</span><button class="drag-handle" type="button" aria-label="Sleep naar een andere positie">⠿</button>${item.src ? `<img src="/${escapeHtml(item.src)}" alt="" style="object-position:${item.x}% ${item.y}%;transform:${transformCss(item)};filter:${filterCss(item)}">` : `<div class="empty">leeg kader<br>kies een afbeelding</div>`}</div>
+        <div class="item-preview"><span class="order">${String(index + 1).padStart(2,"0")}</span><button class="drag-handle" type="button" aria-label="Sleep naar een andere positie">⠿</button>${item.src ? `<img src="${escapeHtml(assetUrl(item.src))}" alt="" style="object-fit:${item.thumbFit === "contain" ? "contain" : "cover"};object-position:${item.x}% ${item.y}%;transform:${transformCss(item)};filter:${filterCss(item)}">` : `<div class="empty">leeg kader<br>kies een afbeelding</div>`}</div>
         <div class="item-body">
           <div class="row">
             <div class="field"><label>titel</label><input type="text" data-key="title" value="${escapeHtml(item.title)}"></div>
@@ -326,15 +407,19 @@
           <span class="field-label">indeling</span>
           <div class="checks">${categories.map(category => `<label><input type="checkbox" data-category="${category.id}" ${item.categories.includes(category.id) ? "checked" : ""}>${escapeHtml(category.label)}</label>`).join("")}</div>
           <div class="checks"><label><input type="checkbox" data-key="visible" ${item.visible ? "checked" : ""}>op website</label><label><input type="checkbox" data-key="gallery" ${item.gallery ? "checked" : ""}>in galerie</label><label><input type="checkbox" data-key="glitch" ${item.glitch ? "checked" : ""}>in glitches</label></div>
-          <div class="row"><div class="field"><label>schaal <span>${Number(item.scale).toFixed(2)}×</span></label><input type="range" data-key="scale" min="1" max="3" step=".05" value="${item.scale}"></div><div class="field"><label>horizontaal</label><input type="range" data-key="x" min="0" max="100" value="${item.x}"></div></div>
+          <div class="touch-tools" aria-label="Kadergereedschap"><button type="button" data-action="thumb-fill" class="${item.thumbFit !== "contain" ? "is-active" : ""}">VUL KADER</button><button type="button" data-action="thumb-fit" class="${item.thumbFit === "contain" ? "is-active" : ""}">HELE FOTO</button><button type="button" data-action="reset-thumb">HERSTEL UITSNEDE</button></div>
+          <p class="gesture-hint">Eén vinger: verschuiven · twee vingers: zoomen. Het geruite vlak laat precies zien waar eventueel witruimte ontstaat.</p>
+          <div class="row"><div class="field"><label>schaal <span>${Number(item.scale).toFixed(2)}×</span></label><input type="range" data-key="scale" min=".35" max="4" step=".02" value="${item.scale}"></div><div class="field"><label>horizontaal</label><input type="range" data-key="x" min="0" max="100" value="${item.x}"></div></div>
           <div class="field"><label>verticaal</label><input type="range" data-key="y" min="0" max="100" value="${item.y}"></div>
           <div class="row"><div class="field"><label>kleurtoon</label><select data-key="filter"><option value="normal" ${(item.filter || "normal") === "normal" ? "selected" : ""}>normaal</option><option value="gray" ${item.filter === "gray" ? "selected" : ""}>grijs</option><option value="warm" ${item.filter === "warm" ? "selected" : ""}>warm</option><option value="cool" ${item.filter === "cool" ? "selected" : ""}>koud</option></select></div><div class="field"><label>helderheid</label><input type="range" data-key="brightness" min=".4" max="2" step=".05" value="${item.brightness ?? 1}"></div></div>
           <div class="row"><div class="field"><label>contrast</label><input type="range" data-key="contrast" min=".4" max="2" step=".05" value="${item.contrast ?? 1}"></div><div class="field"><label>rechtzetten</label><input type="range" data-key="rotate" min="-15" max="15" step=".25" value="${item.rotate ?? 0}"></div></div>
           <div class="row"><div class="field"><label>perspectief horizontaal</label><input type="range" data-key="skewX" min="-20" max="20" step=".25" value="${item.skewX ?? 0}"></div><div class="field"><label>perspectief verticaal</label><input type="range" data-key="skewY" min="-20" max="20" step=".25" value="${item.skewY ?? 0}"></div></div>
           ${item.src ? `<div class="edit-divider">NA AANKLIKKEN / VOLLEDIGE FOTO</div>
           <p class="edit-hint">Sleep de foto om hem te verschuiven. Deze instellingen staan los van het raster hierboven.</p>
-          <div class="viewer-edit-preview"><img src="/${escapeHtml(item.src)}" alt="" style="transform:${viewerTransformCss(item)};filter:${filterCss(item)}"></div>
-          <div class="row"><div class="field"><label>zoom <span>${Number(item.viewerScale ?? 1).toFixed(2)}×</span></label><input type="range" data-viewer-key="viewerScale" min=".35" max="3" step=".05" value="${item.viewerScale ?? 1}"></div><div class="field"><label>rechtzetten</label><input type="range" data-viewer-key="viewerRotate" min="-15" max="15" step=".25" value="${item.viewerRotate ?? 0}"></div></div>
+          <div class="viewer-edit-preview"><img src="${escapeHtml(assetUrl(item.src))}" alt="" style="object-fit:${item.viewerFit === "cover" ? "cover" : "contain"};transform:${viewerTransformCss(item)};filter:${filterCss(item)}"></div>
+          <div class="touch-tools" aria-label="Volledige fotogereedschap"><button type="button" data-action="viewer-fit" class="${item.viewerFit !== "cover" ? "is-active" : ""}">HELE FOTO</button><button type="button" data-action="viewer-fill" class="${item.viewerFit === "cover" ? "is-active" : ""}">VUL VENSTER</button><button type="button" data-action="reset-viewer">HERSTEL FOTO</button></div>
+          <p class="gesture-hint">Bewerk dit grote beeld rechtstreeks met je handen. Deze uitsnede staat los van het kleine rasterbeeld.</p>
+          <div class="row"><div class="field"><label>zoom <span>${Number(item.viewerScale ?? 1).toFixed(2)}×</span></label><input type="range" data-viewer-key="viewerScale" min=".2" max="4" step=".02" value="${item.viewerScale ?? 1}"></div><div class="field"><label>rechtzetten</label><input type="range" data-viewer-key="viewerRotate" min="-15" max="15" step=".25" value="${item.viewerRotate ?? 0}"></div></div>
           <div class="row"><div class="field"><label>horizontaal</label><input type="range" data-viewer-key="viewerX" min="0" max="100" value="${item.viewerX ?? 50}"></div><div class="field"><label>verticaal</label><input type="range" data-viewer-key="viewerY" min="0" max="100" value="${item.viewerY ?? 50}"></div></div>
           <div class="row"><div class="field"><label>warp horizontaal</label><input type="range" data-viewer-key="viewerPerspectiveY" min="-25" max="25" step=".25" value="${item.viewerPerspectiveY ?? 0}"></div><div class="field"><label>warp verticaal</label><input type="range" data-viewer-key="viewerPerspectiveX" min="-25" max="25" step=".25" value="${item.viewerPerspectiveX ?? 0}"></div></div>
           <div class="row"><div class="field"><label>scheef horizontaal</label><input type="range" data-viewer-key="viewerSkewX" min="-20" max="20" step=".25" value="${item.viewerSkewX ?? 0}"></div><div class="field"><label>scheef verticaal</label><input type="range" data-viewer-key="viewerSkewY" min="-20" max="20" step=".25" value="${item.viewerSkewY ?? 0}"></div></div>` : ""}
@@ -348,7 +433,7 @@
     }
 
     function createEmptyItem(categoryId) {
-      return { id:crypto.randomUUID().replaceAll("-",""), src:"", title:"", categories:[categoryId || data.sections[0]?.id || "proces"], gallery:true, glitch:true, visible:true, scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0, viewerScale:1, viewerX:50, viewerY:50, viewerRotate:0, viewerSkewX:0, viewerSkewY:0, viewerPerspectiveX:0, viewerPerspectiveY:0, note:"Selected from the current image archive.", status:"selected", year:"2026", format:"image" };
+      return { id:crypto.randomUUID().replaceAll("-",""), src:"", title:"", categories:[categoryId || data.sections[0]?.id || "proces"], gallery:true, glitch:true, visible:true, thumbFit:"cover", scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0, viewerFit:"contain", viewerScale:1, viewerX:50, viewerY:50, viewerRotate:0, viewerSkewX:0, viewerSkewY:0, viewerPerspectiveX:0, viewerPerspectiveY:0, note:"Selected from the current image archive.", status:"selected", year:"2026", format:"image" };
     }
 
     function ensureEmptyFrame() {
@@ -416,7 +501,7 @@
         const glowOpacity = Number(data.theme.glitchGlowOpacity ?? 80) / 100;
         const glowSoftness = Number(data.theme.glitchGlowSoftness ?? 18);
         const glow = alternate && palette.length ? `box-shadow:inset 0 0 0 1px rgba(246,245,240,.85),inset 0 0 ${glowSoftness}px ${Math.max(1,glowSoftness * .28)}px ${hexRgba(glowColor,glowOpacity)};` : "";
-        return `<span class="admin-home-tile" style="border-radius:${Number(data.theme.frameRadius || 0)}px;background-image:url(&quot;/${escapeHtml(src)}&quot;);background-size:${sizeCss};background-position:${position};filter:${filter};${glow}"></span>`;
+        return `<span class="admin-home-tile" style="border-radius:${Number(data.theme.frameRadius || 0)}px;background-image:url(&quot;${escapeHtml(assetUrl(src))}&quot;);background-size:${sizeCss};background-position:${position};filter:${filter};${glow}"></span>`;
       }).join("");
       document.getElementById("home-source").innerHTML = works.map(item => `<option value="${item.id}" ${item.id === base.id ? "selected" : ""}>${escapeHtml(item.title || item.src.split("/").pop())}</option>`).join("");
       document.getElementById("home-source-name").textContent = `Actief: ${base.title || base.src.split("/").pop()} — deze foto vormt het doorlopende beeld achter alle vakjes.`;
@@ -512,6 +597,7 @@
       const currentHome = data.items.find(item => item.id === data.home.baseItemId && item.visible && item.src) || data.items.find(item => /IMG_0947/i.test(item.src)) || data.items.find(item => item.visible && item.src);
       if (currentHome) data.home.baseItemId = currentHome.id;
       data.items.forEach(item => {
+        item.thumbFit ??= "cover"; item.viewerFit ??= "contain";
         item.viewerScale ??= 1; item.viewerX ??= 50; item.viewerY ??= 50; item.viewerRotate ??= 0;
         item.viewerSkewX ??= 0; item.viewerSkewY ??= 0; item.viewerPerspectiveX ??= 0; item.viewerPerspectiveY ??= 0;
       });
@@ -531,8 +617,18 @@
 
     async function upload(file) {
       if (file.size > 25 * 1024 * 1024) throw new Error("Afbeelding is groter dan 25 MB.");
-      const encoded = await new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); });
-      return request("/api/upload", { method:"POST", body:JSON.stringify({ name:file.name, data:encoded }) });
+      const encode = value => new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(value); });
+      const originalData = await encode(file);
+      let webBlob = file;
+      try {
+        const bitmap = await createImageBitmap(file);
+        const maximum = 2560, ratio = Math.min(1, maximum / Math.max(bitmap.width, bitmap.height));
+        const canvas = document.createElement("canvas"); canvas.width = Math.max(1,Math.round(bitmap.width * ratio)); canvas.height = Math.max(1,Math.round(bitmap.height * ratio));
+        canvas.getContext("2d", { alpha:false }).drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close?.();
+        webBlob = await new Promise(resolve => canvas.toBlob(resolve,"image/jpeg",.88)) || file;
+      } catch {}
+      const data = await encode(webBlob);
+      return request("/api/upload", { method:"POST", body:JSON.stringify({ name:file.name, data, originalData }) });
     }
 
     function showDropTarget(target, clientX, clientY) {
@@ -564,7 +660,16 @@
         const item = data.items.find(entry => entry.id === card.dataset.id);
         const viewerMode = preview.classList.contains("viewer-edit-preview");
         event.preventDefault();
-        panState = { item, viewerMode, startX:event.clientX, startY:event.clientY, baseX:viewerMode ? (item.viewerX ?? 50) : (item.x ?? 50), baseY:viewerMode ? (item.viewerY ?? 50) : (item.y ?? 50), width:preview.clientWidth || 1, height:preview.clientHeight || 1, preview, image };
+        if (!panState || panState.preview !== preview) {
+          activeEditPointers.clear();
+          panState = { item, viewerMode, startX:event.clientX, startY:event.clientY, baseX:viewerMode ? (item.viewerX ?? 50) : (item.x ?? 50), baseY:viewerMode ? (item.viewerY ?? 50) : (item.y ?? 50), width:preview.clientWidth || 1, height:preview.clientHeight || 1, preview, image };
+        }
+        activeEditPointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+        if (activeEditPointers.size === 2) {
+          const points = [...activeEditPointers.values()];
+          panState.pinchDistance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y) || 1;
+          panState.pinchScale = viewerMode ? (item.viewerScale ?? 1) : (item.scale ?? 1);
+        }
         preview.setPointerCapture(event.pointerId);
         return;
       }
@@ -580,6 +685,18 @@
     imageList.addEventListener("pointermove", event => {
       if (panState) {
         event.preventDefault();
+        if (activeEditPointers.has(event.pointerId)) activeEditPointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+        if (activeEditPointers.size >= 2 && panState.pinchDistance) {
+          const points = [...activeEditPointers.values()].slice(0,2);
+          const distance = Math.hypot(points[1].x - points[0].x, points[1].y - points[0].y) || 1;
+          const scale = Math.min(4, Math.max(panState.viewerMode ? .2 : .35, panState.pinchScale * distance / panState.pinchDistance));
+          const key = panState.viewerMode ? "viewerScale" : "scale";
+          panState.item[key] = scale;
+          panState.image.style.transform = panState.viewerMode ? viewerTransformCss(panState.item) : transformCss(panState.item);
+          const slider = panState.preview.closest(".item").querySelector(panState.viewerMode ? '[data-viewer-key="viewerScale"]' : '[data-key="scale"]');
+          if (slider) { slider.value = scale; slider.previousElementSibling.querySelector("span").textContent = `${scale.toFixed(2)}×`; }
+          return;
+        }
         const x = Math.min(100, Math.max(0, panState.baseX + (event.clientX - panState.startX) / panState.width * 100));
         const y = Math.min(100, Math.max(0, panState.baseY + (event.clientY - panState.startY) / panState.height * 100));
         if (panState.viewerMode) {
@@ -602,7 +719,17 @@
       showDropTarget(document.elementFromPoint(event.clientX,event.clientY)?.closest(".item"), event.clientX, event.clientY);
     });
     imageList.addEventListener("pointerup", event => {
-      if (panState) { event.preventDefault(); panState = null; markDirty(); return; }
+      if (panState) {
+        event.preventDefault(); activeEditPointers.delete(event.pointerId);
+        if (activeEditPointers.size) {
+          const point = [...activeEditPointers.values()][0];
+          panState.startX = point.x; panState.startY = point.y;
+          panState.baseX = panState.viewerMode ? (panState.item.viewerX ?? 50) : (panState.item.x ?? 50);
+          panState.baseY = panState.viewerMode ? (panState.item.viewerY ?? 50) : (panState.item.y ?? 50);
+          delete panState.pinchDistance; return;
+        }
+        panState = null; markDirty(); return;
+      }
       if (!document.body.classList.contains("is-sorting")) return;
       event.preventDefault();
       const moved = commitMove(pointerTargetId, pointerAfter);
@@ -612,7 +739,7 @@
       else imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
     });
     imageList.addEventListener("pointercancel", () => {
-      panState = null; draggedItemId = null; pointerTargetId = null;
+      panState = null; activeEditPointers.clear(); draggedItemId = null; pointerTargetId = null;
       document.body.classList.remove("is-sorting");
       imageList.querySelectorAll(".is-dragging,.drag-before,.drag-after").forEach(card => card.classList.remove("is-dragging","drag-before","drag-after"));
     });
@@ -656,8 +783,15 @@
       const item = findItem(event.target);
       saveState.textContent = "uploaden…";
       try {
+        if (!navigator.onLine) {
+          const file = event.target.files[0], key = await putOfflineFile(file), url = URL.createObjectURL(file);
+          pendingUrls.set(key,url); item.pendingUploadKey = key; item.src = url; item.originalSrc = "";
+          item.title ||= file.name.replace(/\.[^.]+$/, ""); ensureEmptyFrame(); renderImages(); markDirty();
+          saveState.textContent = "foto offline bewaard"; return;
+        }
         const result = await upload(event.target.files[0]);
         item.src = result.src;
+        item.originalSrc = result.originalSrc || result.src;
         item.title ||= event.target.files[0].name.replace(/\.[^.]+$/, "");
         ensureEmptyFrame();
         renderImages();
@@ -671,6 +805,12 @@
       if (!button) return;
       const item = findItem(button);
       const index = data.items.indexOf(item);
+      if (button.dataset.action === "thumb-fit") { item.thumbFit = "contain"; item.scale = 1; item.x = 50; item.y = 50; }
+      if (button.dataset.action === "thumb-fill") { item.thumbFit = "cover"; item.scale = 1; item.x = 50; item.y = 50; }
+      if (button.dataset.action === "reset-thumb") { item.thumbFit = "cover"; item.scale = 1; item.x = 50; item.y = 50; item.rotate = 0; item.skewX = 0; item.skewY = 0; }
+      if (button.dataset.action === "viewer-fit") { item.viewerFit = "contain"; item.viewerScale = 1; item.viewerX = 50; item.viewerY = 50; }
+      if (button.dataset.action === "viewer-fill") { item.viewerFit = "cover"; item.viewerScale = 1; item.viewerX = 50; item.viewerY = 50; }
+      if (button.dataset.action === "reset-viewer") { item.viewerFit = "contain"; item.viewerScale = 1; item.viewerX = 50; item.viewerY = 50; item.viewerRotate = 0; item.viewerSkewX = 0; item.viewerSkewY = 0; item.viewerPerspectiveX = 0; item.viewerPerspectiveY = 0; }
       if (button.dataset.action === "left" && index > 0) [data.items[index - 1], data.items[index]] = [data.items[index], data.items[index - 1]];
       if (button.dataset.action === "right" && index < data.items.length - 1) [data.items[index + 1], data.items[index]] = [data.items[index], data.items[index + 1]];
       if (button.dataset.action === "remove") {
@@ -816,16 +956,39 @@
     document.getElementById("save-button").addEventListener("click", async () => {
       saveState.textContent = "opslaan…";
       try {
+        await flushOfflineImages();
         const result = await request("/api/data", { method:"POST", body:JSON.stringify(data) });
         if (result.data) data = result.data;
+        localStorage.removeItem(draftKey);
         dirty = false; saveState.textContent = "opgeslagen"; saveState.style.color = "#344638";
         preview.src = `/portfolio?preview=${Date.now()}`;
       } catch (error) { saveState.textContent = "niet opgeslagen"; alert(error.message); }
     });
 
+    document.getElementById("publish-button").addEventListener("click", async () => {
+      saveState.textContent = "publiceren…";
+      try {
+        await flushOfflineImages();
+        const result = await request("/api/publish", { method:"POST", body:JSON.stringify(data) });
+        if (result.data) data = result.data;
+        localStorage.removeItem(draftKey);
+        dirty = false; saveState.textContent = "staat live"; saveState.style.color = "#344638";
+        preview.src = `/portfolio?published=${Date.now()}`;
+      } catch (error) { saveState.textContent = "publiceren mislukt"; alert(error.message); }
+    });
+
     document.getElementById("export-button").addEventListener("click", () => {
       const blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
       const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `portfolio-backup-${new Date().toISOString().slice(0,10)}.json`; link.click(); URL.revokeObjectURL(link.href);
+    });
+    document.getElementById("import-backup").addEventListener("change", async event => {
+      const file = event.target.files[0]; if (!file) return;
+      try {
+        const imported = JSON.parse(await file.text());
+        if (!imported || !Array.isArray(imported.items) || !Array.isArray(imported.sections) || typeof imported.texts !== "object") throw new Error("Dit is geen geldige Werksporen-backup.");
+        data = imported; adminFilter = "home"; adminPage = 0; render(); markDirty();
+      } catch (error) { alert(error.message); }
+      event.target.value = "";
     });
 
     document.querySelectorAll(".tab").forEach(button => button.addEventListener("click", () => {
@@ -843,7 +1006,7 @@
       } catch (error) { document.getElementById("login-error").textContent = error.message; }
     });
 
-    document.getElementById("logout-button").addEventListener("click", async () => { await request("/api/logout", { method:"POST", body:"{}" }); location.reload(); });
+    document.getElementById("logout-button").addEventListener("click", async () => { const result = await request("/api/logout", { method:"POST", body:"{}" }); result.signOut ? location.assign(result.signOut) : location.reload(); });
     document.getElementById("password-form").addEventListener("submit", async event => {
       event.preventDefault(); const state = document.getElementById("password-state");
       try { await request("/api/password", { method:"POST", body:JSON.stringify({ current:document.getElementById("current-password").value, next:document.getElementById("new-password").value }) }); state.textContent = "Wachtwoord gewijzigd. Log opnieuw in."; setTimeout(() => location.reload(), 1200); }
@@ -854,10 +1017,26 @@
 
     async function start() {
       try {
-        data = await request("/api/data"); render(); loginView.hidden = true; adminView.hidden = false;
-      } catch { loginView.hidden = false; adminView.hidden = true; }
+        data = await request("/api/data");
+        if (!["localhost", "127.0.0.1"].includes(location.hostname)) {
+          const accountTab = document.querySelector('[data-tab="account"]');
+          if (accountTab) accountTab.hidden = true;
+        }
+        try {
+          const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
+          if (draft?.data?.items && draft?.data?.sections) { data = draft.data; dirty = true; saveState.textContent = "lokaal concept hersteld"; }
+        } catch {}
+        await restoreOfflineImages(); render(); loginView.hidden = true; adminView.hidden = false;
+      } catch {
+        try {
+          const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
+          if (!draft?.data?.items) throw new Error();
+          data = draft.data; await restoreOfflineImages(); render(); dirty = true; saveState.textContent = "offline concept"; loginView.hidden = true; adminView.hidden = false;
+        } catch { loginView.hidden = false; adminView.hidden = true; }
+      }
     }
     request("/api/session").then(result => result.authenticated ? start() : null).catch(() => null);
+    if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("/sw.js").catch(() => {});
   </script>
 </body>
 </html>

@@ -1,0 +1,11 @@
+{
+  "name": "Werksporen Admin",
+  "short_name": "Werksporen",
+  "start_url": "/admin",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3f2ed",
+  "theme_color": "#f3f2ed",
+  "description": "Touch-first beheer voor het Werksporen portfolio",
+  "icons": [{ "src":"/werksporen-admin-icon.svg", "sizes":"any", "type":"image/svg+xml", "purpose":"any maskable" }]
+}

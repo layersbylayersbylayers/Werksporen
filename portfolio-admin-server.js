@@ -9,7 +9,7 @@ const os = require("os");
 
 const ROOT = __dirname;
 const PORT = Number(process.env.PORTFOLIO_ADMIN_PORT || 4173);
-const HOST = process.env.PORTFOLIO_ADMIN_HOST || "0.0.0.0";
+const HOST = process.env.PORTFOLIO_ADMIN_HOST || "127.0.0.1";
 const DATA_FILE = path.join(ROOT, "portfolio-admin-data.json");
 const DATA_SCRIPT = path.join(ROOT, "portfolio-admin-data.js");
 const AUTH_FILE = path.join(ROOT, "portfolio-admin-auth.json");
@@ -196,7 +196,15 @@ function session(request) {
 }
 
 function send(response, status, body, type = "application/json; charset=utf-8", headers = {}) {
-  response.writeHead(status, { "Content-Type": type, "Cache-Control": "no-store", ...headers });
+  response.writeHead(status, {
+    "Content-Type": type,
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(self), microphone=(), geolocation=()",
+    "Content-Security-Policy": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; frame-src 'self'; frame-ancestors 'self'; base-uri 'self'; form-action 'self' mailto:",
+    ...headers
+  });
   response.end(type.startsWith("application/json") ? JSON.stringify(body) : body);
 }
 
@@ -266,13 +274,15 @@ function safeData(input) {
     items: input.items.map((item, index) => ({
       id: String(item.id || makeId()).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64),
       src: String(item.src || "").replace(/^\/+/, "").slice(0, 500),
+      originalSrc: String(item.originalSrc || item.src || "").replace(/^\/+/, "").slice(0, 500),
       title: String(item.title || "").slice(0, 200),
       note: String(item.note || "Selected from the current image archive.").slice(0, 1000),
       status: String(item.status || "selected").slice(0, 100),
       year: String(item.year || "2026").slice(0, 20),
       categories: Array.isArray(item.categories) ? item.categories.filter(value => categories.has(value)) : ["proces"],
       gallery: Boolean(item.gallery), glitch: Boolean(item.glitch), visible: Boolean(item.visible),
-      scale: Math.min(3, Math.max(1, finiteNumber(item.scale, 1))),
+      thumbFit: item.thumbFit === "contain" ? "contain" : "cover",
+      scale: Math.min(4, Math.max(.35, finiteNumber(item.scale, 1))),
       x: Math.min(100, Math.max(0, finiteNumber(item.x, 50))),
       y: Math.min(100, Math.max(0, finiteNumber(item.y, 50))),
       filter: ["normal", "gray", "warm", "cool"].includes(item.filter) ? item.filter : "normal",
@@ -281,7 +291,8 @@ function safeData(input) {
       rotate: Math.min(15, Math.max(-15, finiteNumber(item.rotate, 0))),
       skewX: Math.min(20, Math.max(-20, finiteNumber(item.skewX, 0))),
       skewY: Math.min(20, Math.max(-20, finiteNumber(item.skewY, 0))),
-      viewerScale: Math.min(3, Math.max(.35, finiteNumber(item.viewerScale, 1))),
+      viewerFit: item.viewerFit === "cover" ? "cover" : "contain",
+      viewerScale: Math.min(4, Math.max(.2, finiteNumber(item.viewerScale, 1))),
       viewerX: Math.min(100, Math.max(0, finiteNumber(item.viewerX, 50))),
       viewerY: Math.min(100, Math.max(0, finiteNumber(item.viewerY, 50))),
       viewerRotate: Math.min(15, Math.max(-15, finiteNumber(item.viewerRotate, 0))),
@@ -322,7 +333,7 @@ async function api(request, response, pathname) {
   if (pathname === "/api/data" && request.method === "GET") return send(response, 200, readData());
   if (pathname === "/api/analytics" && request.method === "GET") return send(response, 200, readAnalytics());
   if (pathname === "/api/messages" && request.method === "GET") return send(response, 200, readMessages());
-  if (pathname === "/api/data" && request.method === "POST") {
+  if ((pathname === "/api/data" || pathname === "/api/publish") && request.method === "POST") {
     const data = safeData(await readJson(request));
     writeData(data);
     return send(response, 200, { ok: true, data });
@@ -337,7 +348,18 @@ async function api(request, response, pathname) {
     const stem = path.basename(String(body.name || "werk"), path.extname(String(body.name || ""))).replace(/[^a-zA-Z0-9_-]/g, "-").replace(/-+/g, "-").slice(0, 60) || "werk";
     const filename = `${Date.now()}-${stem}${extension}`;
     fs.writeFileSync(path.join(IMAGE_DIR, filename), bytes);
-    return send(response, 200, { src: `portfolio-images/${filename}` });
+    let originalSrc = `portfolio-images/${filename}`;
+    const originalMatch = String(body.originalData || "").match(/^data:(image\/(?:jpeg|png|webp|gif|heic|heif));base64,([A-Za-z0-9+/=]+)$/);
+    if (originalMatch) {
+      const originalBytes = Buffer.from(originalMatch[2], "base64");
+      if (originalBytes.length <= 25 * 1024 * 1024) {
+        const originalExtension = { "image/jpeg":".jpg", "image/png":".png", "image/webp":".webp", "image/gif":".gif", "image/heic":".heic", "image/heif":".heif" }[originalMatch[1]];
+        const originalFilename = `${Date.now()}-${stem}-original${originalExtension}`;
+        fs.writeFileSync(path.join(IMAGE_DIR, originalFilename), originalBytes);
+        originalSrc = `portfolio-images/${originalFilename}`;
+      }
+    }
+    return send(response, 200, { src: `portfolio-images/${filename}`, originalSrc });
   }
   if (pathname === "/api/password" && request.method === "POST") {
     const body = await readJson(request, 8192);
@@ -370,5 +392,5 @@ readAuth();
 readData();
 server.listen(PORT, HOST, () => {
   console.log(`Portfolio admin: http://127.0.0.1:${PORT}/admin`);
-  Object.values(os.networkInterfaces()).flat().filter(entry => entry && entry.family === "IPv4" && !entry.internal).forEach(entry => console.log(`iPad/iPhone/ander apparaat: http://${entry.address}:${PORT}/admin`));
+  if (HOST !== "127.0.0.1" && HOST !== "localhost") Object.values(os.networkInterfaces()).flat().filter(entry => entry && entry.family === "IPv4" && !entry.internal).forEach(entry => console.log(`Lokaal netwerk: http://${entry.address}:${PORT}/admin`));
 });

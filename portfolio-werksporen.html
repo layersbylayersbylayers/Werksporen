@@ -87,6 +87,9 @@
     }
     .filter:first-child { padding-left:14px; padding-right:20px; }
     .filter:hover, .filter.is-active { color:var(--paper); background:var(--ink); }
+    .desktop-tab-controls { position:sticky; right:0; margin-left:auto; display:flex; background:var(--paper); border-left:1px solid var(--hairline); }
+    .desktop-tab-controls button { width:38px; min-height:38px; border:0; border-left:1px solid var(--hairline); background:var(--paper); color:var(--accent); cursor:pointer; }
+    .desktop-tab-controls button:hover { background:var(--ink); color:var(--paper); }
 
     .work { border-bottom: 1px solid var(--hairline); }
     .work-topline {
@@ -154,6 +157,7 @@
     .contact-signoff { color: var(--soft); text-align: right; }
 
     @media (max-width: 700px) {
+      .desktop-tab-controls { display:none; }
       .page { padding: 14px 15px 36px; }
       .masthead { min-height:44px; grid-template-columns: 1fr auto; }
       .name { padding-top:2px; }
@@ -175,12 +179,16 @@
       .archive-note h2, .archive-note p, .contact-links { grid-column: auto; }
       .contact-signoff { text-align: left; }
       .project-menu { width:100%; overflow-x:hidden; }
-      .filter { flex:0 0 38px; min-width:38px; padding:11px 8px 10px; justify-content:center; font-size:0; overflow:hidden; white-space:nowrap; transition:flex-basis .2s ease, background .15s ease, color .15s ease; }
+      .filter { flex:0 0 38px; min-width:38px; padding:11px 8px 10px; justify-content:center; font-size:0; overflow:hidden; white-space:nowrap; will-change:flex-basis; transition:flex-basis .28s cubic-bezier(.2,.75,.25,1), background-color .2s ease, color .2s ease; }
       .filter::before { content:attr(data-mobile-index); font-size:10px; }
       .filter[data-filter="all"] { flex-basis:70px; padding-left:8px; padding-right:8px; }
       .filter[data-filter="all"]::before { content:"Home"; }
-      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active) { flex-basis:min(132px,34vw); }
-      .filter:not([data-filter="all"]):is(:hover,:focus-visible,.is-active)::before { content:attr(data-mobile-label); }
+      .filter:not([data-filter="all"]):is(:focus-visible,.is-active) { flex-basis:min(132px,34vw); }
+      .filter:not([data-filter="all"]):is(:focus-visible,.is-active)::before { content:attr(data-mobile-label); }
+      @media (hover:hover) and (pointer:fine) {
+        .filter:not([data-filter="all"]):hover { flex-basis:min(132px,34vw); }
+        .filter:not([data-filter="all"]):hover::before { content:attr(data-mobile-label); }
+      }
     }
     @media (prefers-reduced-motion: no-preference) { .work { transition: opacity .25s ease; } .work.is-hidden { display: none; } }
   
@@ -567,6 +575,10 @@
       button.dataset.mobileIndex = index === 0 ? "" : String(index).padStart(2,"0");
       button.dataset.mobileLabel = button.textContent.trim();
     });
+    const tabControls = document.createElement("span");
+    tabControls.className = "desktop-tab-controls";
+    tabControls.innerHTML = '<button type="button" data-tab-step="-1" aria-label="Vorige pagina">&lt;</button><button type="button" data-tab-step="1" aria-label="Volgende pagina">&gt;</button>';
+    document.querySelector(".project-menu").appendChild(tabControls);
     const contactButton = document.querySelector(".contact-button"); if (contactButton && adminTexts.contactEmail) contactButton.href = "mailto:" + adminTexts.contactEmail;
 
     document.querySelector(".name").addEventListener("click", event => {
@@ -575,7 +587,7 @@
     });
     const today = new Intl.DateTimeFormat("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
     const welcomeLead = adminTexts.welcome || "Welcome;";
-    const welcome = `${welcomeLead} scroll to explore\n\n${today}.`;
+    const welcome = `${welcomeLead} ${adminTexts.scrollCue || "scroll to explore"}\n\n${today}.`;
     const typewriterText = document.getElementById("typewriter-text");
     let character = 0;
     const homeFeature = document.querySelector(".home-feature");
@@ -719,7 +731,7 @@
         figure.dataset.status = item.status || "selected";
         figure.dataset.year = item.year || "2026";
         figure.dataset.format = item.format || "image";
-        const image = document.createElement("img"); image.src = item.src; image.alt = item.title || "Portfolio work"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); image.dataset.managedId = item.id;
+        const image = document.createElement("img"); image.src = item.src; image.alt = item.title || "Portfolio work"; image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); image.dataset.managedId = item.id;
         const caption = document.createElement("figcaption"); caption.innerHTML = `<span>${item.title || ""}</span><span>${String(index + 1).padStart(2,"0")}</span>`;
         figure.append(image, caption); overviewGrid.appendChild(figure);
       });
@@ -1012,14 +1024,6 @@
         setFeature((initialFeature + featureStep) % featureItems.length, true);
       });
     });
-    window.addEventListener("scroll", () => {
-      if (!overview.classList.contains("show-feature") || pageTransitioning || morphing) return;
-      const scrollRange = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      const nextStep = window.scrollY / scrollRange >= .48 ? 1 : 0;
-      if (nextStep === featureStep) return;
-      featureStep = nextStep;
-      setFeature((initialFeature + nextStep) % featureItems.length, false);
-    });
     const viewer = document.getElementById("image-viewer");
     const viewerImage = document.getElementById("viewer-image");
     const viewerInfo = document.querySelector(".viewer-info");
@@ -1043,6 +1047,7 @@
       const managed = item.managed || adminConfig?.items?.find(entry => entry.id === image.dataset.managedId || entry.src === source);
       viewerImage.style.filter = managed ? managedFilter(managed) : "";
       viewerImage.style.transform = managed ? managedViewerTransform(managed) : "";
+      viewerImage.style.objectFit = managed?.viewerFit === "cover" ? "cover" : "contain";
       viewerImage.style.objectPosition = "center";
     }
 
@@ -1095,16 +1100,34 @@
       });
     });
     document.querySelector(".viewer-close").addEventListener("click", closeViewer);
-    viewerInfo.addEventListener("click", event => {
-      event.preventDefault();
-      event.stopPropagation();
+    function stepViewer(direction = 1) {
       if (viewerImages.length < 2) return;
       rollControl(viewerInfo);
       rollSwap(document.querySelector(".viewer-canvas"), () => {
-        viewerIndex = (viewerIndex + 1) % viewerImages.length;
+        viewerIndex = (viewerIndex + direction + viewerImages.length) % viewerImages.length;
         updateViewer(viewerImages[viewerIndex]);
       });
+    }
+    viewerInfo.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      stepViewer(1);
     });
+
+    let viewerSwipe = null;
+    viewer.addEventListener("touchstart", event => {
+      if (event.touches.length !== 1 || event.target.closest("button")) return;
+      const touch = event.touches[0]; viewerSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now() };
+    }, { passive:true });
+    viewer.addEventListener("touchend", event => {
+      if (!viewerSwipe || event.changedTouches.length !== 1) { viewerSwipe = null; return; }
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - viewerSwipe.x, dy = touch.clientY - viewerSwipe.y;
+      const elapsed = performance.now() - viewerSwipe.time; viewerSwipe = null;
+      if (elapsed > 850) return;
+      if (dy > 72 && Math.abs(dy) > Math.abs(dx) * 1.25) { closeViewer(); return; }
+      if (Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) stepViewer(dx < 0 ? 1 : -1);
+    }, { passive:true });
 
     viewer.addEventListener("cancel", event => { event.preventDefault(); closeViewer(); });
     viewer.addEventListener("pointerdown", event => {
@@ -1126,7 +1149,7 @@
       const matching = Array.from(stamps).filter(stamp => activeFilter === "all" || stamp.dataset.kind.includes(activeFilter));
       const pageSize = gridViewMode === "single" ? 1 : 12;
       const pages = Math.max(1, Math.ceil(matching.length / pageSize));
-      gridPage %= pages;
+      gridPage = ((gridPage % pages) + pages) % pages;
       overviewGrid.classList.toggle("is-single", gridViewMode === "single");
       gridViewButtons.forEach(button => {
         const active = button.dataset.view === gridViewMode;
@@ -1163,12 +1186,25 @@
       gridPage = 0;
       renderGrid();
     }));
-    gridNext.addEventListener("click", () => {
+    function turnGridPage(direction = 1) {
       if (pageTransitioning || morphing) return;
       rollControl(gridNext);
       lockTransitionScroll();
-      flipCellPage(() => activeGridVisuals(false), () => { gridPage += 1; renderGrid(); }).finally(unlockTransitionScroll);
-    });
+      flipCellPage(() => activeGridVisuals(false), () => { gridPage += direction; renderGrid(); }).finally(unlockTransitionScroll);
+    }
+    gridNext.addEventListener("click", () => turnGridPage(1));
+    let gridSwipe = null;
+    overviewGrid.addEventListener("touchstart", event => {
+      if (overview.classList.contains("show-feature") || event.touches.length !== 1) return;
+      const touch = event.touches[0]; gridSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now() };
+    }, { passive:true });
+    overviewGrid.addEventListener("touchend", event => {
+      if (!gridSwipe || event.changedTouches.length !== 1) { gridSwipe = null; return; }
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - gridSwipe.x, dy = touch.clientY - gridSwipe.y;
+      const elapsed = performance.now() - gridSwipe.time; gridSwipe = null;
+      if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) turnGridPage(dx < 0 ? 1 : -1);
+    }, { passive:true });
 
     const detailCopy = { about: adminTexts.about || "A small selection of drawing, painting and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram" };
     function typeDetail(kind) {
@@ -1508,6 +1544,33 @@
         flipCellPage(() => activeGridVisuals(false), applyPage).finally(unlockTransitionScroll);
       }
     }));
+    function stepSection(direction) {
+      if (pageTransitioning || morphing || viewer.open) return;
+      const buttons = Array.from(filters);
+      const current = Math.max(0, buttons.findIndex(button => button.classList.contains("is-active")));
+      const next = Math.min(buttons.length - 1, Math.max(0, current + direction));
+      if (next !== current) buttons[next].click();
+    }
+    tabControls.addEventListener("click", event => {
+      const button = event.target.closest("[data-tab-step]");
+      if (button) stepSection(Number(button.dataset.tabStep));
+    });
+    let sectionSwipe = null;
+    document.querySelector(".page").addEventListener("touchstart", event => {
+      if (event.touches.length !== 1 || event.target.closest("dialog,input,textarea,select,.overview-grid")) return;
+      const touch = event.touches[0];
+      sectionSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now() };
+    }, { passive:true });
+    document.querySelector(".page").addEventListener("touchend", event => {
+      if (!sectionSwipe || event.changedTouches.length !== 1) { sectionSwipe = null; return; }
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - sectionSwipe.x;
+      const dy = touch.clientY - sectionSwipe.y;
+      const elapsed = performance.now() - sectionSwipe.time;
+      sectionSwipe = null;
+      if (elapsed > 850 || Math.abs(dx) < 62 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
+      stepSection(dx < 0 ? 1 : -1);
+    }, { passive:true });
     document.querySelector(".contact-button").addEventListener("click", event => {
       event.preventDefault();
       showDetail("contact");
