@@ -45,8 +45,10 @@
     }
     .name { letter-spacing: -.05em; font-size: 21px; font-weight: 500; color: var(--accent); padding-top: 8px; }
     .edition { color: var(--soft); text-align: center; font-size: 10px; padding-top: 3px; }
-    .location { text-align: right; color: var(--soft); font-size: 10px; padding-top: 3px; }
-    .language-toggle { border:0; padding:0; background:transparent; color:inherit; font:inherit; cursor:pointer; text-align:right; }
+    .location { text-align: right; color: var(--soft); font-size: 11px; padding-top: 3px; }
+    .language-toggle { border:0; padding:0; background:transparent; color:inherit; font:inherit; letter-spacing:.025em; cursor:pointer; text-align:right; }
+    .language-toggle .language-option { opacity:.48; transition:opacity .18s ease,color .18s ease; }
+    .language-toggle .language-option.is-active { opacity:1; color:var(--accent); font-weight:600; }
     .language-toggle:hover, .language-toggle:focus-visible { color:var(--accent); outline:none; }
 
     .intro {
@@ -217,7 +219,7 @@
     .overview-thumb:nth-child(4) { background: linear-gradient(135deg, #292824 0 32%, #d6d3ca 32% 60%, #55524d 60%); }
     .overview-thumb:nth-child(5) { background: radial-gradient(circle at 45% 44%, #2a2925 0 14%, transparent 14.4%), #d8d5cd; }
     .overview-thumb:nth-child(6) { background: repeating-linear-gradient(115deg, #d4d1c8 0 18px, #24231f 19px 20px); } .overview-thumb:nth-child(7) { background: radial-gradient(ellipse at 46% 54%, #272622 0 19%, transparent 19.5%), #d6d3ca; } .overview-thumb:nth-child(8) { background: linear-gradient(75deg, #24231f 0 13%, #d8d5cd 13% 47%, #514f49 47% 62%, #d8d5cd 62%); } .overview-thumb:nth-child(9) { background: repeating-linear-gradient(10deg, #d5d2c9 0 11px, #292824 12px 13px); }
-@media (max-width: 700px) { .intro { min-height:0; align-items:start; padding:14px 0; } .overview-work .work-grid { padding-top: 56px; padding-bottom: 110px; } .intro h1 { width: 100%; text-align: left; white-space: pre-line; } .overview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .overview-thumb { min-height: 0; } }
+@media (max-width: 700px) { .intro { min-height:0; align-items:start; padding:14px 0; } .overview-work .work-grid { padding-top: 24px; padding-bottom: 110px; } .intro h1 { width: 100%; text-align: left; white-space: pre-line; } .overview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } .overview-thumb { min-height: 0; } }
   
     /* About and contact terminal panels */
     .detail-panel { display: none; grid-column: 1 / -1; width: min(100%, 610px); min-height: 590px; margin: 0 auto; padding: 0; }
@@ -582,7 +584,8 @@
     }
     setText(".name", adminTexts.name); setText(".edition", adminTexts.edition);
     const languageToggle = document.getElementById("language-toggle");
-    let currentLanguage = localStorage.getItem("werksporen-language") === "en" ? "en" : "nl";
+    const languageStorageKey = "werksporen-language-v2";
+    let currentLanguage = localStorage.getItem(languageStorageKey) === "nl" ? "nl" : "en";
     const translations = {
       nl: { location:"NL · OPEN VOOR WERK", welcome:"Welkom;", scrollCue:"scroll om te ontdekken", all:"00 Home", ink:"01 Inkt & Flash", paint:"02 Schilderijen", digital:"03 Digitaal", process:"04 Proces", aboutLabel:"05 Over", selection:"00 SELECTIE", overview:"WERKOVERZICHT", workNote:"WERKNOTITIE", status:"STATUS", format:"FORMAAT", fullImage:"klik voor volledige afbeelding", close:"sluiten", contact:"06 CONTACT", swipe:"← swipe tabs →", about:"OVER", name:"naam", email:"e-mail", message:"bericht", send:"VERSTUUR", sending:"versturen…", sent:"bericht ontvangen ✓", mail:"mailprogramma wordt geopend", footer:"laatst bijgewerkt / september 2026", page:"Pagina", of:"van", next:"volgende afbeelding", viewer:"Volledige afbeelding" },
       en: { location:"EN · AVAILABLE FOR WORK", welcome:"Welcome;", scrollCue:"scroll to explore", all:"00 Home", ink:"01 Prints & Flash", paint:"02 Paintings", digital:"03 Digital", process:"04 Process", aboutLabel:"05 About", selection:"00 SELECT", overview:"WORK OVERVIEW", workNote:"WORK NOTE", status:"STATUS", format:"FORMAT", fullImage:"click for full image", close:"close", contact:"06 CONTACT", swipe:"← swipe tabs →", about:"ABOUT", name:"name", email:"email", message:"message", send:"SEND", sending:"sending…", sent:"message received ✓", mail:"opening email app", footer:"last updated / September 2026", page:"Page", of:"of", next:"next image", viewer:"Full image viewer" }
@@ -604,7 +607,7 @@
       const t = translations[currentLanguage];
       const localize = (value, key, defaults) => defaults.includes(String(value || "").trim()) ? t[key] : value;
       document.documentElement.lang = currentLanguage;
-      languageToggle.textContent = t.location;
+      languageToggle.innerHTML = `LANGUAGE · <span class="language-option ${currentLanguage === "en" ? "is-active" : ""}">EN</span> / <span class="language-option ${currentLanguage === "nl" ? "is-active" : ""}">NL</span>`;
       languageToggle.setAttribute("aria-label", currentLanguage === "nl" ? "Schakel naar Engels" : "Switch to Dutch");
       setText("[data-filter=all]", localize(adminTexts.all, "all", ["00 Home", "alles / 06"])); setText("[data-filter=inkt]", localize(adminTexts.ink, "ink", ["inkt & flash", "01 Inkt & Flash", "01 Prints & Flash"])); setText("[data-filter=verf]", localize(adminTexts.paint, "paint", ["schilderij", "02 Schilderij", "02 Paintings"])); setText("[data-filter=digitaal]", localize(adminTexts.digital, "digital", ["digitaal", "03 Digitaal", "03 Digital"])); setText("[data-filter=proces]", localize(adminTexts.process, "process", ["proces", "04 Proces", "04 Process"])); setText("[data-filter=about]", localize(adminTexts.aboutLabel, "aboutLabel", ["about", "05 About", "05 Over"]));
       setText(".work-number", localize(adminTexts.selection, "selection", ["00 SELECTIE", "00 SELECT"])); setText(".work-topline span:nth-child(2)", localize(adminTexts.overview, "overview", ["WERKOVERZICHT", "WORK OVERVIEW"])); setText(".contact-button", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT"])); setText(".contact-signoff", localize(adminTexts.footer, "footer", ["laatst bijgewerkt / september 2026", "last updated / September 2026"]));
@@ -618,7 +621,7 @@
       if (typeof today !== "undefined") today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).format(new Date());
       if (typeof welcome !== "undefined") welcome = `${t.welcome} ${t.scrollCue}\n\n${today}.`;
       if (typeof introFinished !== "undefined" && introFinished && typewriterText) typewriterText.textContent = welcome;
-      localStorage.setItem("werksporen-language", currentLanguage);
+      localStorage.setItem(languageStorageKey, currentLanguage);
     }
     const contactButton = document.querySelector(".contact-button"); if (contactButton && adminTexts.contactEmail) contactButton.href = "mailto:" + adminTexts.contactEmail;
 
