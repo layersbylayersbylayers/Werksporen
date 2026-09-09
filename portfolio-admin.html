@@ -47,6 +47,10 @@
     .gallery-tabs { display:flex; margin:0 0 22px; border-bottom:1px solid var(--ink); overflow-x:auto; scrollbar-width:none; }
     .gallery-tabs::-webkit-scrollbar { display:none; }
     .gallery-filter { flex:0 0 auto; appearance:none; border:0; border-right:1px solid var(--line); background:transparent; color:#77736c; padding:13px 16px 12px; font-size:.72rem; }
+    .gallery-filter[data-section-drag-tab] { cursor:grab; }
+    .gallery-filter[data-section-drag-tab].is-tab-dragging { opacity:.4; }
+    .gallery-filter[data-section-drop-before] { box-shadow:-3px 0 0 var(--red) inset; }
+    .gallery-filter[data-section-drop-after] { box-shadow:3px 0 0 var(--red) inset; }
     .gallery-filter:first-child { padding-left:0; padding-right:20px; }
     .gallery-filter:hover, .gallery-filter.is-active { background:var(--ink); color:white; }
     .gallery-filter:first-child.is-active { padding-left:14px; }
@@ -543,7 +547,7 @@
       galleryTabs.innerHTML = [
         `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${escapeHtml(data.texts.all || "home")}</button>`,
         `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">alle werken</button>`,
-        ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" data-gallery-filter="${section.id}">${escapeHtml(section.label)}</button>`),
+        ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" draggable="true" data-section-drag-tab data-gallery-filter="${section.id}" title="Sleep om de paginavolgorde te wijzigen">${escapeHtml(section.label)}</button>`),
         `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
       ].join("");
       sectionList.innerHTML = sectionRowsMarkup();
@@ -915,6 +919,38 @@
       adminPage = 0;
       renderImages();
     });
+    let draggedTabId = null;
+    galleryTabs.addEventListener("dragstart", event => {
+      const tab = event.target.closest("[data-section-drag-tab]");
+      if (!tab) return;
+      draggedTabId = tab.dataset.galleryFilter;
+      tab.classList.add("is-tab-dragging");
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", draggedTabId);
+    });
+    galleryTabs.addEventListener("dragover", event => {
+      if (!draggedTabId) return;
+      const target = event.target.closest("[data-section-drag-tab]");
+      if (!target || target.dataset.galleryFilter === draggedTabId) return;
+      event.preventDefault();
+      galleryTabs.querySelectorAll("[data-section-drop-before],[data-section-drop-after]").forEach(tab => { tab.removeAttribute("data-section-drop-before"); tab.removeAttribute("data-section-drop-after"); });
+      target.setAttribute(event.clientX < target.getBoundingClientRect().left + target.offsetWidth / 2 ? "data-section-drop-before" : "data-section-drop-after", "");
+    });
+    galleryTabs.addEventListener("drop", event => {
+      if (!draggedTabId) return;
+      const target = event.target.closest("[data-section-drag-tab]");
+      if (!target || target.dataset.galleryFilter === draggedTabId) return;
+      event.preventDefault();
+      const from = data.sections.findIndex(section => section.id === draggedTabId);
+      const to = data.sections.findIndex(section => section.id === target.dataset.galleryFilter);
+      if (from < 0 || to < 0) return;
+      const [moved] = data.sections.splice(from, 1);
+      const insertAt = event.clientX < target.getBoundingClientRect().left + target.offsetWidth / 2 ? to : to + 1;
+      data.sections.splice(Math.min(insertAt, data.sections.length), 0, moved);
+      draggedTabId = null;
+      renderImages(); renderTexts(); markDirty();
+    });
+    galleryTabs.addEventListener("dragend", () => { draggedTabId = null; renderSections(); });
     function updateSectionField(event) {
       const row = event.target.closest("[data-section-id]");
       const section = row && data.sections.find(entry => entry.id === row.dataset.sectionId);
