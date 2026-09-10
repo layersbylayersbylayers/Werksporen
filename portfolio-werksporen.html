@@ -2057,10 +2057,57 @@
     function stepSection(direction) {
       if (pageTransitioning || morphing || viewer.open) return;
       const buttons = Array.from(filters);
+      const workButtons = buttons.filter(button => !["all","about","contact"].includes(button.dataset.filter));
+      const lastWorkButton = workButtons.at(-1);
+      const aboutButton = buttons.find(button => button.dataset.filter === "about");
       const current = Math.max(0, buttons.findIndex(button => button.classList.contains("is-active")));
+      const currentButton = buttons[current];
+      // The archive deliberately ends at its final image tab. About and Contact
+      // are separate writing spaces, never an accidental continuation of swiping.
+      if (currentButton === lastWorkButton && direction > 0) return;
+      if (currentButton?.dataset.filter === "about" && direction < 0 && lastWorkButton) { lastWorkButton.click(); return; }
+      if (currentButton?.dataset.filter === "contact" && direction < 0 && aboutButton) { aboutButton.click(); return; }
       const next = Math.min(buttons.length - 1, Math.max(0, current + direction));
       if (next !== current) buttons[next].click();
     }
+    function returnFromDetail() {
+      const current = document.querySelector(".detail-panel.is-active")?.id.replace("-panel","");
+      if (current === "about") {
+        const lastWorkButton = Array.from(filters).filter(button => !["all","about","contact"].includes(button.dataset.filter)).at(-1);
+        lastWorkButton?.click();
+      } else if (current === "contact") {
+        Array.from(filters).find(button => button.dataset.filter === "about")?.click();
+      }
+    }
+    let detailSwipe = null;
+    panels.forEach(panel => {
+      panel.addEventListener("touchstart", event => {
+        if (!panel.classList.contains("is-active") || event.touches.length !== 1 || event.target.closest("input,textarea,button,a,label")) return;
+        const touch = event.touches[0];
+        detailSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now(), axis:null };
+      }, { passive:true });
+      panel.addEventListener("touchmove", event => {
+        if (!detailSwipe || event.touches.length !== 1) return;
+        const touch = event.touches[0];
+        const dx = touch.clientX - detailSwipe.x, dy = touch.clientY - detailSwipe.y;
+        if (!detailSwipe.axis && Math.max(Math.abs(dx),Math.abs(dy)) > 8) detailSwipe.axis = Math.abs(dx) > Math.abs(dy) * 1.12 ? "x" : "y";
+        if (detailSwipe.axis === "x") event.preventDefault();
+      }, { passive:false });
+      panel.addEventListener("touchend", event => {
+        if (!detailSwipe || event.changedTouches.length !== 1) { detailSwipe = null; return; }
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - detailSwipe.x, dy = touch.clientY - detailSwipe.y;
+        const elapsed = performance.now() - detailSwipe.time;
+        detailSwipe = null;
+        if (elapsed <= 850 && dx >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) { event.preventDefault(); returnFromDetail(); }
+      }, { passive:false });
+      panel.addEventListener("wheel", event => {
+        if (!panel.classList.contains("is-active") || event.ctrlKey || event.target.closest("input,textarea,button,a,label")) return;
+        if (Math.abs(event.deltaX) < 18 || Math.abs(event.deltaX) < Math.abs(event.deltaY) * 1.18) return;
+        event.preventDefault();
+        if (event.deltaX < 0) returnFromDetail();
+      }, { passive:false });
+    });
     let homeFrameSwipe = null;
     homeMosaic.addEventListener("touchstart", event => {
       if (!overview.classList.contains("show-feature") || event.touches.length !== 1) return;
