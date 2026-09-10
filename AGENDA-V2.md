@@ -11,8 +11,9 @@ De homepage wordt een bezoekwaardige interactieve werkruimte: een vaste grid waa
 1. **Games afronden**
    - Memory — afgerond; niet meer aanpassen.
    - Minesweeper — eerste V2-versie staat; verder stabiliseren en testen zonder Memory te wijzigen.
-   - Snake — volgende kandidaat: eenvoudige besturing, touch/muis en een rustige grid-morph.
-   - Tetris — daarna; technisch complexer door vallende stukken, rotatie, collision en timing.
+   - Snake — lokale speelbare versie: sturen met toetsen, swipes en knoppen; score, botsingen, pauze/reset/exit.
+   - Tetris — lokale speelbare versie: 10×20, zeven stukken, rotatie, soft/hard drop, rijen wissen, score en versnelling.
+   - Beide nieuwe games staan in portfolio-arcade.js; mobiele bediening moet later ook op een echte telefoon beoordeeld worden.
 2. **Games eigen maken**
    - Per game een unieke Werksporen-presentatie en animatietaal.
    - Pas daarna sounds toevoegen: eerst observeren, analyseren en zelf ontwerpen.

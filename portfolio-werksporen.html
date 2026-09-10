@@ -1602,7 +1602,7 @@
       setMinesZoom(minesZoom > 1 ? 1 : 1.8,event.clientX,event.clientY,minesZoom > 1);
     });
 
-    function homeGameActive() { return memoryActive || minesActive; }
+    function homeGameActive() { return memoryActive || minesActive || !!window.arcadeGameActive; }
     function setHomeGridDimensions(columns, rows) {
       homeMosaic.style.setProperty("--mosaic-columns", columns);
       homeMosaic.style.setProperty("--mosaic-rows", rows);
@@ -3158,5 +3158,6 @@
     });
 
   </script>
+  <script src="portfolio-arcade.js"></script>
 </body>
 </html>
