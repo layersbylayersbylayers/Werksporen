@@ -1165,9 +1165,23 @@
         : "00 / 00";
     }
     function concealMemoryTile(tile) {
-      tile.classList.remove("is-arriving");
-      tile.classList.add("is-leaving");
-      window.setTimeout(() => tile.classList.remove("is-alternate", "memory-face-up", "is-leaving"), 470);
+      return new Promise(resolve => {
+        tile.classList.remove("is-arriving");
+        // Force the browser to commit the open face before starting the exact
+        // same outgoing flip that the regular homepage tiles use.
+        void tile.offsetWidth;
+        tile.classList.add("is-leaving");
+        const finish = () => {
+          tile.removeEventListener("animationend", onAnimationEnd);
+          tile.classList.remove("is-alternate", "memory-face-up", "is-leaving");
+          resolve();
+        };
+        const onAnimationEnd = event => {
+          if (event.target === tile && event.animationName === "tileFlipOut") finish();
+        };
+        tile.addEventListener("animationend", onAnimationEnd);
+        window.setTimeout(finish, 500);
+      });
     }
     function pulseMemoryBoard() {
       homeMosaic.classList.remove("memory-board-pulse");
@@ -1273,11 +1287,12 @@
       const generation = memoryGeneration;
       memoryLocked = true;
       updateMemoryUI();
-      window.setTimeout(() => {
+      window.setTimeout(async () => {
         if (!memoryActive || generation !== memoryGeneration) return;
-        concealMemoryTile(first); concealMemoryTile(second);
+        await Promise.all([concealMemoryTile(first), concealMemoryTile(second)]);
+        if (!memoryActive || generation !== memoryGeneration) return;
         memoryLocked = false;
-      }, 620);
+      }, 560);
     }
     memoryToggle.addEventListener("click", () => memoryActive ? stopMemory() : startMemory());
     memoryReset.addEventListener("click", startMemory);
