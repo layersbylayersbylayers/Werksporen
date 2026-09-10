@@ -744,6 +744,29 @@
     function applyLanguage() {
       const t = translations[currentLanguage];
       const localize = (value, key, defaults) => defaults.includes(String(value || "").trim()) ? t[key] : value;
+      const cleanTabLabel = value => {
+        let label = String(value || "").replace(/^(?:\s*\d{2}\s*(?:[-–—/·]\s*)?)+/, "").trim();
+        let duplicate = label.match(/^(.+?)\s+\1$/i);
+        while (duplicate) {
+          label = duplicate[1].trim();
+          duplicate = label.match(/^(.+?)\s+\1$/i);
+        }
+        return label;
+      };
+      const standardTabLabels = {
+        inkt: { nl:"Inkt & Flash", en:"Prints & Flash", aliases:["inkt & flash","prints & flash"] },
+        verf: { nl:"Schilderijen", en:"Paintings", aliases:["schilderij","schilderijen","painting","paintings"] },
+        digitaal: { nl:"Digitaal", en:"Digital", aliases:["digitaal","digital"] },
+        "lino-cuts": { nl:"Lino Cuts", en:"Lino Cuts", aliases:["lino cuts"] },
+        proces: { nl:"Proces", en:"Process", aliases:["proces","process"] },
+        about: { nl:"Over", en:"About", aliases:["over","about"] },
+        contact: { nl:"Contact", en:"Contact", aliases:["contact"] }
+      };
+      const translatedTabLabel = (id, raw) => {
+        const label = cleanTabLabel(raw);
+        const standard = standardTabLabels[id];
+        return standard?.aliases.includes(label.toLowerCase()) ? standard[currentLanguage] : label;
+      };
       document.documentElement.lang = currentLanguage;
       languageToggle.innerHTML = `<span class="language-option ${currentLanguage === "nl" ? "is-active" : ""}">NL</span> / <span class="language-option ${currentLanguage === "en" ? "is-active" : ""}">EN</span>`;
       languageToggle.setAttribute("aria-label", currentLanguage === "nl" ? "Schakel naar Engels" : "Switch to Dutch");
@@ -766,12 +789,7 @@
         return adminConfig.items.filter(item => item.visible && item.gallery && item.src && (item.categories || []).includes(filterId)).length;
       };
       document.querySelectorAll(".project-menu .filter").forEach((button, index) => {
-        let cleanLabel = button.textContent.trim().replace(/^(?:\s*\d{2}\s*(?:[-–—/·]\s*)?)+/,"").trim();
-        let duplicate = cleanLabel.match(/^(.+?)\s+\1$/i);
-        while (duplicate) {
-          cleanLabel = duplicate[1].trim();
-          duplicate = cleanLabel.match(/^(.+?)\s+\1$/i);
-        }
+        const cleanLabel = translatedTabLabel(button.dataset.filter,button.textContent);
         const cleanIndex = String(index).padStart(2,"0");
         const imageCount = String(tabImageCount(button.dataset.filter)).padStart(2,"0");
         button.dataset.mobileIndex = cleanIndex;
