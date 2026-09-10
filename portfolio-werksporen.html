@@ -2059,24 +2059,22 @@
       const buttons = Array.from(filters);
       const workButtons = buttons.filter(button => !["all","about","contact"].includes(button.dataset.filter));
       const lastWorkButton = workButtons.at(-1);
-      const aboutButton = buttons.find(button => button.dataset.filter === "about");
       const current = Math.max(0, buttons.findIndex(button => button.classList.contains("is-active")));
       const currentButton = buttons[current];
-      // The archive deliberately ends at its final image tab. About and Contact
-      // are separate writing spaces, never an accidental continuation of swiping.
-      if (currentButton === lastWorkButton && direction > 0) return;
+      // About sits directly after the archive. Contact is the final writing
+      // space, with no swipe route back out of it.
       if (currentButton?.dataset.filter === "about" && direction < 0 && lastWorkButton) { lastWorkButton.click(); return; }
-      if (currentButton?.dataset.filter === "contact" && direction < 0 && aboutButton) { aboutButton.click(); return; }
+      if (currentButton?.dataset.filter === "contact") return;
       const next = Math.min(buttons.length - 1, Math.max(0, current + direction));
       if (next !== current) buttons[next].click();
     }
-    function returnFromDetail() {
+    function navigateDetail(direction) {
       const current = document.querySelector(".detail-panel.is-active")?.id.replace("-panel","");
-      if (current === "about") {
+      if (current === "about" && direction < 0) {
         const lastWorkButton = Array.from(filters).filter(button => !["all","about","contact"].includes(button.dataset.filter)).at(-1);
         lastWorkButton?.click();
-      } else if (current === "contact") {
-        Array.from(filters).find(button => button.dataset.filter === "about")?.click();
+      } else if (current === "about" && direction > 0) {
+        Array.from(filters).find(button => button.dataset.filter === "contact")?.click();
       }
     }
     let detailSwipe = null;
@@ -2099,13 +2097,13 @@
         const dx = touch.clientX - detailSwipe.x, dy = touch.clientY - detailSwipe.y;
         const elapsed = performance.now() - detailSwipe.time;
         detailSwipe = null;
-        if (elapsed <= 850 && dx >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) { event.preventDefault(); returnFromDetail(); }
+        if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) { event.preventDefault(); navigateDetail(dx < 0 ? 1 : -1); }
       }, { passive:false });
       panel.addEventListener("wheel", event => {
         if (!panel.classList.contains("is-active") || event.ctrlKey || event.target.closest("input,textarea,button,a,label")) return;
         if (Math.abs(event.deltaX) < 18 || Math.abs(event.deltaX) < Math.abs(event.deltaY) * 1.18) return;
         event.preventDefault();
-        if (event.deltaX < 0) returnFromDetail();
+        navigateDetail(event.deltaX > 0 ? 1 : -1);
       }, { passive:false });
     });
     let homeFrameSwipe = null;
