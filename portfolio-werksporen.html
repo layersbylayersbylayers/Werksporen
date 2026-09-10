@@ -457,14 +457,18 @@
     .home-game-console button:hover, .home-game-console button:focus-visible { color:var(--accent); outline:none; }
     .home-game-console button[hidden] { display:none; }
     .home-game-state { margin-left:auto; white-space:nowrap; }
-    .home-mosaic.memory-mode .home-tile { cursor:pointer; }
+    /* Memory uses the home tile's own horizontal flip.  Its image is already
+       cached before play starts, so no background transition competes with it. */
+    .home-mosaic.memory-mode .home-tile { cursor:pointer; transition:none; }
+    .home-mosaic.memory-mode .home-tile.is-arriving,
+    .home-mosaic.memory-mode .home-tile.is-leaving { will-change:transform,opacity; backface-visibility:hidden; }
     .home-mosaic.memory-mode .home-tile.memory-matched { box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 72%,transparent); }
     .home-mosaic.memory-mode .home-tile.memory-spare { cursor:default; opacity:.32; }
-    .home-mosaic.memory-mode .home-tile.memory-confirmed { animation:memoryConfirmed .7s cubic-bezier(.16,1,.3,1) both; }
-    .home-mosaic.memory-board-pulse { animation:memoryBoardPulse 1.05s cubic-bezier(.16,1,.3,1); }
-    @keyframes memoryConfirmed { 0%,100% { transform:scale(1); filter:saturate(1.08); } 32% { transform:scale(.78); filter:saturate(1.5) brightness(1.22); box-shadow:inset 0 0 0 3px var(--accent); } 68% { transform:scale(1.12); filter:saturate(1.25) brightness(1.08); box-shadow:inset 0 0 0 2px var(--accent); } }
-    @keyframes memoryBoardPulse { 0%,100% { filter:none; } 28% { filter:brightness(.78) saturate(.82); transform:scale(.992); } 58% { filter:brightness(1.14) saturate(1.2); transform:scale(1.004); } }
-    @media (prefers-reduced-motion:reduce) { .home-mosaic.memory-mode .home-tile.memory-confirmed, .home-mosaic.memory-board-pulse { animation:none; } }
+    .home-mosaic.memory-mode .home-tile.memory-confirmed { animation:memoryConfirmed .46s ease-out both; }
+    .home-mosaic.memory-board-pulse::before { background-color:color-mix(in srgb,var(--accent) 34%,transparent); animation:memoryBoardPulse .72s ease-out both; }
+    @keyframes memoryConfirmed { 0%,100% { opacity:1; box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 72%,transparent); } 45% { opacity:.78; box-shadow:inset 0 0 0 4px var(--accent); } }
+    @keyframes memoryBoardPulse { 0%,100% { opacity:0; } 42% { opacity:.34; } }
+    @media (prefers-reduced-motion:reduce) { .home-mosaic.memory-mode .home-tile.memory-confirmed, .home-mosaic.memory-board-pulse::before { animation:none; } }
     @media (max-width:700px) { .home-game-console { margin-top:12px; padding-top:8px; } }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
     .contact-field label { display:block; margin-bottom:5px; color:var(--accent); font-size:10px; text-transform:uppercase; }
@@ -1187,7 +1191,7 @@
       homeMosaic.classList.remove("memory-board-pulse");
       void homeMosaic.offsetWidth;
       homeMosaic.classList.add("memory-board-pulse");
-      window.setTimeout(() => homeMosaic.classList.remove("memory-board-pulse"), 1080);
+      window.setTimeout(() => homeMosaic.classList.remove("memory-board-pulse"), 760);
     }
     function preloadMemorySources(sources, generation) {
       const jobs = Array.from(new Set(sources)).map(source => new Promise(resolve => {
@@ -1196,7 +1200,7 @@
         image.onerror = resolve;
         image.src = source;
       }));
-      const openingPulse = new Promise(resolve => window.setTimeout(resolve,1080));
+      const openingPulse = new Promise(resolve => window.setTimeout(resolve,760));
       Promise.all([Promise.allSettled(jobs),openingPulse]).then(() => {
         if (!memoryActive || generation !== memoryGeneration) return;
         memoryPreparing = false;
@@ -1255,10 +1259,12 @@
     }
     function playMemoryTile(tile) {
       if (!memoryActive || memoryLocked || tile.classList.contains("memory-spare") || tile.classList.contains("memory-face-up") || tile.classList.contains("memory-matched")) return;
-      tile.classList.remove("is-leaving");
+      tile.classList.remove("is-arriving", "is-leaving");
+      // Restart the same home flip cleanly every time a memory card is opened.
+      void tile.offsetWidth;
       tile.classList.add("is-alternate", "memory-face-up", "is-arriving");
       tile.setAttribute("aria-label","open memory card");
-      window.setTimeout(() => tile.classList.remove("is-arriving"), 540);
+      window.setTimeout(() => tile.classList.remove("is-arriving"), 530);
       memoryOpenTiles.push(tile);
       if (memoryOpenTiles.length < 2) return;
       memoryMoves += 1;
