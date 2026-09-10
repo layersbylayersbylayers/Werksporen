@@ -544,8 +544,18 @@
       homeEditor.querySelectorAll("[data-home-grid]").forEach(button => button.classList.toggle("is-active", Number(button.dataset.homeGrid) === sizeIndex));
     }
 
-    const cleanTabName = value => String(value || "").replace(/^\d{2}\s+/, "");
-    const keepTabNumber = (previous, value, fallback) => `${String(previous || "").match(/^(\d{2})\b/)?.[1] || fallback} ${cleanTabName(value).trim()}`.trim();
+    const cleanTabName = value => {
+      let label = String(value || "").replace(/^(?:\s*\d{2}\s*(?:[-–—/·]\s*)?)+/, "").trim();
+      let duplicate = label.match(/^(.+?)\s+\1$/i);
+      while (duplicate) {
+        label = duplicate[1].trim();
+        duplicate = label.match(/^(.+?)\s+\1$/i);
+      }
+      return label;
+    };
+    // Numbers are generated from the tab's actual position on the public site.
+    // Saving just the name prevents old prefixes from reappearing after reordering.
+    const keepTabNumber = (_previous, value, _fallback) => cleanTabName(value);
 
     function fixedNavigationRow(key, note) {
       return `<div class="section-row section-row-fixed"><span class="section-fixed-marker" aria-hidden="true">VAST</span><span class="section-name">${escapeHtml(cleanTabName(data.texts[key]))}</span><span class="section-fixed-note">${escapeHtml(note)}</span></div>`;
