@@ -457,10 +457,7 @@
     .home-game-console button:hover, .home-game-console button:focus-visible { color:var(--accent); outline:none; }
     .home-game-console button[hidden] { display:none; }
     .home-game-state { margin-left:auto; white-space:nowrap; }
-    .home-mosaic.memory-mode .home-tile { cursor:pointer; transform-style:preserve-3d; transition:filter .2s ease, opacity .2s ease, transform .28s cubic-bezier(.2,.75,.25,1); }
-    .home-mosaic.memory-mode .home-tile::after { content:""; position:absolute; inset:2px; border-radius:max(1px,calc(var(--frame-radius,0px) * .65)); background:color-mix(in srgb,var(--ink) 8%,transparent); opacity:.42; pointer-events:none; transition:opacity .2s ease; }
-    .home-mosaic.memory-mode .home-tile.memory-face-up, .home-mosaic.memory-mode .home-tile.memory-matched { z-index:6; background-image:var(--tile-image); background-size:cover; background-position:center; filter:none; clip-path:inset(0 round var(--frame-radius,0px)); }
-    .home-mosaic.memory-mode .home-tile.memory-face-up::after, .home-mosaic.memory-mode .home-tile.memory-matched::after { opacity:0; }
+    .home-mosaic.memory-mode .home-tile { cursor:pointer; }
     .home-mosaic.memory-mode .home-tile.memory-matched { box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 72%,transparent); }
     .home-mosaic.memory-mode .home-tile.memory-spare { cursor:default; opacity:.32; }
     .home-mosaic.memory-mode .home-tile.memory-confirmed { animation:memoryConfirmed .7s cubic-bezier(.16,1,.3,1) both; }
@@ -1151,6 +1148,8 @@
     let memoryMatches = 0;
     let memoryPairCount = 0;
     let memoryOpenTiles = [];
+    let memoryPreparing = false;
+    let memoryGeneration = 0;
     function shuffleMemoryDeck(deck) {
       for (let index = deck.length - 1; index > 0; index -= 1) {
         const target = Math.floor(Math.random() * (index + 1));
@@ -1162,7 +1161,7 @@
       memoryToggle.textContent = memoryActive ? "IMAGE / EXIT" : "MEMORY / PLAY";
       memoryReset.hidden = !memoryActive;
       memoryState.textContent = memoryActive
-        ? `${String(memoryMatches).padStart(2,"0")} / ${String(memoryPairCount).padStart(2,"0")} · ${String(memoryMoves).padStart(3,"0")}`
+        ? memoryPreparing ? "PREPARING" : `${String(memoryMatches).padStart(2,"0")} / ${String(memoryPairCount).padStart(2,"0")} · ${String(memoryMoves).padStart(3,"0")}`
         : "00 / 00";
     }
     function concealMemoryTile(tile) {
@@ -1176,11 +1175,28 @@
       homeMosaic.classList.add("memory-board-pulse");
       window.setTimeout(() => homeMosaic.classList.remove("memory-board-pulse"), 1080);
     }
+    function preloadMemorySources(sources, generation) {
+      const jobs = Array.from(new Set(sources)).map(source => new Promise(resolve => {
+        const image = new Image();
+        image.onload = () => image.decode?.().catch(() => {}).finally(resolve) || resolve();
+        image.onerror = resolve;
+        image.src = source;
+      }));
+      const openingPulse = new Promise(resolve => window.setTimeout(resolve,1080));
+      Promise.all([Promise.allSettled(jobs),openingPulse]).then(() => {
+        if (!memoryActive || generation !== memoryGeneration) return;
+        memoryPreparing = false;
+        memoryLocked = false;
+        updateMemoryUI();
+      });
+    }
     function startMemory() {
+      const generation = ++memoryGeneration;
       freezeHomeGlitches();
       activeGlitchTiles.clear();
       memoryActive = true;
-      memoryLocked = false;
+      memoryLocked = true;
+      memoryPreparing = true;
       memoryMoves = 0;
       memoryMatches = 0;
       memoryOpenTiles = [];
@@ -1209,10 +1225,13 @@
       homeMosaic.classList.add("memory-mode");
       updateMemoryUI();
       pulseMemoryBoard();
+      preloadMemorySources(deck.map(card => card.src), generation);
     }
     function stopMemory(resumeGlitches = true) {
+      memoryGeneration += 1;
       memoryActive = false;
       memoryLocked = false;
+      memoryPreparing = false;
       memoryOpenTiles = [];
       homeMosaic.classList.remove("memory-mode");
       homeTiles.forEach(tile => { tile.tabIndex = 0; tile.setAttribute("aria-label","Verplaats de glitch"); restoreTile(tile); });
@@ -1232,22 +1251,30 @@
       const [first,second] = memoryOpenTiles;
       memoryOpenTiles = [];
       if (first.dataset.memoryPair === second.dataset.memoryPair) {
+        const generation = memoryGeneration;
+        memoryLocked = true;
         first.classList.add("memory-matched"); second.classList.add("memory-matched");
-        first.classList.add("memory-confirmed"); second.classList.add("memory-confirmed");
-        window.setTimeout(() => { first.classList.remove("memory-confirmed"); second.classList.remove("memory-confirmed"); }, 640);
         first.setAttribute("aria-label","matched memory card"); second.setAttribute("aria-label","matched memory card");
         memoryMatches += 1;
         updateMemoryUI();
-        if (memoryMatches === memoryPairCount) {
-          memoryLocked = true;
-          memoryToggle.textContent = "COMPLETE / EXIT";
-          pulseMemoryBoard();
-        }
+        const complete = memoryMatches === memoryPairCount;
+        window.setTimeout(() => {
+          if (!memoryActive || generation !== memoryGeneration) return;
+          first.classList.add("memory-confirmed"); second.classList.add("memory-confirmed");
+          window.setTimeout(() => {
+            if (!memoryActive || generation !== memoryGeneration) return;
+            first.classList.remove("memory-confirmed"); second.classList.remove("memory-confirmed");
+            if (complete) { memoryToggle.textContent = "COMPLETE / EXIT"; pulseMemoryBoard(); }
+            else memoryLocked = false;
+          }, 710);
+        }, 560);
         return;
       }
+      const generation = memoryGeneration;
       memoryLocked = true;
       updateMemoryUI();
       window.setTimeout(() => {
+        if (!memoryActive || generation !== memoryGeneration) return;
         concealMemoryTile(first); concealMemoryTile(second);
         memoryLocked = false;
       }, 620);
