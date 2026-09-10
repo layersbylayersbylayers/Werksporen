@@ -138,6 +138,7 @@
       gap: 24px;
       align-items: start;
       padding: 0 0 6.3vw;
+      min-height: var(--page-canvas-height, 0px);
     }
     .work-title { padding-top: 7px; }
     .work-title h2 { margin: 0 0 8px; font-size: 12px; font-weight: 500; }
@@ -210,6 +211,7 @@
       .project-menu { width:100%; overflow-x:hidden; gap:1px; }
       .grid-swipe-hint { min-height:34px; padding-top:10px; visibility:visible; }
       footer.contact { grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px; }
+      footer.contact { position:relative; transform:translateY(30px); margin-bottom:-30px; }
       .filter { flex-basis:30px; padding:10px 4px 9px; }
       .filter::before { min-width:2ch; font-size:13px; }
       .filter:is(:focus-visible,.is-active) { flex-basis:min(112px,30vw); padding-left:8px; transform:translateY(0); }
@@ -240,7 +242,7 @@
     .contact-links { grid-column: 1; grid-row: 1; margin-top: 42px; }
     .footer-controls { grid-column:3; grid-row:1; justify-self:end; display:flex; align-items:center; gap:14px; color:var(--soft); font-size:10px; }
     .detail-meta { margin:0 0 18px; color:var(--soft); font-size:10px; }
-    .overview-work.show-feature .work-topline { display:none; }
+    .overview-work.show-feature .work-topline { visibility:hidden; }
     @media (max-width:700px) { .footer-controls { grid-column:2; grid-row:1; justify-self:end; margin:0; gap:8px; white-space:nowrap; } }
     .overview-thumb::after { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(28,27,25,.28); pointer-events: none; }
     .overview-thumb figcaption { position: absolute; z-index: 1; left: 9px; right: 9px; bottom: 8px; display: flex; justify-between: space-between; color: var(--paper); font-size: 9px; mix-blend-mode: difference; }
@@ -286,16 +288,20 @@
     .home-feature > .scroll-cue { position: absolute; top: 100%; right: 0; margin: 7px 0 0 !important; border: 0; padding: 0; background: transparent; color: var(--accent); cursor: pointer; font: 500 12px var(--mono); }
 @media (max-width: 700px) { .home-feature { width: 100%; } .feature-note { position: static; width: auto; margin-top: 20px; } .home-feature > .scroll-cue { position: static; display: block; margin: 8px 0 0 auto !important; } }
     .full-image-hint { color: var(--accent); font-size: 10px; }
-    .image-viewer { max-width: min(94vw, 1300px); max-height: 92vh; margin:auto; padding:10px 10px 12px; overflow:auto; border:1px solid var(--ink); background:var(--paper); opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:contain; touch-action:none; }
-    .image-viewer::backdrop { background:rgba(23,22,15,.48); opacity:1; transition:opacity .24s ease; }
+    .image-viewer { position:relative; max-width:min(94vw,1300px); max-height:92vh; margin:auto; padding:0; overflow:visible; border:0; background:transparent; opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:contain; touch-action:none; }
+    .image-viewer::backdrop { background:rgba(23,22,15,.38); -webkit-backdrop-filter:blur(10px) saturate(.82); backdrop-filter:blur(10px) saturate(.82); opacity:1; transition:opacity .24s ease, backdrop-filter .28s ease; }
     .image-viewer.is-closing::backdrop { opacity:0; }
-    .viewer-canvas { width:min(88vw,1100px); height:min(76vh,820px); overflow:hidden; display:grid; place-items:center; background:var(--paper); }
-    .image-viewer img { display:block; width:100%; height:100%; object-fit:contain; transform-origin:center; }
-    .viewer-controls { display:flex; justify-content:flex-end; align-items:center; gap:15px; min-height:22px; margin:5px 1px 0; }
+    .viewer-polaroid { display:inline-flex; flex-direction:column; align-items:flex-start; max-width:min(88vw,1100px); padding:10px 10px 16px; background:var(--paper); box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:left; }
+    .viewer-canvas { display:inline-block; width:auto; height:auto; max-width:min(88vw,1100px); max-height:72vh; overflow:hidden; background:var(--paper); line-height:0; }
+    .image-viewer img { display:block; width:auto; height:auto; max-width:min(88vw,1100px); max-height:72vh; object-fit:contain; transform-origin:center; }
+    .viewer-controls { position:absolute; right:0; bottom:-22px; display:flex; justify-content:flex-end; align-items:center; gap:15px; min-height:22px; margin:0; }
     .viewer-close, .viewer-info { display:block; margin:0; padding:0; border:0; background:transparent; color:var(--accent); font:500 11px var(--mono); cursor:pointer; }
     @media (max-width:700px) {
-      .image-viewer { width:calc(100vw - 20px); max-width:none; max-height:calc(100dvh - 20px); box-sizing:border-box; padding:8px 8px 10px; }
-      .viewer-canvas { width:100%; height:min(72dvh,820px); }
+      .image-viewer { width:auto; max-width:calc(100vw - 20px); max-height:calc(100dvh - 20px); box-sizing:border-box; }
+      .viewer-polaroid { max-width:calc(100vw - 28px); padding:7px 7px 14px; }
+      .viewer-canvas { max-width:calc(100vw - 42px); max-height:68dvh; }
+      .image-viewer img { max-width:calc(100vw - 42px); max-height:68dvh; }
+      .viewer-controls { right:0; bottom:-23px; }
     }
     .home-image, .overview-thumb { border-color: rgba(28,27,25,.18); background: #d8d5cd; }
     .home-image::after, .overview-thumb::after { display: none; }
@@ -315,9 +321,10 @@
 
     .feature-note { display: none !important; }
     .viewer-info { font-weight:700; font-size:12px; }
-    .viewer-detail { display: block; max-width: 48ch; margin: 10px 0 0; color: var(--soft); font: 10px/1.45 var(--mono); }
+    .viewer-detail { display:block; width:100%; max-width:48ch; margin:10px 1px 0; color:var(--soft); font:10px/1.45 var(--mono); }
     .viewer-detail.is-open { display: block; animation: viewerDetailIn .22s ease both; }
-    .viewer-detail p { margin: 0 0 13px; }
+    .viewer-detail p { margin:0; }
+    .viewer-detail p:not(:first-child) { display:none; }
     .viewer-detail strong { color: var(--accent); font-weight: 700; }
     @keyframes viewerDetailIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -331,7 +338,7 @@
     .feature-note .full-image-hint { display: none; }
 
 
-    .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; }
+    .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; transition:opacity .42s cubic-bezier(.22,1,.36,1); }
     .grid-controls[hidden] { display:none; }
     .grid-progress { width:100%; padding:10px 0 4px; }
     .grid-progress-track { display:flex; width:100%; height:3px; gap:3px; }
@@ -356,8 +363,9 @@
     .gallery-note { grid-column:2; grid-row:1; color:var(--soft); padding-top:3px; }
     .gallery-note p { max-width:21ch; margin:0 0 28px; }
     .gallery-note strong { color:var(--accent); font-weight:500; letter-spacing:-.025em; }
-    .overview-work.show-detail .grid-controls, .overview-work.show-feature .grid-controls,
+    .overview-work.show-detail .grid-controls,
     .overview-work.show-detail .gallery-view, .overview-work.show-feature .gallery-view { display:none; }
+    .overview-work.show-feature .grid-controls { display:flex; visibility:visible; opacity:0; pointer-events:none; }
     @media (max-width:700px) {
       .gallery-view { grid-template-columns:1fr; width:100%; gap:18px; }
       .gallery-note { grid-column:1; grid-row:2; }
@@ -384,7 +392,8 @@
       .overview-work.show-feature .feature-note p { display:none; }
       .overview-work.show-feature .feature-note p:first-child { display:block; max-width:none; margin:0; line-height:1.55; }
       .overview-work.show-feature .feature-note p:first-child br { display:none; }
-      .overview-work.show-feature .feature-note p:first-child strong::after { content:" · "; color:var(--hairline); }
+      .overview-work.show-feature .feature-note p:first-child strong { display:block; margin-bottom:3px; }
+      .overview-work.show-feature .feature-note p:first-child strong::after { content:none; }
     }
 
 
@@ -447,10 +456,12 @@
     .raster-morph-line { position:absolute; background:var(--grid-line); transform-origin:center; }
     .raster-morph-line.is-vertical { top:0; bottom:0; width:1px; transform:translateX(-50%); }
     .raster-morph-line.is-horizontal { left:0; right:0; height:1px; transform:translateY(-50%); }
-    .raster-morph-corner { position:absolute; z-index:2; background:transparent; transform:translate(-50%,-50%); }
-    .raster-morph-corner::before, .raster-morph-corner::after { content:""; position:absolute; left:50%; top:50%; display:block; background:var(--grid-line); border-radius:999px; transform:translate(-50%,-50%); }
+    .raster-morph-corner { position:absolute; z-index:2; background:var(--grid-line); border-radius:50%; transform:translate(-50%,-50%); transition:background .16s ease, border-radius .16s ease; }
+    .raster-morph-corner::before, .raster-morph-corner::after { content:""; position:absolute; left:50%; top:50%; display:block; background:var(--grid-line); border-radius:999px; transform:translate(-50%,-50%); opacity:0; transition:opacity .16s ease; }
     .raster-morph-corner::before { width:100%; height:var(--morph-stroke,3px); }
     .raster-morph-corner::after { width:var(--morph-stroke,3px); height:100%; }
+    .raster-morph-corner.is-plus { background:transparent; border-radius:0; }
+    .raster-morph-corner.is-plus::before, .raster-morph-corner.is-plus::after { opacity:1; }
     .home-raster-snapshot { position:fixed; z-index:998; pointer-events:none; overflow:hidden; background-repeat:no-repeat; transform:none !important; }
     .return-home-face { position:absolute; inset:0; z-index:3; background-repeat:no-repeat; transform-origin:center; pointer-events:none; border-radius:inherit; }
     .flip-content-shell { position:fixed; z-index:1001; overflow:hidden; pointer-events:none; transform-origin:center; background:transparent; border:0; outline:0; box-shadow:none; border-radius:var(--frame-radius,0px); backface-visibility:hidden; -webkit-backface-visibility:hidden; transform:translateZ(0); }
@@ -559,16 +570,18 @@
       <div class="footer-controls"><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch between day and night"><span data-theme-label="day">DAY</span> / <span data-theme-label="night">NIGHT</span></button><button class="language-toggle" id="language-toggle" type="button" aria-label="Switch language">NL / EN</button></div>
     </footer>
     <dialog class="image-viewer" id="image-viewer" aria-label="Full image viewer">
-      <div class="viewer-canvas"><img id="viewer-image" alt=""></div>
+      <div class="viewer-polaroid">
+        <div class="viewer-canvas"><img id="viewer-image" alt=""></div>
+        <div class="viewer-detail" id="viewer-detail">
+          <p><strong>WORK NOTE</strong><br><span id="viewer-note"></span></p>
+          <p><strong>STATUS</strong><br><span id="viewer-status"></span></p>
+          <p id="viewer-medium-block"><strong>MEDIUM</strong><br><span id="viewer-medium"></span></p>
+          <p><strong>FORMAT</strong><br><span id="viewer-format"></span></p>
+        </div>
+      </div>
       <div class="viewer-controls">
         <button class="viewer-close" type="button">close</button>
         <button class="viewer-info" type="button" aria-label="next image">&lt;/&gt;</button>
-      </div>
-      <div class="viewer-detail" id="viewer-detail">
-        <p><strong>WORK NOTE</strong><br><span id="viewer-note"></span></p>
-        <p><strong>STATUS</strong><br><span id="viewer-status"></span></p>
-        <p id="viewer-medium-block"><strong>MEDIUM</strong><br><span id="viewer-medium"></span></p>
-        <p><strong>FORMAT</strong><br><span id="viewer-format"></span></p>
       </div>
     </dialog>
   </main>
@@ -1382,6 +1395,7 @@
     const filters = document.querySelectorAll(".filter");
     const stamps = document.querySelectorAll(".overview-thumb");
     const overview = document.querySelector(".overview-work");
+    const workGrid = overview.querySelector(".work-grid");
     const panels = document.querySelectorAll(".detail-panel");
     const gridControls = document.querySelector(".grid-controls");
     const gridProgressTrack = document.getElementById("grid-progress-track");
@@ -1389,6 +1403,15 @@
     let gridPage = 0;
     let gridViewMode = "grid";
     let galleryPreloadTimer = 0;
+    function lockPageCanvasHeight() {
+      if (!overview.classList.contains("show-feature")) return;
+      const homeHeight = homeFeature.getBoundingClientRect().height;
+      const gridStyle = getComputedStyle(workGrid);
+      const height = homeHeight + Number.parseFloat(gridStyle.paddingTop || 0) + Number.parseFloat(gridStyle.paddingBottom || 0);
+      if (height > 0) overview.style.setProperty("--page-canvas-height", `${Math.ceil(height)}px`);
+    }
+    window.addEventListener("resize", () => requestAnimationFrame(lockPageCanvasHeight), { passive:true });
+    requestAnimationFrame(lockPageCanvasHeight);
     function loadGalleryStamp(stamp, priority = "low") {
       const image = stamp?.querySelector("img");
       if (!image) return;
@@ -1630,6 +1653,7 @@
       const frameBorder = Math.max(0, Number.parseFloat(sampleFrame ? getComputedStyle(sampleFrame).borderLeftWidth : 1) || 1);
       const targetGap = cssGap + frameBorder * 2;
       const animations = [];
+      const morphCorners = [];
       const axes = [
         { count:mosaicColumns, target:3, className:"is-vertical", dimension:frame.width, coordinate:"left", thickness:"width" },
         { count:mosaicRows, target:4, className:"is-horizontal", dimension:frame.height, coordinate:"top", thickness:"height" }
@@ -1663,7 +1687,7 @@
           const startY = Math.round(endY / (frame.height / mosaicRows)) * (frame.height / mosaicRows);
           const dot = document.createElement("i"); dot.className = "raster-morph-corner";
           Object.assign(dot.style,{ left:`${startX}px`, top:`${startY}px`, width:"4px", height:"4px", "--morph-stroke":`${Math.max(2,Math.min(5,cornerRadius || 3))}px` });
-          layer.appendChild(dot);
+          layer.appendChild(dot); morphCorners.push(dot);
           animations.push(dot.animate([
             { left:`${startX}px`, top:`${startY}px`, width:"4px", height:"4px", borderRadius:"50%", transform:"translate(-50%,-50%)" },
             { left:`${endX}px`, top:`${endY}px`, width:`${targetGap}px`, height:`${targetGap}px`, borderRadius:"0", transform:"translate(-50%,-50%)" }
@@ -1673,9 +1697,13 @@
       homeMosaic.classList.add("is-morphing-out");
       homeMosaic.style.visibility = "hidden";
       document.body.appendChild(layer);
-      return Promise.allSettled(animations.map(animation => animation.finished)).then(async () => {
-        await captureHomeGlitchTargets();
+      window.setTimeout(() => morphCorners.forEach(corner => corner.classList.add("is-plus")), Math.round(duration * .67));
+      return Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
+        // The actual side-grid takes over directly. Keeping cloned Home panels here
+        // could leave a green raster on top of a later swipe when an image was slow.
         commit();
+      }).finally(() => {
+        pendingHomeGlitchTargets.forEach(target => target.remove()); pendingHomeGlitchTargets = [];
         pendingHomeRasterSnapshot?.remove(); pendingHomeRasterSnapshot = null;
         layer.remove();
         homeMosaic.classList.remove("is-morphing-out");
@@ -1696,6 +1724,7 @@
       const sourceGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
       const duration = 1280;
       const animations = [];
+      const morphCorners = [];
       const axes = [
         { target:mosaicColumns, source:3, className:"is-vertical", dimension:frame.width, coordinate:"left", thickness:"width" },
         { target:mosaicRows, source:4, className:"is-horizontal", dimension:frame.height, coordinate:"top", thickness:"height" }
@@ -1725,7 +1754,7 @@
           const endY = Math.round(startY / (frame.height / mosaicRows)) * (frame.height / mosaicRows);
           const dot = document.createElement("i"); dot.className = "raster-morph-corner";
           Object.assign(dot.style,{ left:`${startX}px`, top:`${startY}px`, width:`${sourceGap}px`, height:`${sourceGap}px`, "--morph-stroke":`${Math.max(2,Math.min(5,cornerRadius || 3))}px` });
-          layer.appendChild(dot);
+          dot.classList.add("is-plus"); layer.appendChild(dot); morphCorners.push(dot);
           animations.push(dot.animate([
             { left:`${startX}px`, top:`${startY}px`, width:`${sourceGap}px`, height:`${sourceGap}px`, borderRadius:"0", transform:"translate(-50%,-50%)" },
             { left:`${endX}px`, top:`${endY}px`, width:"4px", height:"4px", borderRadius:"50%", transform:"translate(-50%,-50%)" }
@@ -1733,6 +1762,7 @@
         }
       }
       homeMosaic.classList.add("is-morphing-out"); document.body.appendChild(layer);
+      window.setTimeout(() => morphCorners.forEach(corner => corner.classList.remove("is-plus")), Math.round(duration * .33));
       return Promise.allSettled(animations.map(animation => animation.finished)).then(() => {
         layer.remove(); homeMosaic.classList.remove("is-morphing-out"); morphing = false;
       });
@@ -1836,6 +1866,7 @@
       if (pageTransitioning || morphing) return;
       if (button.classList.contains("is-active")) return;
       const selected = button.dataset.filter;
+      lockPageCanvasHeight();
       if (selected === "about" || selected === "contact") { showDetail(selected); return; }
       if (selected === "all") {
         lockTransitionScroll();
