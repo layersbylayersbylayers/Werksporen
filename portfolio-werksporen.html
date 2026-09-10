@@ -1672,16 +1672,27 @@
     homeMosaic.addEventListener("wheel",handleGridWheel,{ passive:false });
 
     const detailCopy = { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram", disclaimer: adminTexts.legal || "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message." };
+    const detailTyping = new Map();
+    function stopDetailTyping(kind) {
+      const typing = detailTyping.get(kind);
+      if (typing) window.clearTimeout(typing.timer);
+      detailTyping.delete(kind);
+    }
     function typeDetail(kind) {
+      stopDetailTyping(kind);
       const target = document.getElementById(kind + "-text");
       const copy = localizedContent(detailCopy[kind]);
+      const run = { timer:0 };
+      detailTyping.set(kind,run);
       let index = 0;
       target.textContent = "";
       const type = () => {
+        if (detailTyping.get(kind) !== run) return;
         target.textContent = copy.slice(0, index);
-        if (index < copy.length) { index += 1; window.setTimeout(type, 58); }
+        if (index < copy.length) { index += 1; run.timer = window.setTimeout(type, 58); }
+        else detailTyping.delete(kind);
       };
-      window.setTimeout(type, 180);
+      run.timer = window.setTimeout(type, 180);
     }
 
     /* EXPERIMENT: real cells move and resize; white space exists only between them. */
@@ -2071,9 +2082,11 @@
     function navigateDetail(direction) {
       const current = document.querySelector(".detail-panel.is-active")?.id.replace("-panel","");
       if (current === "about" && direction < 0) {
+        stopDetailTyping("about");
         const lastWorkButton = Array.from(filters).filter(button => !["all","about","contact"].includes(button.dataset.filter)).at(-1);
         lastWorkButton?.click();
       } else if (current === "about" && direction > 0) {
+        stopDetailTyping("about");
         Array.from(filters).find(button => button.dataset.filter === "contact")?.click();
       }
     }
@@ -2099,7 +2112,7 @@
       const dx = touch.clientX - detailSwipe.x, dy = touch.clientY - detailSwipe.y;
       const elapsed = performance.now() - detailSwipe.time;
       detailSwipe = null;
-      if (elapsed <= 850 && Math.abs(dx) >= 48 && Math.abs(dx) >= Math.abs(dy) * 1.22) { event.preventDefault(); navigateDetail(dx < 0 ? 1 : -1); }
+      if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) { event.preventDefault(); navigateDetail(dx < 0 ? 1 : -1); }
     }, { passive:false, capture:true });
     panels.forEach(panel => {
       panel.addEventListener("wheel", event => {
