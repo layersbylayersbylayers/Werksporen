@@ -463,6 +463,17 @@
     .home-mosaic.memory-mode .home-tile.memory-face-up::after, .home-mosaic.memory-mode .home-tile.memory-matched::after { opacity:0; }
     .home-mosaic.memory-mode .home-tile.memory-matched { box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 72%,transparent); }
     .home-mosaic.memory-mode .home-tile.memory-spare { cursor:default; opacity:.32; }
+    .home-mosaic.memory-mode .home-tile.memory-dealing { animation:memoryDeal .42s cubic-bezier(.16,1,.3,1) both; animation-delay:var(--memory-delay,0ms); }
+    .home-mosaic.memory-mode .home-tile.memory-revealing { animation:memoryReveal .46s cubic-bezier(.16,1,.3,1) both; }
+    .home-mosaic.memory-mode .home-tile.memory-concealing { animation:memoryConceal .38s cubic-bezier(.55,0,.8,.25) both; }
+    .home-mosaic.memory-mode .home-tile.memory-confirmed { animation:memoryConfirmed .62s cubic-bezier(.16,1,.3,1) both; }
+    .home-mosaic.memory-complete { animation:memoryBoardComplete .9s cubic-bezier(.16,1,.3,1); }
+    @keyframes memoryDeal { from { opacity:.08; transform:perspective(700px) rotateX(48deg) scale(.78); } to { opacity:1; transform:perspective(700px) rotateX(0) scale(1); } }
+    @keyframes memoryReveal { 0% { opacity:.18; transform:perspective(700px) rotateY(-88deg) scale(.88); } 68% { opacity:1; transform:perspective(700px) rotateY(7deg) scale(1.04); } 100% { opacity:1; transform:perspective(700px) rotateY(0) scale(1); } }
+    @keyframes memoryConceal { 0% { opacity:1; transform:perspective(700px) rotateY(0) scale(1); } 100% { opacity:.12; transform:perspective(700px) rotateY(88deg) scale(.88); } }
+    @keyframes memoryConfirmed { 0% { transform:scale(1); filter:saturate(1); } 38% { transform:scale(.9); filter:saturate(1.35) brightness(1.08); } 72% { transform:scale(1.045); } 100% { transform:scale(1); filter:saturate(1.08); } }
+    @keyframes memoryBoardComplete { 0%,100% { filter:none; } 38% { filter:brightness(1.12) saturate(1.22); } }
+    @media (prefers-reduced-motion:reduce) { .home-mosaic.memory-mode .home-tile.memory-dealing, .home-mosaic.memory-mode .home-tile.memory-revealing, .home-mosaic.memory-mode .home-tile.memory-concealing, .home-mosaic.memory-mode .home-tile.memory-confirmed, .home-mosaic.memory-complete { animation:none; } }
     @media (max-width:700px) { .home-game-console { margin-top:12px; padding-top:8px; } }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
     .contact-field label { display:block; margin-bottom:5px; color:var(--accent); font-size:10px; text-transform:uppercase; }
@@ -1045,7 +1056,8 @@
       tile.dataset.src = base;
       delete tile.dataset.memoryPair;
       tile.style.removeProperty("--tile-image");
-      tile.classList.remove("is-alternate", "memory-face-up", "memory-matched", "memory-spare", "is-arriving", "is-leaving");
+      tile.style.removeProperty("--memory-delay");
+      tile.classList.remove("is-alternate", "memory-face-up", "memory-matched", "memory-spare", "memory-dealing", "memory-revealing", "memory-concealing", "memory-confirmed", "is-arriving", "is-leaving");
     }
     function retireGlitch(tile, done) {
       tile.classList.remove("is-arriving");
@@ -1161,8 +1173,9 @@
         : "00 / 00";
     }
     function concealMemoryTile(tile) {
-      tile.classList.add("is-leaving");
-      window.setTimeout(() => tile.classList.remove("is-alternate", "memory-face-up", "is-leaving"), 430);
+      tile.classList.remove("memory-revealing");
+      tile.classList.add("memory-concealing");
+      window.setTimeout(() => tile.classList.remove("is-alternate", "memory-face-up", "memory-concealing"), 380);
     }
     function startMemory() {
       freezeHomeGlitches();
@@ -1191,6 +1204,9 @@
         }
         tile.dataset.memoryPair = String(card.pair);
         tile.style.setProperty("--tile-image", `url("${card.src}")`);
+        tile.style.setProperty("--memory-delay", `${Math.min(260,(index % mosaicColumns) * 18 + Math.floor(index / mosaicColumns) * 12)}ms`);
+        tile.classList.add("memory-dealing");
+        window.setTimeout(() => tile.classList.remove("memory-dealing"), 760);
         tile.tabIndex = 0;
         tile.setAttribute("aria-label","closed memory card");
       });
@@ -1209,9 +1225,10 @@
     }
     function playMemoryTile(tile) {
       if (!memoryActive || memoryLocked || tile.classList.contains("memory-spare") || tile.classList.contains("memory-face-up") || tile.classList.contains("memory-matched")) return;
-      tile.classList.add("is-alternate", "memory-face-up", "is-arriving");
+      tile.classList.remove("memory-dealing", "memory-concealing");
+      tile.classList.add("is-alternate", "memory-face-up", "memory-revealing");
       tile.setAttribute("aria-label","open memory card");
-      window.setTimeout(() => tile.classList.remove("is-arriving"), 360);
+      window.setTimeout(() => tile.classList.remove("memory-revealing"), 470);
       memoryOpenTiles.push(tile);
       if (memoryOpenTiles.length < 2) return;
       memoryMoves += 1;
@@ -1219,12 +1236,16 @@
       memoryOpenTiles = [];
       if (first.dataset.memoryPair === second.dataset.memoryPair) {
         first.classList.add("memory-matched"); second.classList.add("memory-matched");
+        first.classList.add("memory-confirmed"); second.classList.add("memory-confirmed");
+        window.setTimeout(() => { first.classList.remove("memory-confirmed"); second.classList.remove("memory-confirmed"); }, 640);
         first.setAttribute("aria-label","matched memory card"); second.setAttribute("aria-label","matched memory card");
         memoryMatches += 1;
         updateMemoryUI();
         if (memoryMatches === memoryPairCount) {
           memoryLocked = true;
           memoryToggle.textContent = "COMPLETE / EXIT";
+          homeMosaic.classList.add("memory-complete");
+          window.setTimeout(() => homeMosaic.classList.remove("memory-complete"), 920);
         }
         return;
       }
