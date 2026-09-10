@@ -452,6 +452,18 @@
     .home-mosaic, .overview-grid { overflow:hidden; }
     .overview-thumb, .viewer-canvas { box-shadow:var(--image-shadow, none); }
     .home-image, .home-mosaic { box-shadow:var(--home-image-shadow, none); }
+    .home-game-console { display:flex; flex-wrap:wrap; align-items:center; gap:7px 12px; margin-top:22px; padding-top:10px; border-top:1px solid var(--hairline); color:var(--soft); font:10px/1.35 var(--mono); }
+    .home-game-console button { border:0; padding:0; background:transparent; color:inherit; cursor:pointer; font:inherit; text-transform:uppercase; }
+    .home-game-console button:hover, .home-game-console button:focus-visible { color:var(--accent); outline:none; }
+    .home-game-console button[hidden] { display:none; }
+    .home-game-state { margin-left:auto; white-space:nowrap; }
+    .home-mosaic.memory-mode .home-tile { cursor:pointer; transform-style:preserve-3d; transition:filter .2s ease, opacity .2s ease, transform .28s cubic-bezier(.2,.75,.25,1); }
+    .home-mosaic.memory-mode .home-tile::after { content:""; position:absolute; inset:2px; border-radius:max(1px,calc(var(--frame-radius,0px) * .65)); background:color-mix(in srgb,var(--ink) 8%,transparent); opacity:.42; pointer-events:none; transition:opacity .2s ease; }
+    .home-mosaic.memory-mode .home-tile.memory-face-up, .home-mosaic.memory-mode .home-tile.memory-matched { z-index:6; background-image:var(--tile-image); background-size:cover; background-position:center; filter:none; clip-path:inset(0 round var(--frame-radius,0px)); }
+    .home-mosaic.memory-mode .home-tile.memory-face-up::after, .home-mosaic.memory-mode .home-tile.memory-matched::after { opacity:0; }
+    .home-mosaic.memory-mode .home-tile.memory-matched { box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 72%,transparent); }
+    .home-mosaic.memory-mode .home-tile.memory-spare { cursor:default; opacity:.32; }
+    @media (max-width:700px) { .home-game-console { margin-top:12px; padding-top:8px; } }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
     .contact-field label { display:block; margin-bottom:5px; color:var(--accent); font-size:10px; text-transform:uppercase; }
     .contact-field input, .contact-field textarea { width:100%; border:0; border-bottom:1px solid var(--hairline); border-radius:0; padding:9px 0; background:transparent; color:var(--ink); font:inherit; }
@@ -534,6 +546,11 @@
             <p><strong>STATUS</strong><br><span id="feature-status-copy">in ontwikkeling<br>2026</span></p>
             <p id="feature-medium-block"><strong>MEDIUM</strong><br><span id="feature-medium-copy"></span></p>
             <p><strong>FORMAT</strong><br><span id="feature-format-copy">werk in beweging</span></p>
+            <div class="home-game-console" aria-label="Homepage games">
+              <button id="memory-toggle" type="button">MEMORY / PLAY</button>
+              <button id="memory-reset" type="button" hidden>RESET</button>
+              <span class="home-game-state" id="memory-state">00 / 00</span>
+            </div>
           </aside>
         </section>
         <div class="gallery-view">
@@ -1026,8 +1043,9 @@
     function restoreTile(tile) {
       const base = featureItems[currentFeatureIndex].src;
       tile.dataset.src = base;
+      delete tile.dataset.memoryPair;
       tile.style.removeProperty("--tile-image");
-      tile.classList.remove("is-alternate");
+      tile.classList.remove("is-alternate", "memory-face-up", "memory-matched", "memory-spare", "is-arriving", "is-leaving");
     }
     function retireGlitch(tile, done) {
       tile.classList.remove("is-arriving");
@@ -1114,10 +1132,112 @@
           activeGlitchTiles.delete(tile);
           retireGlitch(tile, () => window.setTimeout(spawnGlitch, 90));
         });
+        tile.addEventListener("click", () => playMemoryTile(tile));
         homeMosaic.appendChild(tile);
         homeTiles.push(tile);
       }
     }
+    const memoryToggle = document.getElementById("memory-toggle");
+    const memoryReset = document.getElementById("memory-reset");
+    const memoryState = document.getElementById("memory-state");
+    let memoryActive = false;
+    let memoryLocked = false;
+    let memoryMoves = 0;
+    let memoryMatches = 0;
+    let memoryPairCount = 0;
+    let memoryOpenTiles = [];
+    function shuffleMemoryDeck(deck) {
+      for (let index = deck.length - 1; index > 0; index -= 1) {
+        const target = Math.floor(Math.random() * (index + 1));
+        [deck[index],deck[target]] = [deck[target],deck[index]];
+      }
+      return deck;
+    }
+    function updateMemoryUI() {
+      memoryToggle.textContent = memoryActive ? "IMAGE / EXIT" : "MEMORY / PLAY";
+      memoryReset.hidden = !memoryActive;
+      memoryState.textContent = memoryActive
+        ? `${String(memoryMatches).padStart(2,"0")} / ${String(memoryPairCount).padStart(2,"0")} · ${String(memoryMoves).padStart(3,"0")}`
+        : "00 / 00";
+    }
+    function concealMemoryTile(tile) {
+      tile.classList.add("is-leaving");
+      window.setTimeout(() => tile.classList.remove("is-alternate", "memory-face-up", "is-leaving"), 430);
+    }
+    function startMemory() {
+      freezeHomeGlitches();
+      activeGlitchTiles.clear();
+      memoryActive = true;
+      memoryLocked = false;
+      memoryMoves = 0;
+      memoryMatches = 0;
+      memoryOpenTiles = [];
+      memoryPairCount = Math.floor(homeTiles.length / 2);
+      const imagePool = Array.from(new Set(featureItems
+        .filter(item => item?.src && item.mediaType !== "html" && !/\.html?$/i.test(item.src))
+        .map(item => thumbnailSource(item.src))));
+      const deck = shuffleMemoryDeck(Array.from({ length:memoryPairCount }, (_, pair) => {
+        const src = imagePool[pair % Math.max(1,imagePool.length)] || thumbnailSource(homeBaseItem.src);
+        return [{ pair,src },{ pair,src }];
+      }).flat());
+      homeTiles.forEach((tile,index) => {
+        restoreTile(tile);
+        const card = deck[index];
+        if (!card) {
+          tile.classList.add("memory-spare");
+          tile.tabIndex = -1;
+          tile.setAttribute("aria-label","unused memory cell");
+          return;
+        }
+        tile.dataset.memoryPair = String(card.pair);
+        tile.style.setProperty("--tile-image", `url("${card.src}")`);
+        tile.tabIndex = 0;
+        tile.setAttribute("aria-label","closed memory card");
+      });
+      homeMosaic.classList.add("memory-mode");
+      updateMemoryUI();
+    }
+    function stopMemory(resumeGlitches = true) {
+      memoryActive = false;
+      memoryLocked = false;
+      memoryOpenTiles = [];
+      homeMosaic.classList.remove("memory-mode");
+      homeTiles.forEach(tile => { tile.tabIndex = 0; tile.setAttribute("aria-label","Verplaats de glitch"); restoreTile(tile); });
+      releaseHomeGlitches();
+      if (resumeGlitches) window.setTimeout(placeGlitches, 450);
+      updateMemoryUI();
+    }
+    function playMemoryTile(tile) {
+      if (!memoryActive || memoryLocked || tile.classList.contains("memory-spare") || tile.classList.contains("memory-face-up") || tile.classList.contains("memory-matched")) return;
+      tile.classList.add("is-alternate", "memory-face-up", "is-arriving");
+      tile.setAttribute("aria-label","open memory card");
+      window.setTimeout(() => tile.classList.remove("is-arriving"), 360);
+      memoryOpenTiles.push(tile);
+      if (memoryOpenTiles.length < 2) return;
+      memoryMoves += 1;
+      const [first,second] = memoryOpenTiles;
+      memoryOpenTiles = [];
+      if (first.dataset.memoryPair === second.dataset.memoryPair) {
+        first.classList.add("memory-matched"); second.classList.add("memory-matched");
+        first.setAttribute("aria-label","matched memory card"); second.setAttribute("aria-label","matched memory card");
+        memoryMatches += 1;
+        updateMemoryUI();
+        if (memoryMatches === memoryPairCount) {
+          memoryLocked = true;
+          memoryToggle.textContent = "COMPLETE / EXIT";
+        }
+        return;
+      }
+      memoryLocked = true;
+      updateMemoryUI();
+      window.setTimeout(() => {
+        concealMemoryTile(first); concealMemoryTile(second);
+        memoryLocked = false;
+      }, 620);
+    }
+    memoryToggle.addEventListener("click", () => memoryActive ? stopMemory() : startMemory());
+    memoryReset.addEventListener("click", startMemory);
+    updateMemoryUI();
     function setMosaicImage(index) {
       const source = featureItems[index].src;
       homeMosaic.style.setProperty("--mosaic-image", "url(\"" + source + "\")");
@@ -2220,6 +2340,7 @@
       if (button.classList.contains("is-active")) return;
       const selected = button.dataset.filter;
       lockPageCanvasHeight();
+      if (memoryActive && selected !== "all") stopMemory(false);
       if (selected === "about" || selected === "contact") { showDetail(selected); return; }
       if (selected === "all") {
         lockTransitionScroll();
