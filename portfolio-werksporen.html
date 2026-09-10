@@ -1175,17 +1175,29 @@
       transitionScrollLocked = true;
       transitionScrollY = window.scrollY;
       document.documentElement.style.overflow = "hidden";
+      document.documentElement.style.overscrollBehavior = "none";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${transitionScrollY}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
       document.body.style.overflow = "hidden";
     }
     function unlockTransitionScroll() {
       if (!transitionScrollLocked) return;
       document.documentElement.style.removeProperty("overflow");
+      document.documentElement.style.removeProperty("overscroll-behavior");
+      document.body.style.removeProperty("position");
+      document.body.style.removeProperty("top");
+      document.body.style.removeProperty("left");
+      document.body.style.removeProperty("right");
+      document.body.style.removeProperty("width");
       document.body.style.removeProperty("overflow");
-      window.scrollTo({ top:transitionScrollY, left:0, behavior:"instant" });
+      window.scrollTo(0,transitionScrollY);
       transitionScrollLocked = false;
     }
     const stopTransitionScroll = event => {
-      if (!pageTransitioning && !morphing) return;
+      if (!transitionScrollLocked && !pageTransitioning && !morphing) return;
       event.preventDefault();
     };
     window.addEventListener("wheel", stopTransitionScroll, { passive:false });
