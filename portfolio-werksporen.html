@@ -477,25 +477,23 @@
     .home-mosaic.mines-mode > .home-tile { opacity:0; pointer-events:none; }
     .mines-board { position:absolute; inset:0; z-index:6; display:none; grid-template-columns:repeat(9,minmax(0,1fr)); grid-template-rows:repeat(13,minmax(0,1fr)); transform-origin:center; will-change:transform; backface-visibility:hidden; contain:layout paint; }
     .home-mosaic.mines-mode .mines-board { display:grid; }
-    .mines-cell { position:relative; display:grid; place-items:center; min-width:0; min-height:0; border:0; padding:0; background:color-mix(in srgb,var(--paper) 76%,transparent); color:var(--ink); cursor:pointer; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hairline) 72%,transparent); transition:background-color .24s ease,color .24s ease,opacity .3s ease,box-shadow .24s ease,filter .3s ease; font:600 clamp(10px,1.25vw,15px)/1 var(--mono); font-variant-numeric:tabular-nums; overflow:hidden; }
+    .mines-grid-lines { position:absolute; inset:0; z-index:3; width:100%; height:100%; overflow:hidden; pointer-events:none; color:color-mix(in srgb,var(--ink) 38%,transparent); }
+    .mines-grid-lines path { fill:none; stroke:currentColor; stroke-width:1; vector-effect:non-scaling-stroke; shape-rendering:geometricPrecision; }
+    .mines-cell { position:relative; z-index:1; display:grid; place-items:center; min-width:0; min-height:0; border:0; padding:0; background:color-mix(in srgb,var(--paper) 76%,transparent); color:var(--ink); cursor:pointer; box-shadow:none; transition:background-color .24s ease,color .24s ease,opacity .3s ease,box-shadow .24s ease,filter .3s ease; font:600 clamp(10px,1.25vw,15px)/1 var(--mono); font-variant-numeric:tabular-nums; overflow:hidden; }
     .mines-cell.mines-cell-ready { animation:minesCellSettle .44s cubic-bezier(.22,1,.36,1) both; animation-delay:calc(var(--mine-delay,0) * 1ms); }
     .mines-cell.mines-open { background:color-mix(in srgb,var(--paper) 16%,transparent); cursor:default; animation:minesCellOpen .3s cubic-bezier(.2,.75,.25,1) both; }
-    .mines-cell.mines-flagged { color:var(--paper); background:color-mix(in srgb,var(--accent) 82%,var(--ink)); box-shadow:inset 0 0 0 3px var(--accent),inset 0 0 0 5px color-mix(in srgb,var(--paper) 68%,transparent); }
-    .mines-cell.mines-mine { color:var(--accent); background:color-mix(in srgb,var(--ink) 88%,transparent); }
-    .mines-skully-icon { display:block; width:72%; height:72%; fill:currentColor; overflow:visible; filter:drop-shadow(0 0 1px color-mix(in srgb,var(--paper) 45%,transparent)); }
-    .mines-mark-icon { display:block; width:64%; height:64%; fill:currentColor; fill-rule:evenodd; }
+    .mines-cell.mines-flagged { color:#080908; background:rgba(0,0,0,.18); box-shadow:none; }
+    .mines-cell.mines-mine { color:#080908; background:rgba(0,0,0,.18); }
+    .mines-skully-icon { display:block; width:72%; height:72%; fill:#080908; overflow:visible; filter:none; }
+    .mines-mark-icon { display:block; width:70%; height:70%; fill:#080908; }
     .mines-cell[data-near="1"] { color:#255f83; }
     .mines-cell[data-near="2"] { color:#397643; }
     .mines-cell[data-near="3"] { color:var(--accent); }
     .mines-cell[data-near="4"], .mines-cell[data-near="5"], .mines-cell[data-near="6"] { color:var(--ink); }
-    .home-mosaic.mines-lost .mines-cell { animation:none; pointer-events:none; }
-    .home-mosaic.mines-lost .mines-cell > * { opacity:0; }
-    .home-mosaic.mines-lost .mines-cell.mines-skull-negative { opacity:.16; filter:saturate(.25) brightness(.62); transition-delay:var(--skull-delay,0ms); }
-    .home-mosaic.mines-lost .mines-cell.mines-skull-cell { color:var(--paper); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--paper) 32%,transparent); animation:minesSkullCell .66s cubic-bezier(.18,.72,.22,1) var(--skull-delay,0ms) both; }
+    .home-mosaic.mines-lost .mines-cell { pointer-events:none; }
     .home-mosaic.mines-won::before { background-color:color-mix(in srgb,var(--accent) 30%,transparent); animation:memoryBoardPulse .72s ease-out both; }
     @keyframes minesCellSettle { from { opacity:0; transform:rotateY(-82deg) scale(.94); } to { opacity:1; transform:rotateY(0) scale(1); } }
     @keyframes minesCellOpen { from { transform:rotateY(-38deg) scale(.96); opacity:.42; } to { transform:rotateY(0) scale(1); opacity:1; } }
-    @keyframes minesSkullCell { 0% { opacity:.18; background:color-mix(in srgb,var(--paper) 16%,transparent); transform:translateY(-34%) rotateX(-62deg) scale(.88); } 72% { opacity:1; background:var(--accent); transform:translateY(2%) rotateX(0) scale(1.035); } 100% { opacity:1; background:var(--accent); transform:none; } }
     .feature-note.mines-note { display:flex!important; flex-direction:column; }
     .feature-note.mines-note > p:nth-child(1) { order:1; }
     .feature-note.mines-note > .home-game-console { order:2; margin:0 0 25px; }
@@ -515,7 +513,7 @@
       .feature-note.mines-note > p:nth-child(4) { grid-column:3; }
       .feature-note.mines-note .home-game-state { margin-left:auto; }
     }
-    @media (prefers-reduced-motion:reduce) { .mines-cell, .home-mosaic.mines-lost .mines-cell.mines-skull-cell, .home-mosaic.mines-won::before { animation:none; transform:none; } }
+    @media (prefers-reduced-motion:reduce) { .mines-cell, .home-mosaic.mines-won::before { animation:none; transform:none; } }
     @media (max-width:700px) { .home-game-console { margin-top:12px; padding-top:8px; } }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
     .contact-field label { display:block; margin-bottom:5px; color:var(--accent); font-size:10px; text-transform:uppercase; }
@@ -1199,6 +1197,15 @@
     const minesBoardElement = document.createElement("div");
     minesBoardElement.className = "mines-board";
     minesBoardElement.setAttribute("aria-label", "Minesweeper board");
+    const minesGridLines = document.createElementNS("http://www.w3.org/2000/svg","svg");
+    minesGridLines.classList.add("mines-grid-lines");
+    minesGridLines.setAttribute("viewBox","0 0 9 13");
+    minesGridLines.setAttribute("preserveAspectRatio","none");
+    minesGridLines.setAttribute("aria-hidden","true");
+    const minesGridPath = document.createElementNS("http://www.w3.org/2000/svg","path");
+    minesGridPath.setAttribute("d","M0 0H9V13H0ZM1 0V13M2 0V13M3 0V13M4 0V13M5 0V13M6 0V13M7 0V13M8 0V13M0 1H9M0 2H9M0 3H9M0 4H9M0 5H9M0 6H9M0 7H9M0 8H9M0 9H9M0 10H9M0 11H9M0 12H9");
+    minesGridLines.appendChild(minesGridPath);
+    minesBoardElement.appendChild(minesGridLines);
     homeMosaic.appendChild(minesBoardElement);
     const memoryToggle = document.getElementById("memory-toggle");
     const memoryReset = document.getElementById("memory-reset");
@@ -1409,12 +1416,6 @@
       "000000000100111101010000","000000000100101111010000","000000001000101010100000","000000000010011110000000",
       "000000011000110100000000","000000000000001000000000","000000001101110000000000","000000000100000000000000"
     ];
-    // The loss image is the board itself: one value for each cell of the
-    // fixed 9 x 13 Mines grid, reduced from the same Skully source above.
-    const MINES_LOSS_MASK = [
-      "001111100","011111110","111111111","110111011","110111011","111111111","011101110",
-      "001111100","001111100","001010100","001111100","001010100","000000000"
-    ];
     const SVG_NS = "http://www.w3.org/2000/svg";
 
     function ensureMinesSkullySymbol() {
@@ -1439,8 +1440,7 @@
       markSymbol.id = "mines-mark-symbol";
       markSymbol.setAttribute("viewBox","0 0 64 64");
       const mark = document.createElementNS(SVG_NS,"path");
-      mark.setAttribute("fill-rule","evenodd");
-      mark.setAttribute("d","M4 32C9 14 20 8 32 20C44 8 55 14 60 32C55 50 44 56 32 44C20 56 9 50 4 32ZM14 32C18 43 24 46 32 37C40 46 46 43 50 32C46 21 40 18 32 27C24 18 18 21 14 32Z");
+      mark.setAttribute("d","M29 8C14 9 3 19 3 32s11 23 26 24l-5-9c-8-1-13-7-13-15s5-14 13-15zM35 8c15 1 26 11 26 24S50 55 35 56l5-9c8-1 13-7 13-15s-5-14-13-15zM31 14c-9 8-12 21-7 31 2 5 5 8 8 8s6-3 8-8c5-10 2-23-7-31v13c3 4 3 10 1 14-1 2-3 2-4 0-2-4-2-10 1-14z");
       markSymbol.appendChild(mark);
       sprite.appendChild(markSymbol);
       document.body.appendChild(sprite);
@@ -1467,7 +1467,6 @@
       icon.appendChild(use);
       return icon;
     }
-
     function ensureMinesTiles() {
       if (minesTiles.length) return;
       ensureMinesSkullySymbol();
@@ -1689,7 +1688,7 @@
     }
     function clearMinesTile(tile) {
       tile.replaceChildren();
-      tile.classList.remove("mines-cell-ready","mines-open","mines-flagged","mines-mine","mines-skull-cell","mines-skull-negative");
+      tile.classList.remove("mines-cell-ready","mines-open","mines-flagged","mines-mine");
       delete tile.dataset.near;
       tile.style.removeProperty("--skull-delay");
       tile.removeAttribute("aria-pressed");
@@ -1817,17 +1816,7 @@
       minesEnded = true;
       if (!won) {
         minesBoard.forEach((cell,index) => { if (cell.mine) { cell.open = true; renderMineCell(index); } });
-        window.setTimeout(() => {
-          if (!minesActive || !minesEnded) return;
-          minesTiles.forEach((tile,index) => {
-            const row = Math.floor(index / MINES_COLUMNS), column = index % MINES_COLUMNS;
-            const inShape = MINES_LOSS_MASK[row]?.[column] === "1";
-            tile.classList.remove("mines-cell-ready","mines-open","mines-flagged","mines-mine");
-            tile.classList.add(inShape ? "mines-skull-cell" : "mines-skull-negative");
-            tile.style.setProperty("--skull-delay",`${row * 34 + ((column * 19 + row * 7) % 72)}ms`);
-          });
-          homeMosaic.classList.add("mines-lost");
-        },360);
+        homeMosaic.classList.add("mines-lost");
       } else {
         homeMosaic.classList.remove("mines-won"); void homeMosaic.offsetWidth; homeMosaic.classList.add("mines-won");
       }
