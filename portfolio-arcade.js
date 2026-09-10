@@ -4,15 +4,17 @@
   style.textContent = `
     .home-mosaic.arcade-mode > .home-tile, .home-mosaic.arcade-mode::after { visibility:hidden; }
     .arcade-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:7; touch-action:none; }
-    .arcade-console { display:flex; flex-wrap:wrap; align-content:start; min-height:300px; gap:8px 12px; padding-top:10px; font:10px/1.4 var(--mono); }
+    .arcade-console { display:flex; flex-direction:column; flex-wrap:nowrap; align-items:flex-start; align-content:start; min-height:330px; gap:7px; padding-top:7px; font:10px/1.4 var(--mono); }
     .arcade-console button { font:inherit; color:var(--accent); border:1px solid var(--hairline); background:transparent; padding:6px 9px; cursor:pointer; }
+    #memory-toggle, #mines-toggle, .arcade-console > button[data-start] { box-sizing:border-box; width:126px; min-height:28px; border:1px solid var(--hairline); padding:6px 9px; color:var(--accent); text-align:left; }
+    .home-feature:not(:has(.home-mosaic.memory-mode)) #memory-state, #game-divider { display:none; }
     .arcade-console [hidden], .arcade-canvas[hidden] { display:none; }
     .arcade-help { flex-basis:100%; color:var(--soft); }
     .arcade-status { flex-basis:100%; color:var(--accent); }
     .arcade-controls { display:flex; flex-wrap:wrap; gap:6px; }
     .arcade-controls button { min-width:40px; min-height:40px; touch-action:manipulation; }
     .home-feature:has(.arcade-mode) .home-game-console { visibility:hidden; }
-    @media(max-width:700px) { .overview-work.show-feature .feature-note > p:first-child { min-height:75px; } }
+    @media(max-width:700px) { .overview-work.show-feature .feature-note > p:first-child { min-height:75px; } .home-mosaic.arcade-mode + .scroll-cue + .feature-note #feature-status-copy br { display:initial; } }
   `;
   document.head.append(style);
   const canvas = document.createElement('canvas');
@@ -27,12 +29,25 @@
   const status = ui.querySelector('.arcade-status'), help = ui.querySelector('.arcade-help');
   let game = null, busy = false, paused = false, ended = false, frame = 0, last = 0, elapsed = 0;
   let cols, rows, snake, direction, turns, food, score, board, piece, bag, next, lines, clearing = [], clearTime = 0;
-  let savedNote, savedMinHeight;
+  let savedNote, savedStatus, savedFormat, savedMinHeight;
+  const snakeSkullyMask = [
+    '000000101111111000000000','000000111111111110000000','000011111111111111100000','000011111111111111010000',
+    '000111111111110111101000','001111111111111111100100','011111010111111110010010','010111111110110111110110',
+    '111111111111111111101100','111111111101111111110100','111111111101110011111100','111111111111111011111111',
+    '000111000001111111101001','000111000000111110001101','000101110000111110110010','111000111101110011110100',
+    '111000010000001110100000','001111110110011110000000','000111111001111101000000','000111110111010000100000',
+    '000011111110001111100000','000001001100000111110000','000000000000001001110000','000011001100011111110000',
+    '000000000100111101010000','000000000100101111010000','000000001000101010100000','000000000010011110000000',
+    '000000011000110100000000','000000000000001000000000','000000001101110000000000','000000000100000000000000'
+  ];
+  const skullySprites = new Map();
   const shapes = { I:[[0,1],[1,1],[2,1],[3,1]], O:[[1,0],[2,0],[1,1],[2,1]], T:[[1,0],[0,1],[1,1],[2,1]], S:[[1,0],[2,0],[0,1],[1,1]], Z:[[0,0],[1,0],[1,1],[2,1]], J:[[0,0],[0,1],[1,1],[2,1]], L:[[2,0],[0,1],[1,1],[2,1]] };
   function note() {
-    status.textContent = `${game.toUpperCase()} / ${ended ? (game === 'snake' && snake.length === cols*rows ? 'CLEAR' : 'GAME OVER') : paused ? 'PAUSED' : 'PLAYING'} / ${score}${game === 'tetris' ? ` / ${lines} LINES / NEXT ${next}` : ''}`;
+    const state=ended ? (game === 'snake' && snake.length === cols*rows ? 'CLEAR' : 'GAME OVER') : paused ? 'PAUSED' : 'PLAYING';
+    status.textContent = `${game.toUpperCase()} / ${state} / ${score}${game === 'tetris' ? ` / ${lines} LINES / NEXT ${next}` : ''}`;
+    if(game)featureStatusCopy.innerHTML=game==='tetris'?`${state}<br>${score} points · ${lines} lines`:`${state}<br>${score} points`;
   }
-  function resize() { const r=homeMosaic.getBoundingClientRect(), d=devicePixelRatio||1; canvas.width=Math.round(r.width*d); canvas.height=Math.round(r.height*d); if(game) draw(); }
+  function resize() { const r=homeMosaic.getBoundingClientRect(), d=devicePixelRatio||1; canvas.width=Math.round(r.width*d); canvas.height=Math.round(r.height*d); skullySprites.clear(); if(game) draw(); }
   new ResizeObserver(resize).observe(homeMosaic);
   function randomFood() { const free=[]; for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y}); return free[Math.floor(Math.random()*free.length)]; }
   function take() { if(!bag.length) { bag=Object.keys(shapes); for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]];} } return bag.pop(); }
@@ -72,44 +87,107 @@
     const speed=game==='snake'?Math.max(80,190-score*3):Math.max(90,700-Math.floor(lines/10)*65);
     if(elapsed<speed)return;elapsed-=speed;
     if(game==='snake') {
-      if(turns.length)direction=turns.shift();const head={x:snake[0].x+direction.x,y:snake[0].y+direction.y};const eats=head.x===food.x&&head.y===food.y;
-      if(head.x<0||head.x>=cols||head.y<0||head.y>=rows||snake.slice(0,eats?snake.length:-1).some(p=>p.x===head.x&&p.y===head.y)){ended=true;note();return;}
+      if(turns.length)direction=turns.shift();
+      const head={x:(snake[0].x+direction.x+cols)%cols,y:(snake[0].y+direction.y+rows)%rows};
+      const eats=head.x===food.x&&head.y===food.y;
+      if(snake.slice(0,eats?snake.length:-1).some(p=>p.x===head.x&&p.y===head.y)){ended=true;note();return;}
       snake.unshift(head);if(eats){score++;food=randomFood();if(!food)ended=true;}else snake.pop();
     } else if(!move(0,1))lock();note();
   }
   function draw() {
     if(!game || (game==='snake' ? !snake : !board || !piece))return;
-    const w=canvas.width,h=canvas.height,d=devicePixelRatio||1,unit=Math.min(w/cols,h/rows),ox=(w-cols*unit)/2,oy=(h-rows*unit)/2;
+    const w=canvas.width,h=canvas.height,d=devicePixelRatio||1;
+    const squareUnit=Math.min(w/cols,h/rows),cellW=game==='tetris'?w/cols:squareUnit,cellH=game==='tetris'?h/rows:squareUnit;
+    const ox=(w-cols*cellW)/2,oy=(h-rows*cellH)/2;
     const css=getComputedStyle(document.documentElement), ink=css.getPropertyValue('--ink').trim(), accent=css.getPropertyValue('--accent').trim(), grid=css.getPropertyValue('--grid-line').trim();
     ctx.clearRect(0,0,w,h);ctx.fillStyle='rgba(0,0,0,.16)';ctx.fillRect(0,0,w,h);
-    if(game==='tetris'){ctx.fillStyle=grid;for(let x=0;x<=cols;x++)ctx.fillRect(Math.round(ox+x*unit),oy,d,rows*unit);for(let y=0;y<=rows;y++)ctx.fillRect(ox,Math.round(oy+y*unit),cols*unit,d);}
-    const cell=(x,y,color,alpha=1)=>{ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.fillRect(ox+x*unit+d,oy+y*unit+d,unit-2*d,unit-2*d);ctx.globalAlpha=1;};
-    if(game==='snake'){snake.forEach((p,i)=>cell(p.x,p.y,i===0?accent:ink,.9));if(food)cell(food.x,food.y,accent);}
-    else {board.forEach((r,y)=>r.forEach((v,x)=>{if(v)cell(x,y,ink,clearing.includes(y)?.35:.85);}));if(!clearing.length){let ghost={...piece};while(fits({...ghost,y:ghost.y+1}))ghost.y++;ghost.cells.forEach(([x,y])=>cell(ghost.x+x,ghost.y+y,ink,.18));piece.cells.forEach(([x,y])=>cell(piece.x+x,piece.y+y,accent));}}
+    if(game==='tetris'){ctx.fillStyle=grid;for(let x=0;x<=cols;x++)ctx.fillRect(Math.round(ox+x*cellW),oy,d,rows*cellH);for(let y=0;y<=rows;y++)ctx.fillRect(ox,Math.round(oy+y*cellH),cols*cellW,d);}
+    const cell=(x,y,color,alpha=1)=>{ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.fillRect(ox+x*cellW+d,oy+y*cellH+d,cellW-2*d,cellH-2*d);ctx.globalAlpha=1;};
+    const skullySprite=(color,size)=>{
+      const key=`${color}/${Math.round(size)}`;
+      if(skullySprites.has(key))return skullySprites.get(key);
+      const sprite=document.createElement('canvas'),pixel=Math.max(1,size/snakeSkullyMask.length);
+      sprite.width=Math.ceil(snakeSkullyMask[0].length*pixel);sprite.height=Math.ceil(snakeSkullyMask.length*pixel);
+      const spriteCtx=sprite.getContext('2d');spriteCtx.fillStyle=color;
+      snakeSkullyMask.forEach((row,sy)=>{for(let sx=0;sx<row.length;sx++)if(row[sx]==='1')spriteCtx.fillRect(sx*pixel,sy*pixel,pixel*1.06,pixel*1.06);});
+      skullySprites.set(key,sprite);return sprite;
+    };
+    const skully=(x,y,color,alpha=1)=>{
+      const cellX=ox+x*cellW,cellY=oy+y*cellH,pad=Math.min(cellW,cellH)*.14;
+      const available=Math.min(cellW,cellH)-pad*2,sprite=skullySprite(color,available);
+      const ratio=Math.min(available/sprite.width,available/sprite.height),skullW=sprite.width*ratio,skullH=sprite.height*ratio;
+      const startX=cellX+(cellW-skullW)/2,startY=cellY+(cellH-skullH)/2;
+      ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(sprite,startX,startY,skullW,skullH);ctx.globalAlpha=1;
+    };
+    if(game==='snake'){snake.forEach((p,i)=>skully(p.x,p.y,i===0?accent:ink,i===0?1:.82));if(food)cell(food.x,food.y,accent);}
+    else {
+      const tetrisBlock=(x,y,color,alpha=1)=>{cell(x,y,color,alpha*.16);skully(x,y,color,alpha);};
+      board.forEach((r,y)=>r.forEach((v,x)=>{if(v)tetrisBlock(x,y,ink,clearing.includes(y)?.32:.88);}));
+      if(!clearing.length){
+        let ghost={...piece};while(fits({...ghost,y:ghost.y+1}))ghost.y++;
+        ghost.cells.forEach(([x,y])=>skully(ghost.x+x,ghost.y+y,ink,.16));
+        piece.cells.forEach(([x,y])=>tetrisBlock(piece.x+x,piece.y+y,accent,1));
+      }
+    }
     if(paused||ended){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,w,h);ctx.fillStyle=ink;ctx.font=`${16*d}px monospace`;ctx.textAlign='center';ctx.fillText(paused?'PAUSED':'GAME OVER',w/2,h/2);}
   }
   function loop(time) { if(!game)return;const dt=last?Math.min(60,time-last):0;last=time;if(!paused&&!ended&&!busy)tick(dt);draw();frame=requestAnimationFrame(loop); }
   async function start(kind) {
     if(game||busy||homeGameActive()||morphing)return;busy=true;window.arcadeGameActive=true;game=kind;cols=kind==='snake'?18:10;rows=kind==='snake'?26:20;
-    savedNote=featureNoteCopy.textContent;savedMinHeight=workGrid.style.minHeight;workGrid.style.minHeight=`${workGrid.getBoundingClientRect().height}px`;
+    savedNote=featureNoteCopy.textContent;savedStatus=featureStatusCopy.innerHTML;savedFormat=featureFormatCopy.textContent;savedMinHeight=workGrid.style.minHeight;
+    const gridStyle=getComputedStyle(workGrid),gridBox=workGrid.getBoundingClientRect();
+    const gridPadding=parseFloat(gridStyle.paddingTop)+parseFloat(gridStyle.paddingBottom)+parseFloat(gridStyle.borderTopWidth)+parseFloat(gridStyle.borderBottomWidth);
+    workGrid.style.minHeight=`${Math.max(0,gridBox.height-gridPadding)}px`;
     freezeHomeGlitches(false);activeGlitchTiles.clear();
     await morphHomeGameGrid(cols,rows,()=>{setHomeGridDimensions(cols,rows);homeMosaic.classList.add('arcade-mode');canvas.hidden=false;});
-    ui.querySelectorAll('[data-start]').forEach(b=>b.hidden=true);status.hidden=false;help.hidden=false;ui.querySelector('.arcade-controls').hidden=false;ui.querySelector('[data-action="drop"]').hidden=kind==='snake';
-    help.textContent=kind==='snake'?'Arrow keys / WASD, swipe inside the board, or use the buttons.':'← → move · ↑ rotate · ↓ soft drop · SPACE drop. Touch: buttons or swipe; tap to rotate.';
-    featureNoteCopy.textContent=kind==='snake'?'SNAKE — collect the accent squares. Avoid the edges and your tail.':'TETRIS — complete horizontal rows. Keep the stack below the top.';
+    ui.querySelectorAll('[data-start]').forEach(b=>b.hidden=true);status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=false;ui.querySelector('[data-action="drop"]').hidden=kind==='snake';
+    featureNoteCopy.textContent=kind==='snake'?'SNAKE — collect the square. Tap around the snake, swipe, or use arrows / WASD. Edges loop; avoid your tail.':'TETRIS — tap to rotate. Drag to move; flick down to drop. Desktop: arrows / WASD, space to drop.';
+    featureFormatCopy.textContent=kind==='snake'?'18 × 26 grid':'10 × 20 grid';
     resize();reset();busy=false;frame=requestAnimationFrame(loop);
   }
   async function stop() {
     if(busy)return;busy=true;cancelAnimationFrame(frame);
     await morphHomeGameGrid(mosaicColumns,mosaicRows,()=>{homeMosaic.classList.remove('arcade-mode');canvas.hidden=true;setHomeGridDimensions(mosaicColumns,mosaicRows);},false);
     game=null;window.arcadeGameActive=false;busy=false;status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=true;ui.querySelectorAll('[data-start]').forEach(b=>b.hidden=false);
-    featureNoteCopy.textContent=savedNote;workGrid.style.minHeight=savedMinHeight;releaseHomeGlitches();
+    featureNoteCopy.textContent=savedNote;featureStatusCopy.innerHTML=savedStatus;featureFormatCopy.textContent=savedFormat;workGrid.style.minHeight=savedMinHeight;releaseHomeGlitches();
   }
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.start)start(b.dataset.start);else action(b.dataset.action);});
-  window.addEventListener('keydown',e=>{if(!game||e.target.closest('input,textarea,select'))return;const a={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',' ':'drop',p:'pause',Escape:'pause'}[e.key];if(a){e.preventDefault();if(!e.repeat||!['drop','pause','up'].includes(a))action(a);}},true);
+  window.addEventListener('keydown',e=>{if(!game||e.target.closest('input,textarea,select'))return;const key=e.key.length===1?e.key.toLowerCase():e.key;const a={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',' ':'drop',p:'pause',Escape:'pause'}[key];if(a){e.preventDefault();if(!e.repeat||!['drop','pause','up'].includes(a))action(a);}},true);
   let pointer=null;
-  canvas.addEventListener('pointerdown',e=>{pointer={x:e.clientX,y:e.clientY,id:e.pointerId};canvas.setPointerCapture(e.pointerId);});
-  canvas.addEventListener('pointerup',e=>{if(!pointer)return;const dx=e.clientX-pointer.x,dy=e.clientY-pointer.y;pointer=null;if(Math.hypot(dx,dy)<15){if(game==='tetris')action('up');return;}action(Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up');});
+  canvas.addEventListener('pointerdown',e=>{
+    pointer={x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,id:e.pointerId,time:performance.now(),moved:false,softSteps:0,pieceRef:piece};
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(!pointer||pointer.id!==e.pointerId||game!=='tetris'||paused||ended||busy)return;
+    if(pointer.pieceRef!==piece)return;
+    const rect=canvas.getBoundingClientRect(),stepWidth=rect.width/cols,stepHeight=rect.height/rows;
+    let stepX=e.clientX-pointer.lastX,stepY=e.clientY-pointer.lastY;
+    while(Math.abs(stepX)>=stepWidth*.72){action(stepX>0?'right':'left');pointer.lastX+=Math.sign(stepX)*stepWidth*.72;stepX=e.clientX-pointer.lastX;pointer.moved=true;}
+    while(stepY>=stepHeight*.72){action('down');pointer.lastY+=stepHeight*.72;stepY=e.clientY-pointer.lastY;pointer.moved=true;pointer.softSteps++;}
+  });
+  canvas.addEventListener('pointerup',e=>{
+    if(!pointer)return;
+    const gesture=pointer,dx=e.clientX-gesture.x,dy=e.clientY-gesture.y,duration=performance.now()-gesture.time;pointer=null;
+    if(game==='tetris'){
+      if(gesture.pieceRef!==piece)return;
+      if(Math.hypot(dx,dy)<15&&!gesture.moved)action('up');
+      else if(dy>55&&duration<260&&Math.abs(dy)>Math.abs(dx)*1.2)action('drop');
+      return;
+    }
+    if(Math.hypot(dx,dy)<15){
+      if(game==='snake'&&snake?.length){
+        const rect=canvas.getBoundingClientRect(),head=snake[0];
+        const unit=Math.min(rect.width/cols,rect.height/rows),ox=(rect.width-cols*unit)/2,oy=(rect.height-rows*unit)/2;
+        const targetX=(e.clientX-rect.left-ox)/unit,targetY=(e.clientY-rect.top-oy)/unit;
+        const relativeX=targetX-(head.x+.5),relativeY=targetY-(head.y+.5);
+        if(Math.abs(relativeX)>Math.abs(relativeY))action(relativeX>0?'right':'left');
+        else if(relativeY!==0)action(relativeY>0?'down':'up');
+      }
+      return;
+    }
+    action(Math.abs(dx)>Math.abs(dy)?dx>0?'right':'left':dy>0?'down':'up');
+  });
   canvas.addEventListener('pointercancel',()=>pointer=null);
   canvas.addEventListener('wheel',e=>{if(game)e.preventDefault();},{passive:false});
   document.addEventListener('visibilitychange',()=>{if(game&&document.hidden){paused=true;note();}});
