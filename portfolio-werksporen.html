@@ -115,8 +115,8 @@
       will-change: flex-basis, transform;
       transition: flex-basis .48s cubic-bezier(.22,.72,.18,1), background-color .28s ease, color .28s ease, border-color .28s ease, transform .48s cubic-bezier(.22,.72,.18,1), padding .48s cubic-bezier(.22,.72,.18,1);
     }
-    .filter::before { content:attr(data-mobile-index); display:inline-block; min-width:2.25ch; color:inherit; font-size:14px; font-weight:500; letter-spacing:-.04em; vertical-align:middle; }
-    .filter::after { content:attr(data-mobile-label); display:inline-block; max-width:0; margin-left:0; overflow:hidden; opacity:0; vertical-align:middle; font-size:11px; letter-spacing:0; transform:translateX(-5px); transition:max-width .48s cubic-bezier(.22,.72,.18,1), margin-left .48s cubic-bezier(.22,.72,.18,1), opacity .22s ease, transform .48s cubic-bezier(.22,.72,.18,1); }
+    .filter::before { content:attr(data-mobile-index); display:inline-block; min-width:2.25ch; color:inherit; font-size:var(--navigation-size,14px); font-weight:500; letter-spacing:-.04em; vertical-align:middle; }
+    .filter::after { content:attr(data-mobile-label); display:inline-block; max-width:0; margin-left:0; overflow:hidden; opacity:0; vertical-align:middle; font-size:var(--navigation-size,11px); letter-spacing:0; transform:translateX(-5px); transition:max-width .48s cubic-bezier(.22,.72,.18,1), margin-left .48s cubic-bezier(.22,.72,.18,1), opacity .22s ease, transform .48s cubic-bezier(.22,.72,.18,1); }
     .filter:is(:hover,:focus-visible,.is-active) { flex-basis:158px; padding-left:12px; color:var(--paper); background:var(--ink); border-color:var(--ink); transform:translateY(0); outline:none; }
     .filter:is(:hover,:focus-visible,.is-active)::after { max-width:118px; margin-left:7px; opacity:1; transform:translateX(0); }
     .mobile-swipe-hint { display:none; }
@@ -213,7 +213,7 @@
       footer.contact { grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px; }
       footer.contact { position:relative; transform:translateY(30px); margin-bottom:-30px; }
       .filter { flex-basis:30px; padding:10px 4px 9px; }
-      .filter::before { min-width:2ch; font-size:13px; }
+      .filter::before { min-width:2ch; font-size:var(--navigation-size,13px); }
       .filter:is(:focus-visible,.is-active) { flex-basis:min(112px,30vw); padding-left:8px; transform:translateY(0); }
       .filter:is(:focus-visible,.is-active)::after { max-width:78px; margin-left:5px; }
       @media (hover:hover) and (pointer:fine) { .filter:hover { flex-basis:min(112px,30vw); padding-left:8px; transform:translateY(0); } .filter:hover::after { max-width:78px; margin-left:5px; } }
@@ -259,6 +259,11 @@
     .detail-tag { margin: 0 0 26px; color: var(--ink); font-weight: 500; }
     .detail-copy { margin: 0; font: 400 clamp(14px, 1.25vw, 18px)/1.55 var(--mono); white-space: pre-line; }
     .detail-copy .type-caret { vertical-align: -.12em; }
+    .intro h1 { font-size:var(--welcome-size,16px); }
+    .typewriter-date { display:block; margin-top:.9em; font-size:var(--date-size,16px); }
+    .project-menu .filter { font-size:var(--navigation-size,12px); }
+    .detail-copy { font-size:var(--about-size,16px); }
+    .feature-note, .gallery-note, .viewer-detail { font-size:var(--metadata-size,10px); }
 @media (max-width: 700px) { .detail-panel { min-height: 420px; } }
   
     /* Main-page dossier view */
@@ -288,19 +293,21 @@
     .home-feature > .scroll-cue { position: absolute; top: 100%; right: 0; margin: 7px 0 0 !important; border: 0; padding: 0; background: transparent; color: var(--accent); cursor: pointer; font: 500 12px var(--mono); }
 @media (max-width: 700px) { .home-feature { width: 100%; } .feature-note { position: static; width: auto; margin-top: 20px; } .home-feature > .scroll-cue { position: static; display: block; margin: 8px 0 0 auto !important; } }
     .full-image-hint { color: var(--accent); font-size: 10px; }
-    .image-viewer { position:relative; max-width:min(94vw,1300px); max-height:92vh; margin:auto; padding:0; overflow:visible; border:0; background:transparent; opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:contain; touch-action:none; }
+    .image-viewer { position:relative; width:fit-content; height:fit-content; min-width:0; max-width:min(94vw,1300px); max-height:92vh; margin:auto; padding:0; overflow:visible; border:0; background:transparent; opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:contain; touch-action:none; }
     .image-viewer::backdrop { background:rgba(23,22,15,.38); -webkit-backdrop-filter:blur(10px) saturate(.82); backdrop-filter:blur(10px) saturate(.82); opacity:1; transition:opacity .24s ease, backdrop-filter .28s ease; }
     .image-viewer.is-closing::backdrop { opacity:0; }
-    .viewer-polaroid { display:inline-flex; flex-direction:column; align-items:flex-start; max-width:min(88vw,1100px); padding:10px 10px 16px; background:var(--paper); box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:left; }
+    .viewer-polaroid { display:inline-flex; flex-direction:column; align-items:flex-start; max-width:min(88vw,1100px); padding:8px 8px 22px; background:var(--paper); box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:left; }
     .viewer-canvas { display:inline-block; width:auto; height:auto; max-width:min(88vw,1100px); max-height:72vh; overflow:hidden; background:var(--paper); line-height:0; }
-    .image-viewer img { display:block; width:auto; height:auto; max-width:min(88vw,1100px); max-height:72vh; object-fit:contain; transform-origin:center; }
+    .image-viewer img, .viewer-frame { display:block; width:auto; height:auto; max-width:min(88vw,1100px); max-height:72vh; object-fit:contain; transform-origin:center; }
+    .viewer-frame { width:min(88vw,1100px); height:min(72vh,820px); border:0; background:#10110f; }
     .viewer-controls { position:absolute; right:0; bottom:-22px; display:flex; justify-content:flex-end; align-items:center; gap:15px; min-height:22px; margin:0; }
     .viewer-close, .viewer-info { display:block; margin:0; padding:0; border:0; background:transparent; color:var(--accent); font:500 11px var(--mono); cursor:pointer; }
     @media (max-width:700px) {
       .image-viewer { width:auto; max-width:calc(100vw - 20px); max-height:calc(100dvh - 20px); box-sizing:border-box; }
-      .viewer-polaroid { max-width:calc(100vw - 28px); padding:7px 7px 14px; }
+      .viewer-polaroid { max-width:calc(100vw - 28px); padding:7px 7px 20px; }
       .viewer-canvas { max-width:calc(100vw - 42px); max-height:68dvh; }
       .image-viewer img { max-width:calc(100vw - 42px); max-height:68dvh; }
+      .viewer-frame { width:calc(100vw - 42px); height:min(68dvh,820px); }
       .viewer-controls { right:0; bottom:-23px; }
     }
     .home-image, .overview-thumb { border-color: rgba(28,27,25,.18); background: #d8d5cd; }
@@ -323,8 +330,8 @@
     .viewer-info { font-weight:700; font-size:12px; }
     .viewer-detail { display:block; width:100%; max-width:48ch; margin:10px 1px 0; color:var(--soft); font:10px/1.45 var(--mono); }
     .viewer-detail.is-open { display: block; animation: viewerDetailIn .22s ease both; }
-    .viewer-detail p { margin:0; }
-    .viewer-detail p:not(:first-child) { display:none; }
+    .viewer-detail p { margin:0 0 9px; }
+    .viewer-detail p:last-child { margin-bottom:0; }
     .viewer-detail strong { color: var(--accent); font-weight: 700; }
     @keyframes viewerDetailIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -338,7 +345,7 @@
     .feature-note .full-image-hint { display: none; }
 
 
-    .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; transition:opacity .42s cubic-bezier(.22,1,.36,1); }
+    .grid-controls { grid-column:1 / -1; width:min(100%,715px); margin:10px auto 0; display:flex; justify-content:flex-end; align-items:center; opacity:1; transition:opacity .9s cubic-bezier(.22,1,.36,1) .28s; }
     .grid-controls[hidden] { display:none; }
     .grid-progress { width:100%; padding:10px 0 4px; }
     .grid-progress-track { display:flex; width:100%; height:3px; gap:3px; }
@@ -365,7 +372,7 @@
     .gallery-note strong { color:var(--accent); font-weight:500; letter-spacing:-.025em; }
     .overview-work.show-detail .grid-controls,
     .overview-work.show-detail .gallery-view, .overview-work.show-feature .gallery-view { display:none; }
-    .overview-work.show-feature .grid-controls { display:flex; visibility:visible; opacity:0; pointer-events:none; }
+    .overview-work.show-feature .grid-controls { display:flex; visibility:visible; opacity:0; pointer-events:none; transition-duration:.42s; transition-delay:0s; }
     @media (max-width:700px) {
       .gallery-view { grid-template-columns:1fr; width:100%; gap:18px; }
       .gallery-note { grid-column:1; grid-row:2; }
@@ -418,6 +425,8 @@
 
     .home-tile.is-leaving { transform-origin: center; animation: tileFlipOut .46s cubic-bezier(.5,0,.8,.2) both; }
     @keyframes tileFlipOut { from { opacity:1; transform:rotateY(0) scale(1) translateZ(0); box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,transparent) var(--glow-opacity,80%),transparent); } to { opacity:.08; transform:rotateY(92deg) scale(.88) translateZ(0); box-shadow:inset 0 0 var(--glow-softness,18px) var(--glow-spread,5px) color-mix(in srgb,var(--glow-color,transparent) var(--glow-opacity,80%),transparent); } }
+    .home-tile.is-green-slip::before { content:""; position:absolute; inset:-3px; z-index:3; pointer-events:none; background-image:var(--mosaic-image); background-size:var(--tile-mosaic-size); background-position:var(--tile-x) var(--tile-y); background-repeat:no-repeat; animation:greenPanelSlip .46s cubic-bezier(.28,.72,.3,1) both; }
+    @keyframes greenPanelSlip { 0%,38% { opacity:0; transform:translateY(0); filter:blur(0); } 60% { opacity:.18; transform:translateY(-4px); filter:blur(3px); } 82% { opacity:.09; transform:translateY(1px); filter:blur(1.4px); } 100% { opacity:0; transform:translateY(0); filter:blur(0); } }
 
     .home-tile.is-alternate { background-color: rgba(205,83,42,.42); background-blend-mode: color; filter: grayscale(.05) sepia(.28) saturate(1.35) brightness(.96) contrast(1.03); }
 
@@ -571,12 +580,12 @@
     </footer>
     <dialog class="image-viewer" id="image-viewer" aria-label="Full image viewer">
       <div class="viewer-polaroid">
-        <div class="viewer-canvas"><img id="viewer-image" alt=""></div>
+        <div class="viewer-canvas"><img id="viewer-image" alt=""><iframe class="viewer-frame" id="viewer-frame" title="" sandbox="allow-scripts" hidden></iframe></div>
         <div class="viewer-detail" id="viewer-detail">
           <p><strong>WORK NOTE</strong><br><span id="viewer-note"></span></p>
           <p><strong>STATUS</strong><br><span id="viewer-status"></span></p>
-          <p id="viewer-medium-block"><strong>MEDIUM</strong><br><span id="viewer-medium"></span></p>
           <p><strong>FORMAT</strong><br><span id="viewer-format"></span></p>
+          <p id="viewer-medium-block"><strong>MEDIUM</strong><br><span id="viewer-medium"></span></p>
         </div>
       </div>
       <div class="viewer-controls">
@@ -605,6 +614,11 @@
     if (adminConfig?.theme) {
       document.documentElement.style.setProperty("--paper", adminConfig.theme.background || "#f6f5f0");
       document.documentElement.style.setProperty("--accent", adminConfig.theme.accent || "#a3442e");
+      document.documentElement.style.setProperty("--welcome-size", `${Number(adminConfig.theme.welcomePt ?? 12)}pt`);
+      document.documentElement.style.setProperty("--date-size", `${Number(adminConfig.theme.datePt ?? 12)}pt`);
+      document.documentElement.style.setProperty("--navigation-size", `${Number(adminConfig.theme.navigationPt ?? 10)}pt`);
+      document.documentElement.style.setProperty("--about-size", `${Number(adminConfig.theme.aboutPt ?? 12)}pt`);
+      document.documentElement.style.setProperty("--metadata-size", `${Number(adminConfig.theme.metadataPt ?? 8)}pt`);
       const shadowAngle = Number(adminConfig.theme.shadowAngle ?? 45) * Math.PI / 180;
       const shadowDistance = Number(adminConfig.theme.shadowDistance ?? 0);
       const shadowX = Math.cos(shadowAngle) * shadowDistance;
@@ -740,15 +754,20 @@
       document.getElementById("image-viewer").setAttribute("aria-label", t.viewer);
       document.querySelector(".viewer-info").setAttribute("aria-label", t.next);
       document.querySelectorAll(".project-menu .filter").forEach((button, index) => {
-        const fullLabel = button.textContent.trim();
-        const match = fullLabel.match(/^(\d{2})\s*(.*)$/);
-        button.dataset.mobileIndex = match?.[1] || String(index).padStart(2,"0");
-        button.dataset.mobileLabel = match?.[2] || fullLabel;
-        button.setAttribute("aria-label",fullLabel);
+        let cleanLabel = button.textContent.trim().replace(/^(?:\s*\d{2}\s*(?:[-–—/·]\s*)?)+/,"").trim();
+        let duplicate = cleanLabel.match(/^(.+?)\s+\1$/i);
+        while (duplicate) {
+          cleanLabel = duplicate[1].trim();
+          duplicate = cleanLabel.match(/^(.+?)\s+\1$/i);
+        }
+        const cleanIndex = String(index).padStart(2,"0");
+        button.dataset.mobileIndex = cleanIndex;
+        button.dataset.mobileLabel = cleanLabel;
+        button.setAttribute("aria-label",`${cleanIndex} ${cleanLabel}`.trim());
       });
       if (typeof today !== "undefined") today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).format(new Date());
       if (typeof welcome !== "undefined") welcome = `${t.welcome}\n\n${today}.`;
-      if (typeof introFinished !== "undefined" && introFinished && typewriterText) typewriterText.textContent = welcome;
+      if (typeof introFinished !== "undefined" && introFinished && typewriterText) renderTypedWelcome(welcome);
       localStorage.setItem(languageStorageKey, currentLanguage);
     }
 
@@ -760,6 +779,21 @@
     const welcomeLead = adminTexts.welcome || translations[currentLanguage].welcome;
     let welcome = `${welcomeLead}\n\n${today}.`;
     const typewriterText = document.getElementById("typewriter-text");
+    function renderTypedWelcome(value) {
+      const caret = document.querySelector(".intro .type-caret");
+      const typedValue = String(value || "");
+      const hasDateLine = typedValue.includes("\n\n");
+      const [lead, date = ""] = typedValue.split("\n\n");
+      const leadSpan = document.createElement("span"); leadSpan.textContent = lead;
+      typewriterText.replaceChildren(leadSpan);
+      if (hasDateLine) {
+        const dateSpan = document.createElement("span");
+        dateSpan.className = "typewriter-date";
+        dateSpan.textContent = date;
+        if (caret) dateSpan.append(caret);
+        typewriterText.append(dateSpan);
+      } else if (caret) leadSpan.append(caret);
+    }
     let character = 0;
     const homeFeature = document.querySelector(".home-feature");
     let introFinished = false;
@@ -768,12 +802,12 @@
       currentLanguage = currentLanguage === "nl" ? "en" : "nl";
       applyLanguage();
       character = welcome.length;
-      if (!introFinished) typewriterText.textContent = welcome;
+      if (!introFinished) renderTypedWelcome(welcome);
       setFeature(currentFeatureIndex, true);
       renderGrid();
       if (viewer.open && viewerImages[viewerIndex]) updateViewer(viewerImages[viewerIndex]);
     });
-    typewriterText.textContent = "";
+    renderTypedWelcome("");
     applyLanguage();
     function finishHomeIntro() {
       if (introFinished) return;
@@ -790,7 +824,7 @@
       }), 180);
     }
     function typeWelcome() {
-      typewriterText.textContent = welcome.slice(0, character);
+      renderTypedWelcome(welcome.slice(0, character));
       if (character < welcome.length) {
         character += 1;
         window.setTimeout(typeWelcome, 92);
@@ -905,10 +939,10 @@
       return `${tone} brightness(${item.brightness ?? 1}) contrast(${item.contrast ?? 1})`.trim();
     }
     function managedTransform(item) { return `scale(${item.scale ?? 1}) rotate(${item.rotate ?? 0}deg) skewX(${item.skewX ?? 0}deg) skewY(${item.skewY ?? 0}deg)`; }
-    function managedViewerTransform(item) {
+    function managedViewerTransform(item, includeScale = true) {
       const x = (item.viewerX ?? 50) - 50;
       const y = (item.viewerY ?? 50) - 50;
-      return `translate(${x}% , ${y}%) perspective(900px) rotateX(${item.viewerPerspectiveX ?? 0}deg) rotateY(${item.viewerPerspectiveY ?? 0}deg) rotate(${item.viewerRotate ?? 0}deg) skewX(${item.viewerSkewX ?? 0}deg) skewY(${item.viewerSkewY ?? 0}deg) scale(${item.viewerScale ?? 1})`;
+      return `translate(${x}% , ${y}%) perspective(900px) rotateX(${item.viewerPerspectiveX ?? 0}deg) rotateY(${item.viewerPerspectiveY ?? 0}deg) rotate(${item.viewerRotate ?? 0}deg) skewX(${item.viewerSkewX ?? 0}deg) skewY(${item.viewerSkewY ?? 0}deg) scale(${includeScale ? (item.viewerScale ?? 1) : 1})`;
     }
     if (adminConfig?.items?.length) {
       const managedItems = adminConfig.items.filter(item => item.visible && item.src);
@@ -959,11 +993,11 @@
     }
     function retireGlitch(tile, done) {
       tile.classList.remove("is-arriving");
-      tile.classList.add("is-leaving");
+      tile.classList.add("is-leaving", "is-green-slip");
       window.setTimeout(() => {
-        if (homeFrozen) { tile.classList.remove("is-leaving"); return; }
+        if (homeFrozen) { tile.classList.remove("is-leaving", "is-green-slip"); return; }
         restoreTile(tile);
-        tile.classList.remove("is-leaving");
+        tile.classList.remove("is-leaving", "is-green-slip");
         if (done) done();
       }, 470);
     }
@@ -1027,6 +1061,7 @@
         tile.setAttribute("aria-label", "Verplaats de glitch");
         tile.style.setProperty("--tile-x", (column / (mosaicColumns - 1)) * 100 + "%");
         tile.style.setProperty("--tile-y", (row / (mosaicRows - 1)) * 100 + "%");
+        tile.style.setProperty("--tile-mosaic-size", `${mosaicColumns * 100}% ${mosaicRows * 100}%`);
         const glowMode = adminConfig?.theme?.glitchGlowMode || (adminConfig?.theme?.glitchGlow ? "synth" : "off");
         const glowPalettes = {
           synth:["#ff4b35","#ffc62e","#42c878","#3e91ff","#db5cff"],
@@ -1227,6 +1262,8 @@
     });
     const viewer = document.getElementById("image-viewer");
     const viewerImage = document.getElementById("viewer-image");
+    const viewerCanvas = document.querySelector(".viewer-canvas");
+    const viewerFrame = document.getElementById("viewer-frame");
     const viewerInfo = document.querySelector(".viewer-info");
     const viewerDetail = document.getElementById("viewer-detail");
     const viewerNote = document.getElementById("viewer-note");
@@ -1238,6 +1275,16 @@
     let viewerAnimation = null;
     let viewerClosing = false;
     let viewerScrollY = 0;
+    const warmedViewerSources = new Set();
+
+    function warmViewerImage(image) {
+      const source = image?.dataset?.fullSrc || image?.getAttribute?.("src") || "";
+      if (!source || warmedViewerSources.has(source) || /\.html?$/i.test(source)) return;
+      warmedViewerSources.add(source);
+      const preload = new Image();
+      preload.decoding = "async";
+      preload.src = source;
+    }
 
     function lockViewerPage() {
       viewerScrollY = window.scrollY;
@@ -1254,18 +1301,58 @@
     function updateViewer(image) {
       const source = image.dataset.fullSrc || image.getAttribute("src") || image.src;
       const item = featureItems.find(entry => entry.src === source) || { note: "Selected image from the current archive.", status: "selected<br>2026", format: image.alt || "image" };
-      viewerNote.textContent = localizedContent(item.note);
+      viewerNote.textContent = localizedContent(item.note) || "–";
       viewerStatus.innerHTML = localizedStatusMarkup(item.status);
-      viewerMedium.textContent = item.medium || "";
-      document.getElementById("viewer-medium-block").hidden = !String(item.medium || "").trim();
-      viewerFormat.textContent = localizedContent(item.format);
+      viewerMedium.textContent = localizedContent(item.medium) || "–";
+      document.getElementById("viewer-medium-block").hidden = false;
+      viewerFormat.textContent = String(item.format || "").trim().toLowerCase() === "image" ? "–" : (localizedContent(item.format) || "–");
+      const isAnimation = item.mediaType === "html" || /\.html?$/i.test(source);
+      viewerFrame.hidden = !isAnimation;
+      viewerImage.hidden = isAnimation;
+      if (isAnimation) {
+        viewerFrame.src = source;
+        viewerFrame.title = item.title || "Animated portfolio work";
+        const mobile = window.matchMedia("(max-width:700px)").matches;
+        const frameWidth = Math.min(window.innerWidth * .88, 1100);
+        const frameHeight = Math.min(window.innerHeight * (mobile ? .68 : .72), frameWidth * .75);
+        viewerCanvas.style.width = `${Math.round(frameHeight * 4 / 3)}px`;
+        viewerCanvas.style.height = `${Math.round(frameHeight)}px`;
+        return;
+      }
+      viewerImage.style.opacity = "0";
+      viewerImage.style.transition = "opacity .14s ease";
       viewerImage.src = source;
       viewerImage.alt = image.alt;
       const managed = item.managed || adminConfig?.items?.find(entry => entry.id === image.dataset.managedId || entry.src === source);
       viewerImage.style.filter = managed ? managedFilter(managed) : "";
-      viewerImage.style.transform = managed ? managedViewerTransform(managed) : "";
+      // The polaroid is a faithful, centred full-photo view. Its shape must not
+      // inherit an editor pan/zoom that was only intended for the crop preview.
+      viewerImage.style.transform = "";
       viewerImage.style.objectFit = managed?.viewerFit === "cover" ? "cover" : "contain";
       viewerImage.style.objectPosition = "center";
+      const fitViewerFrame = () => {
+        const naturalWidth = viewerImage.naturalWidth;
+        const naturalHeight = viewerImage.naturalHeight;
+        if (!naturalWidth || !naturalHeight) return;
+        const mobile = window.matchMedia("(max-width:700px)").matches;
+        const maxWidth = Math.min(window.innerWidth * (mobile ? .88 : .88), 1100);
+        const maxHeight = window.innerHeight * (mobile ? .68 : .72);
+        const isFilled = managed?.viewerFit === "cover";
+        const ratio = isFilled ? 4 / 3 : naturalWidth / naturalHeight;
+        const baseScale = Math.min(maxWidth / naturalWidth, maxHeight / naturalHeight);
+        let frameWidth = isFilled ? maxWidth : naturalWidth * baseScale;
+        let frameHeight = isFilled ? frameWidth / ratio : naturalHeight * baseScale;
+        if (frameHeight > maxHeight) { frameHeight = maxHeight; frameWidth = isFilled ? frameHeight * ratio : frameWidth; }
+        const imageWidth = isFilled ? frameWidth : naturalWidth * baseScale;
+        const imageHeight = isFilled ? frameHeight : naturalHeight * baseScale;
+        viewerCanvas.style.width = `${Math.round(frameWidth)}px`;
+        viewerCanvas.style.height = `${Math.round(frameHeight)}px`;
+        viewerImage.style.width = `${Math.round(imageWidth)}px`;
+        viewerImage.style.height = `${Math.round(imageHeight)}px`;
+        viewerImage.style.opacity = "1";
+      };
+      viewerImage.addEventListener("load", fitViewerFrame, { once:true });
+      if (viewerImage.complete) fitViewerFrame();
     }
 
     function openViewer(image) {
@@ -1275,6 +1362,7 @@
         ? Array.from(stamps).filter(stamp => !stamp.classList.contains("is-hidden")).map(stamp => stamp.querySelector("img")).filter(Boolean)
         : mosaic ? Array.from(document.querySelectorAll(".home-tile img")) : [featureImage];
       viewerIndex = Math.max(0, viewerImages.indexOf(image));
+      [viewerImages[viewerIndex], viewerImages[viewerIndex + 1], viewerImages[viewerIndex - 1]].forEach(warmViewerImage);
       updateViewer(image);
       if (viewer.open || viewerClosing) return;
       lockViewerPage();
@@ -1309,7 +1397,7 @@
     }
     document.querySelectorAll(".home-image, .overview-thumb").forEach(frame => {
       frame.addEventListener("click", () => {
-        const image = frame.querySelector("img");
+        const image = frame.querySelector("img, iframe");
         if (image) { openViewer(image); return; }
         if (frame.classList.contains("home-tile")) {
           const tileImage = document.createElement("img");
@@ -1445,6 +1533,8 @@
       overviewGrid.classList.toggle("is-single", gridViewMode === "single");
       const pageItems = matching.slice(gridPage * pageSize, gridPage * pageSize + pageSize);
       pageItems.forEach(stamp => loadGalleryStamp(stamp, "high"));
+      const warmPage = () => pageItems.slice(0, 3).forEach(stamp => warmViewerImage(stamp.querySelector("img")));
+      if ("requestIdleCallback" in window) window.requestIdleCallback(warmPage, { timeout:1600 }); else window.setTimeout(warmPage, 650);
       const visible = new Set(pageItems);
       stamps.forEach(stamp => stamp.classList.toggle("is-hidden", !visible.has(stamp)));
       galleryView.classList.toggle("is-single-mode", gridViewMode === "single");
@@ -1519,6 +1609,35 @@
       const elapsed = performance.now() - gridSwipe.time; gridSwipe = null;
       if (elapsed <= 850 && Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) { event.preventDefault(); turnGridOrSection(dx < 0 ? 1 : -1); }
     }, { passive:false });
+    let gridWheelX = 0;
+    let gridWheelY = 0;
+    let gridWheelResetTimer = 0;
+    let gridWheelLocked = false;
+    const handleGridWheel = event => {
+      const onHomeRaster = event.currentTarget === homeMosaic;
+      if (event.ctrlKey || overview.classList.contains("show-detail") || onHomeRaster !== overview.classList.contains("show-feature") || pageTransitioning || morphing) return;
+      const horizontalIntent = Math.abs(event.deltaX) > Math.abs(event.deltaY) * 1.08;
+      if (!horizontalIntent && !gridWheelX) return;
+      event.preventDefault();
+      event.stopPropagation();
+      gridWheelX += event.deltaX;
+      gridWheelY += event.deltaY;
+      window.clearTimeout(gridWheelResetTimer);
+      gridWheelResetTimer = window.setTimeout(() => {
+        gridWheelX = 0;
+        gridWheelY = 0;
+      }, 180);
+      if (gridWheelLocked || Math.abs(gridWheelX) < 18 || Math.abs(gridWheelX) < Math.abs(gridWheelY) * 1.18) return;
+      const direction = gridWheelX > 0 ? 1 : -1;
+      gridWheelX = 0;
+      gridWheelY = 0;
+      gridWheelLocked = true;
+      if (onHomeRaster) stepSection(direction);
+      else turnGridOrSection(direction);
+      window.setTimeout(() => { gridWheelLocked = false; }, 950);
+    };
+    overviewGrid.addEventListener("wheel",handleGridWheel,{ passive:false });
+    homeMosaic.addEventListener("wheel",handleGridWheel,{ passive:false });
 
     const detailCopy = { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram", disclaimer: adminTexts.legal || "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message." };
     function typeDetail(kind) {

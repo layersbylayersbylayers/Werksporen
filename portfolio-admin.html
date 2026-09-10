@@ -544,18 +544,21 @@
       homeEditor.querySelectorAll("[data-home-grid]").forEach(button => button.classList.toggle("is-active", Number(button.dataset.homeGrid) === sizeIndex));
     }
 
+    const cleanTabName = value => String(value || "").replace(/^\d{2}\s+/, "");
+    const keepTabNumber = (previous, value, fallback) => `${String(previous || "").match(/^(\d{2})\b/)?.[1] || fallback} ${cleanTabName(value).trim()}`.trim();
+
     function fixedNavigationRow(key, note) {
-      return `<div class="section-row section-row-fixed"><span class="section-fixed-marker" aria-hidden="true">VAST</span><span class="section-name">${escapeHtml(data.texts[key] || "")}</span><span class="section-fixed-note">${escapeHtml(note)}</span></div>`;
+      return `<div class="section-row section-row-fixed"><span class="section-fixed-marker" aria-hidden="true">VAST</span><span class="section-name">${escapeHtml(cleanTabName(data.texts[key]))}</span><span class="section-fixed-note">${escapeHtml(note)}</span></div>`;
     }
 
     function sectionRowsMarkup() {
-      const workPages = data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(section.label)} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><span class="section-name">${escapeHtml(section.label)}</span><span class="section-fixed-note">sleep ≡ om deze pagina te verplaatsen</span><button type="button" data-remove-section>WEG</button></div>`).join("");
+      const workPages = data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(cleanTabName(section.label))} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><span class="section-name">${escapeHtml(cleanTabName(section.label))}</span><span class="section-fixed-note">sleep ≡ om deze pagina te verplaatsen</span><button type="button" data-remove-section>WEG</button></div>`).join("");
       return fixedNavigationRow("all", "Home / alles") + workPages + fixedNavigationRow("aboutLabel", "About") + fixedNavigationRow("contactButton", "Contact");
     }
 
     function navigationEditorMarkup() {
-      const field = (label, key) => `<div class="field"><label>${label}</label><input type="text" data-text="${key}" value="${escapeHtml(data.texts[key] || "")}"></div>`;
-      const sections = data.sections.map(section => `<div class="field"><label>Werkpagina</label><input type="text" data-nav-section="${section.id}" value="${escapeHtml(section.label)}"></div>`).join("");
+      const field = (label, key) => `<div class="field"><label>${label}</label><input type="text" data-text="${key}" value="${escapeHtml(cleanTabName(data.texts[key]))}"></div>`;
+      const sections = data.sections.map(section => `<div class="field"><label>Werkpagina</label><input type="text" data-nav-section="${section.id}" value="${escapeHtml(cleanTabName(section.label))}"></div>`).join("");
       return `<section class="text-card pages-card"><h3>Tabnamen</h3><p class="gesture-hint">Pas hier de volledige tekst aan, inclusief het nummer.</p>${field("Home / alles","all")}${sections}${field("About","aboutLabel")}${field("Contact","contactButton")}${field("Disclaimer linksonder","disclaimerButton")}</section>`;
     }
 
@@ -563,7 +566,7 @@
       galleryTabs.innerHTML = [
         `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${escapeHtml(data.texts.all || "home")}</button>`,
         `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">alle werken</button>`,
-        ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" draggable="true" data-section-drag-tab data-gallery-filter="${section.id}" title="Sleep om de paginavolgorde te wijzigen">${escapeHtml(section.label)}</button>`),
+        ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" draggable="true" data-section-drag-tab data-gallery-filter="${section.id}" title="Sleep om de paginavolgorde te wijzigen">${escapeHtml(cleanTabName(section.label))}</button>`),
         `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
       ].join("");
       sectionList.innerHTML = sectionRowsMarkup();
@@ -604,7 +607,8 @@
       data.theme.shadowHome ??= true;
       data.theme.shadowTabs ??= false;
       const shadow = `<section class="text-card"><h3>Schaduw beelden</h3><div class="checks"><label><input type="checkbox" data-theme-check="shadowHome" ${data.theme.shadowHome ? "checked" : ""}>home-achtergrond</label><label><input type="checkbox" data-theme-check="shadowTabs" ${data.theme.shadowTabs ? "checked" : ""}>afbeeldingen in tabs</label></div><div class="field"><label>kleur</label><input type="color" data-theme="shadowColor" value="${data.theme.shadowColor || "#1c1b19"}"></div><div class="field"><label>angle <span>${data.theme.shadowAngle ?? 45}°</span></label><input type="range" data-theme-range="shadowAngle" min="0" max="360" step="1" value="${data.theme.shadowAngle ?? 45}"></div><div class="field"><label>distance <span>${data.theme.shadowDistance ?? 0}px</span></label><input type="range" data-theme-range="shadowDistance" min="0" max="28" step="1" value="${data.theme.shadowDistance ?? 0}"></div><div class="field"><label>softness <span>${data.theme.shadowBlur ?? 0}px</span></label><input type="range" data-theme-range="shadowBlur" min="0" max="40" step="1" value="${data.theme.shadowBlur ?? 0}"></div></section>`;
-      textForm.innerHTML = navigationEditorMarkup() + colors + home + shadow + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key] || "")}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key] || "")}">`}</div>`).join("")}</section>`).join("");
+      const typography = `<section class="text-card"><h3>Tekstgroottes</h3>${[["welcomePt","Welcome",12],["datePt","Datum",12],["navigationPt","Tabbladen",10],["aboutPt","About / contact / disclaimer",12],["metadataPt","Work notes",8]].map(([key,label,fallback]) => `<div class="field"><label>${label} (pt)</label><input type="number" min="6" max="36" step=".5" data-theme-pt="${key}" value="${data.theme[key] ?? fallback}"></div>`).join("")}</section>`;
+      textForm.innerHTML = navigationEditorMarkup() + colors + home + shadow + typography + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key] || "")}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key] || "")}">`}</div>`).join("")}</section>`).join("");
     }
 
     async function renderDashboard() {
@@ -897,10 +901,14 @@
     });
 
     textForm.addEventListener("input", event => {
-      if (event.target.dataset.text) data.texts[event.target.dataset.text] = event.target.value;
+      if (event.target.dataset.text) {
+        const key = event.target.dataset.text;
+        const fixedNumbers = { all:"00", aboutLabel:"06", contactButton:"07" };
+        data.texts[key] = fixedNumbers[key] ? keepTabNumber(data.texts[key], event.target.value, fixedNumbers[key]) : event.target.value;
+      }
       if (event.target.dataset.navSection) {
         const section = data.sections.find(entry => entry.id === event.target.dataset.navSection);
-        if (section) section.label = event.target.value;
+        if (section) section.label = keepTabNumber(section.label, event.target.value, String(data.sections.indexOf(section) + 1).padStart(2,"0"));
       }
       if (event.target.dataset.theme) {
         data.theme[event.target.dataset.theme] = event.target.value;
@@ -918,9 +926,10 @@
         const shown = event.target.dataset.themeRange === "homeGridSize" ? ["grof","normaal","fijn"][Number(event.target.value)] : event.target.value + suffix;
         event.target.previousElementSibling.querySelector("span").textContent = shown;
       }
+      if (event.target.dataset.themePt) data.theme[event.target.dataset.themePt] = Number(event.target.value);
       if (event.target.dataset.themeCheck) data.theme[event.target.dataset.themeCheck] = event.target.checked;
       if (["shadowColor","shadowAngle","shadowDistance","shadowBlur","shadowHome","shadowTabs"].includes(event.target.dataset.theme || event.target.dataset.themeRange || event.target.dataset.themeCheck)) updateAdminShadowPreview();
-      if (event.target.dataset.text || event.target.dataset.navSection || event.target.dataset.theme || event.target.dataset.themeText || event.target.dataset.themeSelect || event.target.dataset.themeCheck || event.target.dataset.themeRange) markDirty();
+      if (event.target.dataset.text || event.target.dataset.navSection || event.target.dataset.theme || event.target.dataset.themeText || event.target.dataset.themeSelect || event.target.dataset.themeCheck || event.target.dataset.themeRange || event.target.dataset.themePt) markDirty();
     });
 
     homeEditor.addEventListener("input", event => {
@@ -1010,7 +1019,7 @@
       const section = row && data.sections.find(entry => entry.id === row.dataset.sectionId);
       if (!section) return;
       if (event.target.matches("[data-section-label]")) {
-        section.label = event.target.value;
+        section.label = keepTabNumber(section.label, event.target.value, String(data.sections.indexOf(section) + 1).padStart(2,"0"));
         const tab = galleryTabs.querySelector(`[data-gallery-filter="${section.id}"]`);
         if (tab) tab.textContent = section.label || "naamloos";
       }
