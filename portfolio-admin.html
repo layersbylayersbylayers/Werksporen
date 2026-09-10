@@ -556,27 +556,29 @@
     // Numbers are generated from the tab's actual position on the public site.
     // Saving just the name prevents old prefixes from reappearing after reordering.
     const keepTabNumber = (_previous, value, _fallback) => cleanTabName(value);
+    const visibleImageCount = sectionId => data.items.filter(item => item.visible && item.gallery && item.src && (item.categories || []).includes(sectionId)).length;
+    const tabCode = (index, imageCount = 0) => `${String(index).padStart(2,"0")} ${String(imageCount).padStart(2,"0")}`;
 
-    function fixedNavigationRow(key, note) {
-      return `<div class="section-row section-row-fixed"><span class="section-fixed-marker" aria-hidden="true">VAST</span><span class="section-name">${escapeHtml(cleanTabName(data.texts[key]))}</span><span class="section-fixed-note">${escapeHtml(note)}</span></div>`;
+    function fixedNavigationRow(key, note, code) {
+      return `<div class="section-row section-row-fixed"><span class="section-fixed-marker" aria-hidden="true">VAST</span><span class="section-name">${code ? `${escapeHtml(code)} ` : ""}${escapeHtml(cleanTabName(data.texts[key]))}</span><span class="section-fixed-note">${escapeHtml(note)}</span></div>`;
     }
 
     function sectionRowsMarkup() {
-      const workPages = data.sections.map(section => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(cleanTabName(section.label))} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><span class="section-name">${escapeHtml(cleanTabName(section.label))}</span><span class="section-fixed-note">sleep ≡ om deze pagina te verplaatsen</span><button type="button" data-remove-section>WEG</button></div>`).join("");
-      return fixedNavigationRow("all", "Home / alles") + workPages + fixedNavigationRow("aboutLabel", "About") + fixedNavigationRow("contactButton", "Contact");
+      const workPages = data.sections.map((section, index) => `<div class="section-row" data-section-id="${section.id}"><button class="section-drag" type="button" data-section-drag aria-label="Sleep ${escapeHtml(cleanTabName(section.label))} naar een andere plek" title="Sleep om de paginavolgorde te wijzigen">≡</button><span class="section-name">${tabCode(index + 1,visibleImageCount(section.id))} ${escapeHtml(cleanTabName(section.label))}</span><span class="section-fixed-note">volgorde / zichtbare beelden · sleep ≡</span><button type="button" data-remove-section>WEG</button></div>`).join("");
+      return fixedNavigationRow("all", "Home / geen galerijbeelden", tabCode(0)) + workPages + fixedNavigationRow("aboutLabel", "About / geen galerijbeelden", tabCode(data.sections.length + 1)) + fixedNavigationRow("contactButton", "Contact / geen galerijbeelden", tabCode(data.sections.length + 2));
     }
 
     function navigationEditorMarkup() {
       const field = (label, key) => `<div class="field"><label>${label}</label><input type="text" data-text="${key}" value="${escapeHtml(cleanTabName(data.texts[key]))}"></div>`;
-      const sections = data.sections.map(section => `<div class="field"><label>Werkpagina</label><input type="text" data-nav-section="${section.id}" value="${escapeHtml(cleanTabName(section.label))}"></div>`).join("");
-      return `<section class="text-card pages-card"><h3>Tabnamen</h3><p class="gesture-hint">Pas hier de volledige tekst aan, inclusief het nummer.</p>${field("Home / alles","all")}${sections}${field("About","aboutLabel")}${field("Contact","contactButton")}${field("Disclaimer linksonder","disclaimerButton")}</section>`;
+      const sections = data.sections.map((section,index) => `<div class="field"><label>${tabCode(index + 1,visibleImageCount(section.id))} · werkpagina</label><input type="text" data-nav-section="${section.id}" value="${escapeHtml(cleanTabName(section.label))}"></div>`).join("");
+      return `<section class="text-card pages-card"><h3>Tabnamen</h3><p class="gesture-hint">De eerste twee cijfers zijn de tabpositie, de tweede twee het aantal zichtbare beelden. Beide worden automatisch berekend.</p>${field("00 00 · Home / alles","all")}${sections}${field("About","aboutLabel")}${field("Contact","contactButton")}${field("Disclaimer linksonder","disclaimerButton")}</section>`;
     }
 
     function renderSections() {
       galleryTabs.innerHTML = [
-        `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${escapeHtml(data.texts.all || "home")}</button>`,
+        `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${tabCode(0)} ${escapeHtml(cleanTabName(data.texts.all || "home"))}</button>`,
         `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">alle werken</button>`,
-        ...data.sections.map(section => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" draggable="true" data-section-drag-tab data-gallery-filter="${section.id}" title="Sleep om de paginavolgorde te wijzigen">${escapeHtml(cleanTabName(section.label))}</button>`),
+        ...data.sections.map((section,index) => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" draggable="true" data-section-drag-tab data-gallery-filter="${section.id}" title="Sleep om de paginavolgorde te wijzigen">${tabCode(index + 1,visibleImageCount(section.id))} ${escapeHtml(cleanTabName(section.label))}</button>`),
         `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
       ].join("");
       sectionList.innerHTML = sectionRowsMarkup();

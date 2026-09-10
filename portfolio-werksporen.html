@@ -115,7 +115,7 @@
       will-change: flex-basis, transform;
       transition: flex-basis .48s cubic-bezier(.22,.72,.18,1), background-color .28s ease, color .28s ease, border-color .28s ease, transform .48s cubic-bezier(.22,.72,.18,1), padding .48s cubic-bezier(.22,.72,.18,1);
     }
-    .filter::before { content:attr(data-mobile-index); display:inline-block; min-width:2.25ch; color:inherit; font-size:var(--navigation-size,14px); font-weight:500; letter-spacing:-.04em; vertical-align:middle; }
+    .filter::before { content:attr(data-mobile-index) " " attr(data-mobile-count); display:inline-block; min-width:4.9ch; color:inherit; font-size:var(--navigation-size,14px); font-weight:500; letter-spacing:-.04em; vertical-align:middle; }
     .filter::after { content:attr(data-mobile-label); display:inline-block; max-width:0; margin-left:0; overflow:hidden; opacity:0; vertical-align:middle; font-size:var(--navigation-size,11px); letter-spacing:0; transform:translateX(-5px); transition:max-width .48s cubic-bezier(.22,.72,.18,1), margin-left .48s cubic-bezier(.22,.72,.18,1), opacity .22s ease, transform .48s cubic-bezier(.22,.72,.18,1); }
     .filter:is(:hover,:focus-visible,.is-active) { flex-basis:158px; padding-left:12px; color:var(--paper); background:var(--ink); border-color:var(--ink); transform:translateY(0); outline:none; }
     .filter:is(:hover,:focus-visible,.is-active)::after { max-width:118px; margin-left:7px; opacity:1; transform:translateX(0); }
@@ -213,7 +213,7 @@
       footer.contact { grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px; }
       footer.contact { position:relative; transform:translateY(30px); margin-bottom:-30px; }
       .filter { flex-basis:30px; padding:10px 4px 9px; }
-      .filter::before { min-width:2ch; font-size:var(--navigation-size,13px); }
+      .filter::before { min-width:4.5ch; font-size:var(--navigation-size,13px); }
       .filter:is(:focus-visible,.is-active) { flex-basis:min(112px,30vw); padding-left:8px; transform:translateY(0); }
       .filter:is(:focus-visible,.is-active)::after { max-width:78px; margin-left:5px; }
       @media (hover:hover) and (pointer:fine) { .filter:hover { flex-basis:min(112px,30vw); padding-left:8px; transform:translateY(0); } .filter:hover::after { max-width:78px; margin-left:5px; } }
@@ -747,7 +747,11 @@
       document.documentElement.lang = currentLanguage;
       languageToggle.innerHTML = `<span class="language-option ${currentLanguage === "nl" ? "is-active" : ""}">NL</span> / <span class="language-option ${currentLanguage === "en" ? "is-active" : ""}">EN</span>`;
       languageToggle.setAttribute("aria-label", currentLanguage === "nl" ? "Schakel naar Engels" : "Switch to Dutch");
-      setText("[data-filter=all]", localize(adminTexts.all, "all", ["00 Home", "alles / 06"])); setText("[data-filter=inkt]", localize(adminTexts.ink, "ink", ["inkt & flash", "01 Inkt & Flash", "01 Prints & Flash"])); setText("[data-filter=verf]", localize(adminTexts.paint, "paint", ["schilderij", "01 Schilderij", "01 Paintings"])); setText("[data-filter=digitaal]", localize(adminTexts.digital, "digital", ["digitaal", "03 Digitaal", "03 Digital", "04 Digitaal", "04 Digital"])); setText("[data-filter=proces]", localize(adminTexts.process, "process", ["proces", "04 Proces", "04 Process", "05 Proces", "05 Process"])); setText("[data-filter=about]", localize(adminTexts.aboutLabel, "aboutLabel", ["about", "05 About", "05 Over", "06 About", "06 Over"])); setText("[data-filter=contact]", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT", "07 Contact"]));
+      // Modern admin sections are the single source for tab names. The legacy
+      // per-category text fields are used only by older, non-admin portfolios.
+      if (!adminConfig?.sections?.length) {
+        setText("[data-filter=all]", localize(adminTexts.all, "all", ["00 Home", "alles / 06"])); setText("[data-filter=inkt]", localize(adminTexts.ink, "ink", ["inkt & flash", "01 Inkt & Flash", "01 Prints & Flash"])); setText("[data-filter=verf]", localize(adminTexts.paint, "paint", ["schilderij", "01 Schilderij", "01 Paintings"])); setText("[data-filter=digitaal]", localize(adminTexts.digital, "digital", ["digitaal", "03 Digitaal", "03 Digital", "04 Digitaal", "04 Digital"])); setText("[data-filter=proces]", localize(adminTexts.process, "process", ["proces", "04 Proces", "04 Process", "05 Proces", "05 Process"])); setText("[data-filter=about]", localize(adminTexts.aboutLabel, "aboutLabel", ["about", "05 About", "05 Over", "06 About", "06 Over"])); setText("[data-filter=contact]", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT", "07 Contact"]));
+      }
       setText(".work-number", localize(adminTexts.selection, "selection", ["00 SELECTIE", "00 SELECT"])); setText(".work-topline span:nth-child(2)", localize(adminTexts.overview, "overview", ["WERKOVERZICHT", "WORK OVERVIEW"])); setText(".contact-button", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT"])); setText("#disclaimer-updated", t.updated);
       document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replaceAll(" ",""); if (key === "worknote" || key === "werknotitie") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "medium") element.textContent = t.medium; if (key === "format" || key === "formaat") element.textContent = t.format; });
       setText(".full-image-hint", t.fullImage); setText(".viewer-close", t.close);
@@ -756,6 +760,11 @@
       setText('label[for="visitor-name"]', t.name); setText('label[for="visitor-email"]', t.email); setText('label[for="visitor-message"]', t.message); setText('#contact-form button[type="submit"]', t.send);
       document.getElementById("image-viewer").setAttribute("aria-label", t.viewer);
       document.querySelector(".viewer-info").setAttribute("aria-label", t.next);
+      const tabImageCount = filterId => {
+        if (filterId === "all") return 0;
+        if (!adminConfig?.items?.length || ["about","contact"].includes(filterId)) return 0;
+        return adminConfig.items.filter(item => item.visible && item.gallery && item.src && (item.categories || []).includes(filterId)).length;
+      };
       document.querySelectorAll(".project-menu .filter").forEach((button, index) => {
         let cleanLabel = button.textContent.trim().replace(/^(?:\s*\d{2}\s*(?:[-–—/·]\s*)?)+/,"").trim();
         let duplicate = cleanLabel.match(/^(.+?)\s+\1$/i);
@@ -764,9 +773,11 @@
           duplicate = cleanLabel.match(/^(.+?)\s+\1$/i);
         }
         const cleanIndex = String(index).padStart(2,"0");
+        const imageCount = String(tabImageCount(button.dataset.filter)).padStart(2,"0");
         button.dataset.mobileIndex = cleanIndex;
+        button.dataset.mobileCount = imageCount;
         button.dataset.mobileLabel = cleanLabel;
-        button.setAttribute("aria-label",`${cleanIndex} ${cleanLabel}`.trim());
+        button.setAttribute("aria-label",`${cleanIndex} ${imageCount} ${cleanLabel}`.trim());
       });
       if (typeof today !== "undefined") today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).format(new Date());
       if (typeof welcome !== "undefined") welcome = `${t.welcome}\n\n${today}.`;
