@@ -299,19 +299,20 @@
     .image-viewer { position:relative; width:fit-content; height:fit-content; min-width:0; max-width:min(94vw,1300px); max-height:92vh; margin:auto; padding:0; overflow:visible; border:0; background:transparent; opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:contain; touch-action:none; }
     .image-viewer::backdrop { background:rgba(23,22,15,.38); -webkit-backdrop-filter:blur(10px) saturate(.82); backdrop-filter:blur(10px) saturate(.82); opacity:1; transition:opacity .24s ease, backdrop-filter .28s ease; }
     .image-viewer.is-closing::backdrop { opacity:0; }
-    .viewer-polaroid { display:inline-flex; flex-direction:column; align-items:flex-start; max-width:min(88vw,1100px); padding:8px 8px 22px; background:var(--paper); box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:left; }
+    .viewer-polaroid { position:relative; display:inline-flex; flex-direction:column; align-items:flex-start; max-width:min(88vw,1100px); padding:8px 8px 22px; background:var(--paper); box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:left; }
     .viewer-canvas { display:inline-block; width:auto; height:auto; max-width:min(88vw,1100px); max-height:72vh; overflow:hidden; background:var(--paper); line-height:0; }
     .image-viewer img, .viewer-frame { display:block; width:auto; height:auto; max-width:min(88vw,1100px); max-height:72vh; object-fit:contain; transform-origin:center; }
     .viewer-frame { width:min(88vw,1100px); height:min(72vh,820px); border:0; background:#10110f; }
-    .viewer-controls { position:absolute; right:0; bottom:-22px; display:flex; justify-content:flex-end; align-items:center; gap:15px; min-height:22px; margin:0; }
-    .viewer-close, .viewer-info { display:block; margin:0; padding:0; border:0; background:transparent; color:var(--accent); font:500 11px var(--mono); cursor:pointer; }
+    .viewer-controls { position:relative; align-self:flex-end; right:auto; bottom:auto; top:5px; z-index:2; display:block; height:0; min-height:0; margin:0; }
+    .viewer-close { display:grid; place-items:center; width:22px; height:22px; margin:0; padding:0; border:0; background:transparent; color:var(--accent); font:500 21px/1 var(--mono); cursor:pointer; }
+    .viewer-info { display:none; }
     @media (max-width:700px) {
       .image-viewer { width:auto; max-width:calc(100vw - 20px); max-height:calc(100dvh - 20px); box-sizing:border-box; }
       .viewer-polaroid { max-width:calc(100vw - 28px); padding:7px 7px 20px; }
       .viewer-canvas { max-width:calc(100vw - 42px); max-height:68dvh; }
       .image-viewer img { max-width:calc(100vw - 42px); max-height:68dvh; }
       .viewer-frame { width:calc(100vw - 42px); height:min(68dvh,820px); }
-      .viewer-controls { right:0; bottom:-23px; }
+      .viewer-controls { top:4px; }
     }
     .home-image, .overview-thumb { border-color: rgba(28,27,25,.18); background: #d8d5cd; }
     .home-image::after, .overview-thumb::after { display: none; }
@@ -330,8 +331,13 @@
     .home-feature > .scroll-cue { top: 100%; right: 0; }
 
     .feature-note { display: none !important; }
-    .viewer-info { font-weight:700; font-size:12px; }
-    .viewer-detail { display:block; width:100%; max-width:48ch; margin:10px 1px 0; color:var(--soft); font:10px/1.45 var(--mono); }
+    .viewer-detail { display:block; width:100%; max-width:48ch; margin:30px 1px 0; color:var(--soft); font:10px/1.45 var(--mono); }
+    .viewer-gesture-hint { display:block; margin:0 0 10px; color:var(--muted); font:9px/1.35 var(--mono); letter-spacing:.035em; }
+    .viewer-reel { display:flex; width:100%; max-width:48ch; gap:7px; margin:0 1px 13px; padding:3px 1px 8px; overflow-x:auto; overscroll-behavior-x:contain; scrollbar-width:none; scroll-snap-type:x mandatory; touch-action:pan-x; }
+    .viewer-reel::-webkit-scrollbar { display:none; }
+    .viewer-reel-item { flex:0 0 38px; width:38px; height:38px; padding:0; overflow:hidden; border:1px solid color-mix(in srgb, var(--soft) 32%, transparent); border-radius:7px; background:var(--paper); cursor:pointer; scroll-snap-align:center; opacity:.45; transform:scale(.88); transition:transform .26s cubic-bezier(.16,1,.3,1), opacity .2s ease, border-color .2s ease; }
+    .viewer-reel-item.is-current { border-color:var(--accent); opacity:1; transform:scale(1); }
+    .viewer-reel-item img { display:block; width:100%; height:100%; max-width:none; max-height:none; object-fit:cover; transform:none !important; }
     .viewer-detail.is-open { display: block; animation: viewerDetailIn .22s ease both; }
     .viewer-detail p { margin:0 0 9px; }
     .viewer-detail p:last-child { margin-bottom:0; }
@@ -584,16 +590,15 @@
     <dialog class="image-viewer" id="image-viewer" aria-label="Full image viewer">
       <div class="viewer-polaroid">
         <div class="viewer-canvas"><img id="viewer-image" alt=""><iframe class="viewer-frame" id="viewer-frame" title="" sandbox="allow-scripts" hidden></iframe></div>
+        <div class="viewer-controls"><button class="viewer-close" type="button" aria-label="close image">×</button><button class="viewer-info" type="button" aria-label="next image" hidden></button></div>
         <div class="viewer-detail" id="viewer-detail">
+          <span class="viewer-gesture-hint">PINCH / DRAG INSIDE IMAGE · SWIPE BELOW</span>
+          <div class="viewer-reel" id="viewer-reel" aria-label="image navigation"></div>
           <p><strong>WORK NOTE</strong><br><span id="viewer-note"></span></p>
           <p><strong>STATUS</strong><br><span id="viewer-status"></span></p>
           <p><strong>FORMAT</strong><br><span id="viewer-format"></span></p>
           <p id="viewer-medium-block"><strong>MEDIUM</strong><br><span id="viewer-medium"></span></p>
         </div>
-      </div>
-      <div class="viewer-controls">
-        <button class="viewer-close" type="button">close</button>
-        <button class="viewer-info" type="button" aria-label="next image">&lt;/&gt;</button>
       </div>
     </dialog>
   </main>
@@ -777,7 +782,7 @@
       }
       setText(".work-number", localize(adminTexts.selection, "selection", ["00 SELECTIE", "00 SELECT"])); setText(".work-topline span:nth-child(2)", localize(adminTexts.overview, "overview", ["WERKOVERZICHT", "WORK OVERVIEW"])); setText(".contact-button", localize(adminTexts.contactButton, "contact", ["04 / CONTACT", "06 CONTACT"])); setText("#disclaimer-updated", t.updated);
       document.querySelectorAll(".feature-note strong, .gallery-note strong, .viewer-detail strong").forEach(element => { const key = element.textContent.trim().toLowerCase().replaceAll(" ",""); if (key === "worknote" || key === "werknotitie") element.textContent = t.workNote; if (key === "status") element.textContent = t.status; if (key === "medium") element.textContent = t.medium; if (key === "format" || key === "formaat") element.textContent = t.format; });
-      setText(".full-image-hint", t.fullImage); setText(".viewer-close", t.close);
+      setText(".full-image-hint", t.fullImage); document.querySelector(".viewer-close").setAttribute("aria-label", t.close);
       setText("#about-panel .detail-tag", t.about); setText("#contact-panel .detail-tag", "CONTACT");
       setText(".disclaimer-button", adminTexts.disclaimerButton || "DISCLAIMER");
       setText('label[for="visitor-name"]', t.name); setText('label[for="visitor-email"]', t.email); setText('label[for="visitor-message"]', t.message); setText('#contact-form button[type="submit"]', t.send);
@@ -1298,6 +1303,7 @@
     const viewerFrame = document.getElementById("viewer-frame");
     const viewerInfo = document.querySelector(".viewer-info");
     const viewerDetail = document.getElementById("viewer-detail");
+    const viewerReel = document.getElementById("viewer-reel");
     const viewerNote = document.getElementById("viewer-note");
     const viewerStatus = document.getElementById("viewer-status");
     const viewerMedium = document.getElementById("viewer-medium");
@@ -1307,7 +1313,21 @@
     let viewerAnimation = null;
     let viewerClosing = false;
     let viewerScrollY = 0;
+    let viewerZoom = 1;
+    let viewerPinch = null;
+    let viewerPan = { x:0, y:0 };
+    let viewerPanGesture = null;
     const warmedViewerSources = new Set();
+
+    function setViewerZoom(scale = 1, resetPan = false) {
+      viewerZoom = Math.min(4,Math.max(1,scale));
+      if (resetPan || viewerZoom === 1) viewerPan = { x:0, y:0 };
+      const maxX = Math.max(0,(viewerCanvas.clientWidth * (viewerZoom - 1)) / 2);
+      const maxY = Math.max(0,(viewerCanvas.clientHeight * (viewerZoom - 1)) / 2);
+      viewerPan.x = Math.max(-maxX,Math.min(maxX,viewerPan.x));
+      viewerPan.y = Math.max(-maxY,Math.min(maxY,viewerPan.y));
+      viewerImage.style.transform = viewerZoom === 1 ? "" : `translate3d(${viewerPan.x}px,${viewerPan.y}px,0) scale(${viewerZoom})`;
+    }
 
     function warmViewerImage(image) {
       const source = image?.dataset?.fullSrc || image?.getAttribute?.("src") || "";
@@ -1316,6 +1336,29 @@
       const preload = new Image();
       preload.decoding = "async";
       preload.src = source;
+    }
+
+    function renderViewerReel() {
+      if (!viewerReel) return;
+      viewerReel.replaceChildren();
+      if (viewerImages.length < 2) { viewerReel.hidden = true; return; }
+      viewerReel.hidden = false;
+      viewerImages.forEach((image, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `viewer-reel-item${index === viewerIndex ? " is-current" : ""}`;
+        button.setAttribute("aria-label", `view image ${index + 1}`);
+        const thumbnail = document.createElement("img");
+        thumbnail.src = image.dataset.fullSrc || image.currentSrc || image.src;
+        thumbnail.alt = "";
+        button.append(thumbnail);
+        button.addEventListener("click", () => {
+          if (index === viewerIndex) return;
+          rollSwap(viewerCanvas, () => { viewerIndex = index; updateViewer(viewerImages[viewerIndex]); });
+        });
+        viewerReel.append(button);
+      });
+      requestAnimationFrame(() => viewerReel.querySelector(".is-current")?.scrollIntoView({ behavior:"smooth", block:"nearest", inline:"center" }));
     }
 
     function lockViewerPage() {
@@ -1331,6 +1374,9 @@
     }
 
     function updateViewer(image) {
+      viewerPinch = null;
+      setViewerZoom(1,true);
+      renderViewerReel();
       const source = image.dataset.fullSrc || image.getAttribute("src") || image.src;
       const item = featureItems.find(entry => entry.src === source) || { note: "Selected image from the current archive.", status: "selected<br>2026", format: image.alt || "image" };
       viewerNote.textContent = localizedContent(item.note) || "–";
@@ -1410,6 +1456,8 @@
 
     function closeViewer() {
       if (!viewer.open || viewerClosing) return;
+      viewerPinch = null;
+      setViewerZoom(1,true);
       if (reducedMotion.matches) { viewer.close(); unlockViewerPage(); return; }
       viewerClosing = true;
       viewer.classList.add("is-closing");
@@ -1472,6 +1520,47 @@
         updateViewer(viewerImages[viewerIndex]);
       });
     }
+    let viewerReelSettleTimer = null;
+    let viewerReelDrag = null;
+    let viewerReelSuppressClick = false;
+    viewerReel?.addEventListener("pointerdown", event => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      viewerReelDrag = { x:event.clientX, scrollLeft:viewerReel.scrollLeft, moved:false };
+      viewerReel.setPointerCapture?.(event.pointerId);
+    });
+    viewerReel?.addEventListener("pointermove", event => {
+      if (!viewerReelDrag) return;
+      const distance = event.clientX - viewerReelDrag.x;
+      if (Math.abs(distance) > 3) viewerReelDrag.moved = true;
+      if (!viewerReelDrag.moved) return;
+      event.preventDefault();
+      viewerReel.scrollLeft = viewerReelDrag.scrollLeft - distance;
+    });
+    const endViewerReelDrag = event => {
+      if (!viewerReelDrag) return;
+      viewerReelSuppressClick = viewerReelDrag.moved;
+      viewerReelDrag = null;
+      try { viewerReel.releasePointerCapture?.(event.pointerId); } catch {}
+      if (viewerReelSuppressClick) window.setTimeout(() => { viewerReelSuppressClick = false; }, 0);
+    };
+    viewerReel?.addEventListener("pointerup", endViewerReelDrag);
+    viewerReel?.addEventListener("pointercancel", endViewerReelDrag);
+    viewerReel?.addEventListener("click", event => {
+      if (!viewerReelSuppressClick) return;
+      event.preventDefault();
+      event.stopPropagation();
+    }, true);
+    viewerReel?.addEventListener("scroll", () => {
+      window.clearTimeout(viewerReelSettleTimer);
+      viewerReelSettleTimer = window.setTimeout(() => {
+        const cells = Array.from(viewerReel.querySelectorAll(".viewer-reel-item"));
+        if (!cells.length) return;
+        const center = viewerReel.getBoundingClientRect().left + viewerReel.clientWidth / 2;
+        const nearest = cells.reduce((best, cell, index) => Math.abs(cell.getBoundingClientRect().left + cell.offsetWidth / 2 - center) < Math.abs(cells[best].getBoundingClientRect().left + cells[best].offsetWidth / 2 - center) ? index : best, 0);
+        if (nearest === viewerIndex || !viewerImages[nearest]) return;
+        rollSwap(viewerCanvas, () => { viewerIndex = nearest; updateViewer(viewerImages[viewerIndex]); });
+      }, 115);
+    }, { passive:true });
     viewerInfo.addEventListener("click", event => {
       event.preventDefault();
       event.stopPropagation();
@@ -1491,12 +1580,52 @@
     }, { passive:false });
 
     let viewerSwipe = null;
+    const touchDistance = touches => Math.hypot(touches[0].clientX - touches[1].clientX,touches[0].clientY - touches[1].clientY);
     viewer.addEventListener("touchstart", event => {
-      if (event.touches.length !== 1 || event.target.closest("button")) return;
+      if (event.target.closest("button")) return;
+      const onPhoto = event.target.closest(".viewer-canvas") && viewerFrame.hidden;
+      const belowPhoto = event.target.closest(".viewer-detail");
+      if (event.touches.length === 2 && !viewerFrame.hidden) return;
+      if (event.touches.length === 2) {
+        if (!onPhoto) return;
+        event.preventDefault();
+        viewerSwipe = null;
+        viewerPanGesture = null;
+        viewerPinch = { distance:touchDistance(event.touches), scale:viewerZoom };
+        return;
+      }
+      if (event.touches.length === 1 && onPhoto && viewerZoom > 1) {
+        event.preventDefault();
+        viewerSwipe = null;
+        const touch = event.touches[0];
+        viewerPanGesture = { x:touch.clientX, y:touch.clientY, panX:viewerPan.x, panY:viewerPan.y };
+        return;
+      }
+      if (event.touches.length !== 1 || !belowPhoto) return;
       event.preventDefault();
       const touch = event.touches[0]; viewerSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now() };
     }, { passive:false });
+    viewer.addEventListener("touchmove", event => {
+      if (viewerPinch && event.touches.length === 2) {
+        event.preventDefault();
+        setViewerZoom(viewerPinch.scale * touchDistance(event.touches) / viewerPinch.distance);
+        return;
+      }
+      if (viewerPanGesture && event.touches.length === 1) {
+        event.preventDefault();
+        const touch = event.touches[0];
+        viewerPan.x = viewerPanGesture.panX + touch.clientX - viewerPanGesture.x;
+        viewerPan.y = viewerPanGesture.panY + touch.clientY - viewerPanGesture.y;
+        setViewerZoom(viewerZoom);
+      }
+    }, { passive:false });
     viewer.addEventListener("touchend", event => {
+      if (viewerPinch) {
+        if (event.touches.length < 2) viewerPinch = null;
+        viewerSwipe = null;
+        return;
+      }
+      if (viewerPanGesture) { viewerPanGesture = null; viewerSwipe = null; return; }
       if (!viewerSwipe || event.changedTouches.length !== 1) { viewerSwipe = null; return; }
       const touch = event.changedTouches[0];
       const dx = touch.clientX - viewerSwipe.x, dy = touch.clientY - viewerSwipe.y;
@@ -1505,6 +1634,7 @@
       if (dy > 72 && Math.abs(dy) > Math.abs(dx) * 1.25) { event.preventDefault(); closeViewer(); return; }
       if (Math.abs(dx) >= 62 && Math.abs(dx) >= Math.abs(dy) * 1.35) { event.preventDefault(); stepViewer(dx < 0 ? 1 : -1); }
     }, { passive:false });
+    viewerImage.addEventListener("dblclick", () => setViewerZoom(viewerZoom > 1 ? 1 : 2,true));
 
     viewer.addEventListener("cancel", event => { event.preventDefault(); closeViewer(); });
     viewer.addEventListener("pointerdown", event => {
@@ -1523,12 +1653,14 @@
     let gridPage = 0;
     let gridViewMode = "grid";
     let galleryPreloadTimer = 0;
+    let pageCanvasFloor = 0;
     function lockPageCanvasHeight() {
-      if (!overview.classList.contains("show-feature")) return;
       const homeHeight = homeFeature.getBoundingClientRect().height;
       const gridStyle = getComputedStyle(workGrid);
-      const height = homeHeight + Number.parseFloat(gridStyle.paddingTop || 0) + Number.parseFloat(gridStyle.paddingBottom || 0);
-      if (height > 0) overview.style.setProperty("--page-canvas-height", `${Math.ceil(height)}px`);
+      const homeCanvas = homeHeight + Number.parseFloat(gridStyle.paddingTop || 0) + Number.parseFloat(gridStyle.paddingBottom || 0);
+      const currentCanvas = workGrid.getBoundingClientRect().height;
+      pageCanvasFloor = Math.max(pageCanvasFloor,Math.ceil(homeCanvas),Math.ceil(currentCanvas));
+      if (pageCanvasFloor > 0) overview.style.setProperty("--page-canvas-height", `${pageCanvasFloor}px`);
     }
     window.addEventListener("resize", () => requestAnimationFrame(lockPageCanvasHeight), { passive:true });
     requestAnimationFrame(lockPageCanvasHeight);
@@ -1625,14 +1757,14 @@
     let gridSwipe = null;
     overviewGrid.addEventListener("touchstart", event => {
       if (overview.classList.contains("show-feature") || event.touches.length !== 1) return;
-      const touch = event.touches[0]; gridSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now(), axis:null };
+      const touch = event.touches[0]; gridSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now(), axis:null, scrollY:window.scrollY };
     }, { passive:true });
     overviewGrid.addEventListener("touchmove", event => {
       if (!gridSwipe || event.touches.length !== 1) return;
       const touch = event.touches[0];
       const dx = touch.clientX - gridSwipe.x, dy = touch.clientY - gridSwipe.y;
       if (!gridSwipe.axis && Math.max(Math.abs(dx),Math.abs(dy)) > 8) gridSwipe.axis = Math.abs(dx) > Math.abs(dy) * 1.12 ? "x" : "y";
-      if (gridSwipe.axis === "x") event.preventDefault();
+      if (gridSwipe.axis === "x") { event.preventDefault(); if (window.scrollY !== gridSwipe.scrollY) window.scrollTo(0,gridSwipe.scrollY); }
     }, { passive:false });
     overviewGrid.addEventListener("touchend", event => {
       if (!gridSwipe || event.changedTouches.length !== 1) { gridSwipe = null; return; }
@@ -2126,14 +2258,14 @@
     homeMosaic.addEventListener("touchstart", event => {
       if (!overview.classList.contains("show-feature") || event.touches.length !== 1) return;
       const touch = event.touches[0];
-      homeFrameSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now(), axis:null };
+      homeFrameSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now(), axis:null, scrollY:window.scrollY };
     }, { passive:true });
     homeMosaic.addEventListener("touchmove", event => {
       if (!homeFrameSwipe || event.touches.length !== 1) return;
       const touch = event.touches[0];
       const dx = touch.clientX - homeFrameSwipe.x, dy = touch.clientY - homeFrameSwipe.y;
       if (!homeFrameSwipe.axis && Math.max(Math.abs(dx),Math.abs(dy)) > 8) homeFrameSwipe.axis = Math.abs(dx) > Math.abs(dy) * 1.12 ? "x" : "y";
-      if (homeFrameSwipe.axis === "x") event.preventDefault();
+      if (homeFrameSwipe.axis === "x") { event.preventDefault(); if (window.scrollY !== homeFrameSwipe.scrollY) window.scrollTo(0,homeFrameSwipe.scrollY); }
     }, { passive:false });
     homeMosaic.addEventListener("touchend", event => {
       if (!homeFrameSwipe || event.changedTouches.length !== 1) { homeFrameSwipe = null; return; }
