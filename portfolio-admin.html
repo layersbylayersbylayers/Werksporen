@@ -75,6 +75,12 @@
     .admin-home-tile { min-width:0; min-height:0; background-repeat:no-repeat; border:0; }
     .home-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; padding:14px 0; border-top:1px solid var(--ink); }
     .home-controls .wide { grid-column:1 / -1; }
+    .game-test-card { grid-column:1 / -1; margin-top:4px; padding:12px; border:1px dashed var(--red); background:#f4eee8; }
+    .game-test-card strong { display:block; margin-bottom:5px; color:var(--red); font-size:.72rem; }
+    .game-test-card p { margin:0 0 10px; color:#666; font-size:.66rem; line-height:1.45; }
+    .game-test-actions { display:flex; flex-wrap:wrap; gap:7px; }
+    .game-test-actions button { min-height:38px; border:1px solid var(--ink); background:var(--white); padding:8px 11px; font-size:.68rem; }
+    .game-test-actions button:hover { background:var(--ink); color:var(--white); }
     .home-grid-presets { display:flex; gap:6px; margin-top:7px; }
     .home-grid-presets button { flex:1; border:1px solid var(--line); background:transparent; padding:7px; font-size:.66rem; }
     .home-grid-presets button.is-active { border-color:var(--red); color:var(--red); background:#f4eee8; }
@@ -248,6 +254,14 @@
                 <div class="field"><label for="glitch-glow-opacity">glow sterkte <span id="glitch-glow-opacity-label">80%</span></label><input id="glitch-glow-opacity" type="range" min="0" max="100" step="1" value="80"></div>
                 <div class="field"><label for="glitch-glow-softness">glow zachtheid <span id="glitch-glow-softness-label">18px</span></label><input id="glitch-glow-softness" type="range" min="2" max="36" step="1" value="18"></div>
                 <div class="field wide"><label for="frame-radius">ronde hoeken <span id="frame-radius-label">0px</span></label><input id="frame-radius" type="range" min="0" max="32" step="1" value="0"></div>
+                <div class="game-test-card">
+                  <strong>GAME TESTS / TIJDELIJK</strong>
+                  <p>Bekijk een eindscherm direct, zonder eerst het volledige spel uit te spelen. Deze knoppen staan alleen in admin en kunnen later als één blok worden verwijderd.</p>
+                  <div class="game-test-actions">
+                    <button type="button" data-game-test="mines" data-game-result="win">MINES / TEST WIN</button>
+                    <button type="button" data-game-test="mines" data-game-result="loss">MINES / TEST LOSS</button>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -318,6 +332,16 @@
     let draftTimer = 0;
     const draftKey = "werksporen-admin-draft-v2";
     const pendingUrls = new Map();
+
+    function portfolioTestUrl(game,result) {
+      const path = location.port === "4174" || location.protocol === "file:" ? "portfolio-werksporen.html" : "/portfolio";
+      return `${path}?game=${encodeURIComponent(game)}&result=${encodeURIComponent(result)}&admin-test=${Date.now()}`;
+    }
+    document.querySelectorAll("[data-game-test]").forEach(button => button.addEventListener("click",() => {
+      const url = portfolioTestUrl(button.dataset.gameTest,button.dataset.gameResult);
+      preview.src = url;
+      if (window.matchMedia("(max-width:1050px)").matches) window.open(url,"_blank","noopener");
+    }));
 
     function openOfflineFiles() {
       return new Promise((resolve,reject) => {

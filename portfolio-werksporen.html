@@ -455,6 +455,7 @@
     .home-game-console { display:flex; flex-wrap:wrap; align-items:center; gap:7px 12px; margin-top:22px; padding-top:10px; border-top:1px solid var(--hairline); color:var(--soft); font:10px/1.35 var(--mono); }
     .home-game-console button { border:0; padding:0; background:transparent; color:inherit; cursor:pointer; font:inherit; text-transform:uppercase; }
     .home-game-console button:hover, .home-game-console button:focus-visible { color:var(--accent); outline:none; }
+    .home-game-console button:disabled { opacity:.32; cursor:default; }
     .home-game-console button[hidden] { display:none; }
     .home-game-state { margin-left:auto; white-space:nowrap; }
     /* Memory uses the home tile's own horizontal flip.  Its image is already
@@ -469,6 +470,31 @@
     @keyframes memoryConfirmed { 0%,100% { opacity:1; box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--accent) 72%,transparent); } 45% { opacity:.78; box-shadow:inset 0 0 0 4px var(--accent); } }
     @keyframes memoryBoardPulse { 0%,100% { opacity:0; } 42% { opacity:.34; } }
     @media (prefers-reduced-motion:reduce) { .home-mosaic.memory-mode .home-tile.memory-confirmed, .home-mosaic.memory-board-pulse::before { animation:none; } }
+    .home-game-console .game-divider { color:var(--hairline); }
+    .home-game-console button[aria-pressed="true"] { color:var(--accent); }
+    .home-mosaic.mines-mode { touch-action:none; }
+    .home-mosaic.mines-mode > .home-tile { opacity:0; pointer-events:none; }
+    .mines-board { position:absolute; inset:0; z-index:6; display:none; grid-template-columns:repeat(9,minmax(0,1fr)); grid-template-rows:repeat(13,minmax(0,1fr)); transform-origin:0 0; will-change:transform; }
+    .home-mosaic.mines-mode .mines-board { display:grid; }
+    .mines-cell { display:grid; place-items:center; min-width:0; min-height:0; border:0; padding:0; background:color-mix(in srgb,var(--paper) 76%,transparent); color:var(--ink); cursor:pointer; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--grid-line) 88%,transparent); transition:background-color .2s ease,color .2s ease,opacity .2s ease; font:600 clamp(10px,1.25vw,15px)/1 var(--mono); font-variant-numeric:tabular-nums; }
+    .mines-cell.mines-cell-ready { animation:minesCellSettle .44s cubic-bezier(.22,1,.36,1) both; animation-delay:calc(var(--mine-delay,0) * 1ms); }
+    .mines-cell.mines-open { background:color-mix(in srgb,var(--paper) 16%,transparent); cursor:default; animation:minesCellOpen .3s cubic-bezier(.2,.75,.25,1) both; }
+    .mines-cell.mines-flagged { color:var(--accent); }
+    .mines-cell.mines-mine { color:var(--accent); background:color-mix(in srgb,var(--ink) 82%,transparent); }
+    .mines-cell[data-near="1"] { color:#255f83; }
+    .mines-cell[data-near="2"] { color:#397643; }
+    .mines-cell[data-near="3"] { color:var(--accent); }
+    .mines-cell[data-near="4"], .mines-cell[data-near="5"], .mines-cell[data-near="6"] { color:var(--ink); }
+    .mines-loss-shape { position:absolute; inset:5% 14%; z-index:7; pointer-events:none; display:grid; grid-template-columns:repeat(24,minmax(0,1fr)); grid-template-rows:repeat(32,minmax(0,1fr)); opacity:0; contain:layout paint; }
+    .home-mosaic.mines-lost .mines-loss-shape { opacity:1; }
+    .mines-loss-pixel { background:var(--accent); opacity:0; transform-origin:center; }
+    .home-mosaic.mines-lost .mines-loss-pixel { animation:minesLossPixel var(--loss-duration,.58s) cubic-bezier(.18,.72,.22,1) var(--loss-delay,0ms) both; }
+    .home-mosaic.mines-won::before { background-color:color-mix(in srgb,var(--accent) 30%,transparent); animation:memoryBoardPulse .72s ease-out both; }
+    @keyframes minesCellSettle { from { opacity:0; transform:rotateY(-82deg) scale(.94); } to { opacity:1; transform:rotateY(0) scale(1); } }
+    @keyframes minesCellOpen { from { transform:rotateY(-38deg) scale(.96); opacity:.42; } to { transform:rotateY(0) scale(1); opacity:1; } }
+    @keyframes minesLossPixel { 0% { opacity:0; transform:translate3d(var(--loss-drift,0),-120px,0) rotate(var(--loss-turn,0deg)) scale(.72); } 72% { opacity:.92; transform:translate3d(0,3px,0) rotate(0) scale(1.04); } 100% { opacity:.78; transform:translate3d(0,0,0) rotate(0) scale(1); } }
+    @media (max-width:700px) { .mines-cell { font-size:clamp(11px,3vw,14px); } .mines-loss-shape { inset:8% 8% 7%; } }
+    @media (prefers-reduced-motion:reduce) { .mines-cell, .home-mosaic.mines-lost .mines-loss-pixel, .home-mosaic.mines-won::before { animation:none; opacity:.78; transform:none; } }
     @media (max-width:700px) { .home-game-console { margin-top:12px; padding-top:8px; } }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
     .contact-field label { display:block; margin-bottom:5px; color:var(--accent); font-size:10px; text-transform:uppercase; }
@@ -556,6 +582,11 @@
               <button id="memory-toggle" type="button">MEMORY / PLAY</button>
               <button id="memory-reset" type="button" hidden>RESET</button>
               <span class="home-game-state" id="memory-state">00 / 00</span>
+              <span class="game-divider" id="game-divider" aria-hidden="true">/</span>
+              <button id="mines-toggle" type="button">MINES / PLAY</button>
+              <button id="mines-action" type="button" hidden aria-pressed="false">OPEN</button>
+              <button id="mines-reset" type="button" hidden>RESET</button>
+              <span class="home-game-state" id="mines-state" hidden>18 / 18</span>
             </div>
           </aside>
         </section>
@@ -1143,6 +1174,14 @@
         homeTiles.push(tile);
       }
     }
+    const minesBoardElement = document.createElement("div");
+    minesBoardElement.className = "mines-board";
+    minesBoardElement.setAttribute("aria-label", "Minesweeper board");
+    homeMosaic.appendChild(minesBoardElement);
+    const minesLossShape = document.createElement("div");
+    minesLossShape.className = "mines-loss-shape";
+    minesLossShape.setAttribute("aria-hidden", "true");
+    homeMosaic.appendChild(minesLossShape);
     const memoryToggle = document.getElementById("memory-toggle");
     const memoryReset = document.getElementById("memory-reset");
     const memoryState = document.getElementById("memory-state");
@@ -1312,6 +1351,451 @@
     memoryToggle.addEventListener("click", () => memoryActive ? stopMemory() : startMemory());
     memoryReset.addEventListener("click", startMemory);
     updateMemoryUI();
+
+    const minesToggle = document.getElementById("mines-toggle");
+    const minesAction = document.getElementById("mines-action");
+    const minesReset = document.getElementById("mines-reset");
+    const minesState = document.getElementById("mines-state");
+    const gameDivider = document.getElementById("game-divider");
+    const MINES_COLUMNS = 9;
+    const MINES_ROWS = 13;
+    const MINES_TOTAL = 18;
+    let minesActive = false;
+    let minesPreparing = false;
+    let minesReady = false;
+    let minesEnded = false;
+    let minesFlagMode = false;
+    let minesSeeded = false;
+    let minesFlags = 0;
+    let minesOpened = 0;
+    let minesGeneration = 0;
+    let minesBoard = [];
+    const minesTiles = [];
+    let minesZoom = 1;
+    let minesPan = { x:0, y:0 };
+    let minesPinch = null;
+    let minesPanGesture = null;
+    let minesSuppressActivation = false;
+    let minesLastTap = { tile:null, time:0 };
+    // Quiet, low-resolution reduction of the MASK from skully2H.htm.
+    // Only its shape is retained; the original background, colour and glyphs are omitted.
+    const MINES_SKULL_MASK = [
+      "000000101111111000000000","000000111111111110000000","000011111111111111100000","000011111111111111010000",
+      "000111111111110111101000","001111111111111111100100","011111010111111110010010","010111111110110111110110",
+      "111111111111111111101100","111111111101111111110100","111111111101110011111100","111111111111111011111111",
+      "000111000001111111101001","000111000000111110001101","000101110000111110110010","111000111101110011110100",
+      "111000010000001110100000","001111110110011110000000","000111111001111101000000","000111110111010000100000",
+      "000011111110001111100000","000001001100000111110000","000000000000001001110000","000011001100011111110000",
+      "000000000100111101010000","000000000100101111010000","000000001000101010100000","000000000010011110000000",
+      "000000011000110100000000","000000000000001000000000","000000001101110000000000","000000000100000000000000"
+    ];
+
+    function buildMinesLossShape() {
+      if (minesLossShape.childElementCount) return;
+      const fragment = document.createDocumentFragment();
+      MINES_SKULL_MASK.forEach((row,rowIndex) => [...row].forEach((value,columnIndex) => {
+        if (value !== "1") return;
+        const pixel = document.createElement("i");
+        pixel.className = "mines-loss-pixel";
+        pixel.style.gridColumn = String(columnIndex + 1);
+        pixel.style.gridRow = String(rowIndex + 1);
+        const stackDelay = (MINES_SKULL_MASK.length - rowIndex) * 13 + ((columnIndex * 17 + rowIndex * 11) % 95);
+        pixel.style.setProperty("--loss-delay",`${stackDelay}ms`);
+        pixel.style.setProperty("--loss-duration",`${480 + ((columnIndex * 23 + rowIndex * 7) % 190)}ms`);
+        pixel.style.setProperty("--loss-drift",`${((columnIndex * 29 + rowIndex * 13) % 25) - 12}px`);
+        pixel.style.setProperty("--loss-turn",`${((columnIndex * 19 + rowIndex * 5) % 19) - 9}deg`);
+        fragment.appendChild(pixel);
+      }));
+      minesLossShape.appendChild(fragment);
+    }
+
+    function ensureMinesTiles() {
+      if (minesTiles.length) return;
+      buildMinesLossShape();
+      for (let index=0; index<MINES_COLUMNS * MINES_ROWS; index += 1) {
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "mines-cell";
+        tile.dataset.mineIndex = String(index);
+        tile.addEventListener("click", event => {
+          if (!minesActive || minesSuppressActivation || event.detail > 1 || !minesFlagMode) return;
+          toggleMineFlag(tile);
+        });
+        tile.addEventListener("dblclick", event => {
+          event.preventDefault(); event.stopPropagation();
+          if (!minesActive || minesSuppressActivation || minesFlagMode) return;
+          playMinesTile(tile);
+        });
+        tile.addEventListener("contextmenu", event => {
+          if (!minesActive) return;
+          event.preventDefault(); toggleMineFlag(tile);
+        });
+        minesBoardElement.appendChild(tile);
+        minesTiles.push(tile);
+      }
+    }
+    function setMinesZoom(scale = 1, focusX = null, focusY = null, resetPan = false) {
+      const oldZoom = minesZoom;
+      const nextZoom = Math.min(3.25,Math.max(1,scale));
+      const frame = homeMosaic.getBoundingClientRect();
+      if (resetPan || nextZoom === 1) minesPan = { x:0, y:0 };
+      else if (focusX != null && focusY != null && oldZoom > 0) {
+        const localX = focusX - frame.left - frame.width / 2;
+        const localY = focusY - frame.top - frame.height / 2;
+        const worldX = (localX - minesPan.x) / oldZoom;
+        const worldY = (localY - minesPan.y) / oldZoom;
+        minesPan.x = localX - worldX * nextZoom;
+        minesPan.y = localY - worldY * nextZoom;
+      }
+      minesZoom = nextZoom;
+      const maxX = Math.max(0,(frame.width * (minesZoom - 1)) / 2);
+      const maxY = Math.max(0,(frame.height * (minesZoom - 1)) / 2);
+      minesPan.x = Math.max(-maxX,Math.min(maxX,minesPan.x));
+      minesPan.y = Math.max(-maxY,Math.min(maxY,minesPan.y));
+      minesBoardElement.style.transform = minesZoom === 1 ? "" : `translate3d(${minesPan.x}px,${minesPan.y}px,0) scale(${minesZoom})`;
+    }
+    function activateMinesTouchTile(tile) {
+      if (!tile || minesSuppressActivation) return;
+      if (minesFlagMode) { toggleMineFlag(tile); minesLastTap = { tile:null,time:0 }; return; }
+      const now = performance.now();
+      if (minesLastTap.tile === tile && now - minesLastTap.time < 380) {
+        minesLastTap = { tile:null,time:0 };
+        playMinesTile(tile);
+      } else minesLastTap = { tile,time:now };
+    }
+    const minesTouchDistance = touches => Math.hypot(touches[0].clientX - touches[1].clientX,touches[0].clientY - touches[1].clientY);
+    minesBoardElement.addEventListener("touchstart",event => {
+      if (!minesActive) return;
+      event.preventDefault();
+      if (event.touches.length === 2) {
+        minesPanGesture = null;
+        minesPinch = { distance:minesTouchDistance(event.touches), scale:minesZoom };
+        return;
+      }
+      if (event.touches.length !== 1) return;
+      const touch = event.touches[0];
+      minesPanGesture = { x:touch.clientX, y:touch.clientY, panX:minesPan.x, panY:minesPan.y, moved:false, tile:event.target.closest(".mines-cell") };
+    },{ passive:false });
+    minesBoardElement.addEventListener("touchmove",event => {
+      if (!minesActive) return;
+      if (minesPinch && event.touches.length === 2) {
+        event.preventDefault();
+        const centerX = (event.touches[0].clientX + event.touches[1].clientX) / 2;
+        const centerY = (event.touches[0].clientY + event.touches[1].clientY) / 2;
+        setMinesZoom(minesPinch.scale * minesTouchDistance(event.touches) / minesPinch.distance,centerX,centerY);
+        minesSuppressActivation = true;
+        return;
+      }
+      if (!minesPanGesture || event.touches.length !== 1) return;
+      event.preventDefault();
+      const touch = event.touches[0], dx = touch.clientX - minesPanGesture.x, dy = touch.clientY - minesPanGesture.y;
+      if (Math.hypot(dx,dy) > 5) minesPanGesture.moved = true;
+      if (minesPanGesture.moved && minesZoom > 1) {
+        minesPan.x = minesPanGesture.panX + dx; minesPan.y = minesPanGesture.panY + dy; setMinesZoom(minesZoom);
+      }
+    },{ passive:false });
+    minesBoardElement.addEventListener("touchend",event => {
+      if (!minesActive) return;
+      event.preventDefault();
+      if (minesPinch) {
+        if (event.touches.length < 2) minesPinch = null;
+        minesPanGesture = null;
+        window.setTimeout(() => { minesSuppressActivation = false; },80);
+        return;
+      }
+      if (!minesPanGesture) return;
+      const gesture = minesPanGesture; minesPanGesture = null;
+      if (gesture.moved) { minesSuppressActivation = true; window.setTimeout(() => { minesSuppressActivation = false; },80); return; }
+      activateMinesTouchTile(gesture.tile);
+    },{ passive:false });
+    minesBoardElement.addEventListener("wheel",event => {
+      if (!minesActive) return;
+      event.preventDefault(); event.stopPropagation();
+      if (Math.abs(event.deltaX) > Math.abs(event.deltaY) && minesZoom > 1) {
+        minesPan.x -= event.deltaX; minesPan.y -= event.deltaY; setMinesZoom(minesZoom); return;
+      }
+      setMinesZoom(minesZoom * Math.exp(-event.deltaY * .0018),event.clientX,event.clientY);
+    },{ passive:false,capture:true });
+    let minesMouseDrag = null;
+    minesBoardElement.addEventListener("pointerdown",event => {
+      if (!minesActive || event.pointerType !== "mouse" || event.button !== 0 || minesZoom <= 1) return;
+      minesMouseDrag = { x:event.clientX, y:event.clientY, panX:minesPan.x, panY:minesPan.y, moved:false };
+      minesBoardElement.setPointerCapture?.(event.pointerId);
+    });
+    minesBoardElement.addEventListener("pointermove",event => {
+      if (!minesMouseDrag) return;
+      const dx = event.clientX - minesMouseDrag.x, dy = event.clientY - minesMouseDrag.y;
+      if (Math.hypot(dx,dy) > 3) minesMouseDrag.moved = true;
+      if (!minesMouseDrag.moved) return;
+      event.preventDefault(); minesSuppressActivation = true;
+      minesPan.x = minesMouseDrag.panX + dx; minesPan.y = minesMouseDrag.panY + dy; setMinesZoom(minesZoom);
+    });
+    const endMinesMouseDrag = event => {
+      if (!minesMouseDrag) return;
+      const moved = minesMouseDrag.moved; minesMouseDrag = null;
+      try { minesBoardElement.releasePointerCapture?.(event.pointerId); } catch {}
+      if (moved) window.setTimeout(() => { minesSuppressActivation = false; },80);
+    };
+    minesBoardElement.addEventListener("pointerup",endMinesMouseDrag);
+    minesBoardElement.addEventListener("pointercancel",endMinesMouseDrag);
+    minesBoardElement.addEventListener("dblclick",event => {
+      if (event.target.closest(".mines-cell")) return;
+      setMinesZoom(minesZoom > 1 ? 1 : 1.8,event.clientX,event.clientY,minesZoom > 1);
+    });
+
+    function homeGameActive() { return memoryActive || minesActive; }
+    function setHomeGridDimensions(columns, rows) {
+      homeMosaic.style.setProperty("--mosaic-columns", columns);
+      homeMosaic.style.setProperty("--mosaic-rows", rows);
+      homeMosaic.style.setProperty("--mosaic-cell-width", `${100 / columns}%`);
+      homeMosaic.style.setProperty("--mosaic-cell-height", `${100 / rows}%`);
+    }
+    function displayedHomeGridDimensions() {
+      return {
+        columns:Number.parseInt(homeMosaic.style.getPropertyValue("--mosaic-columns"),10) || mosaicColumns,
+        rows:Number.parseInt(homeMosaic.style.getPropertyValue("--mosaic-rows"),10) || mosaicRows
+      };
+    }
+    function animateGameGridAxis(layer, animations, axis, fromCount, toCount, dimension, duration, fromThickness, toThickness) {
+      const source = Array.from({ length:Math.max(0,fromCount - 1) }, (_,index) => (index + 1) / fromCount);
+      const target = Array.from({ length:Math.max(0,toCount - 1) }, (_,index) => (index + 1) / toCount);
+      const thickness = axis === "is-vertical" ? "width" : "height";
+      if (source.length >= target.length) {
+        const survivors = evenlySpacedIndexes(source.length,target.length);
+        const targetBySource = new Map(survivors.map((sourceIndex,targetIndex) => [sourceIndex,target[targetIndex]]));
+        source.forEach((start,index) => {
+          const end = targetBySource.get(index);
+          const line = document.createElement("i"); line.className = `raster-morph-line ${axis}`; layer.appendChild(line);
+          const property = axis === "is-vertical" ? "left" : "top";
+          line.style[property] = `${start * dimension}px`;
+          animations.push(line.animate([
+            { [property]:`${start * dimension}px`, [thickness]:`${fromThickness}px`, opacity:1 },
+            { [property]:`${(end ?? start) * dimension}px`, [thickness]:`${toThickness}px`, opacity:end == null ? 0 : 1 }
+          ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+        });
+        return;
+      }
+      const survivorTargets = evenlySpacedIndexes(target.length,source.length);
+      const sourceByTarget = new Map(survivorTargets.map((targetIndex,sourceIndex) => [targetIndex,source[sourceIndex]]));
+      target.forEach((end,index) => {
+        const mapped = sourceByTarget.get(index);
+        const start = mapped ?? source.reduce((nearest,value) => Math.abs(value-end) < Math.abs(nearest-end) ? value : nearest,source[0] ?? end);
+        const line = document.createElement("i"); line.className = `raster-morph-line ${axis}`; layer.appendChild(line);
+        const property = axis === "is-vertical" ? "left" : "top";
+        line.style[property] = `${start * dimension}px`;
+        animations.push(line.animate([
+          { [property]:`${start * dimension}px`, [thickness]:`${fromThickness}px`, opacity:mapped == null ? 0 : 1 },
+          { [property]:`${end * dimension}px`, [thickness]:`${toThickness}px`, opacity:1 }
+        ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+      });
+    }
+    function morphHomeGameGrid(columns, rows, commit, enteringGame = true) {
+      const frame = homeMosaic.getBoundingClientRect();
+      const current = displayedHomeGridDimensions();
+      if (!frame.width || reducedMotion.matches) {
+        commit(); return Promise.resolve();
+      }
+      morphing = true;
+      const layer = document.createElement("div");
+      layer.className = "raster-morph-layer";
+      Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
+      const duration = 1080;
+      const animations = [];
+      animateGameGridAxis(layer,animations,"is-vertical",current.columns,columns,frame.width,duration,enteringGame ? 1 : 4,enteringGame ? 4 : 1);
+      animateGameGridAxis(layer,animations,"is-horizontal",current.rows,rows,frame.height,duration,enteringGame ? 1 : 4,enteringGame ? 4 : 1);
+      const cellWidth = frame.width / columns;
+      const cellHeight = frame.height / rows;
+      const corners = [];
+      for (let row=1; row<rows; row += 1) for (let column=1; column<columns; column += 1) {
+        const endX = column * cellWidth, endY = row * cellHeight;
+        const startX = Math.round(endX / (frame.width / current.columns)) * (frame.width / current.columns);
+        const startY = Math.round(endY / (frame.height / current.rows)) * (frame.height / current.rows);
+        const dot = document.createElement("i"); dot.className = "raster-morph-corner";
+        Object.assign(dot.style,{ left:`${startX}px`, top:`${startY}px`, width:enteringGame ? "4px" : "8px", height:enteringGame ? "4px" : "8px", "--morph-stroke":"3px" });
+        if (!enteringGame) dot.classList.add("is-plus");
+        layer.appendChild(dot); corners.push(dot);
+        animations.push(dot.animate([
+          { left:`${startX}px`, top:`${startY}px`, width:enteringGame ? "4px" : "8px", height:enteringGame ? "4px" : "8px", opacity:enteringGame ? .2 : 1 },
+          { left:`${endX}px`, top:`${endY}px`, width:enteringGame ? "8px" : "4px", height:enteringGame ? "8px" : "4px", opacity:enteringGame ? 1 : .2 }
+        ],{ duration, easing:"cubic-bezier(.22,1,.36,1)", fill:"forwards" }));
+      }
+      homeMosaic.classList.add("is-morphing-out");
+      document.body.appendChild(layer);
+      window.setTimeout(() => corners.forEach(corner => corner.classList.toggle("is-plus",enteringGame)),Math.round(duration * .6));
+      return Promise.allSettled(animations.map(animation => animation.finished)).then(commit).finally(() => {
+        layer.remove();
+        homeMosaic.classList.remove("is-morphing-out");
+        morphing = false;
+      });
+    }
+    function clearMinesTile(tile) {
+      tile.textContent = "";
+      tile.classList.remove("mines-cell-ready","mines-open","mines-flagged","mines-mine");
+      delete tile.dataset.near;
+      tile.removeAttribute("aria-pressed");
+    }
+    function updateMinesUI() {
+      minesToggle.textContent = minesActive ? "MINES / EXIT" : "MINES / PLAY";
+      minesAction.hidden = !minesActive;
+      minesReset.hidden = !minesActive;
+      minesState.hidden = !minesActive;
+      minesAction.textContent = minesFlagMode ? "FLAG" : "OPEN ×2";
+      minesAction.setAttribute("aria-pressed",String(minesFlagMode));
+      minesState.textContent = minesPreparing ? "PREPARING" : minesEnded ? (minesOpened === MINES_COLUMNS * MINES_ROWS - MINES_TOTAL ? "CLEAR" : "LOST") : `${String(Math.max(0,MINES_TOTAL - minesFlags)).padStart(2,"0")} / ${String(MINES_TOTAL).padStart(2,"0")}`;
+      memoryToggle.disabled = minesActive;
+      memoryToggle.hidden = minesActive;
+      memoryReset.hidden = minesActive || !memoryActive;
+      memoryState.hidden = minesActive;
+      gameDivider.hidden = minesActive;
+    }
+    function resetMinesBoard() {
+      minesSeeded = false;
+      minesEnded = false;
+      minesFlags = 0;
+      minesOpened = 0;
+      minesBoard = Array.from({ length:MINES_COLUMNS * MINES_ROWS }, () => ({ mine:false, near:0, open:false, flagged:false }));
+      homeMosaic.classList.remove("mines-lost","mines-won");
+      setMinesZoom(1,null,null,true);
+      minesTiles.forEach((tile,index) => {
+        clearMinesTile(tile);
+        tile.style.setProperty("--mine-delay",String((index % MINES_COLUMNS) * 13 + Math.floor(index / MINES_COLUMNS) * 9));
+        tile.classList.add("mines-cell-ready");
+        tile.tabIndex = 0;
+        tile.setAttribute("aria-label",`closed field ${index + 1}`);
+      });
+      updateMinesUI();
+    }
+    function mineNeighbours(index) {
+      const row = Math.floor(index / MINES_COLUMNS), column = index % MINES_COLUMNS;
+      const neighbours = [];
+      for (let y=-1; y<=1; y += 1) for (let x=-1; x<=1; x += 1) {
+        if (!x && !y) continue;
+        const nextRow = row + y, nextColumn = column + x;
+        if (nextRow >= 0 && nextRow < MINES_ROWS && nextColumn >= 0 && nextColumn < MINES_COLUMNS) neighbours.push(nextRow * MINES_COLUMNS + nextColumn);
+      }
+      return neighbours;
+    }
+    function seedMines(firstIndex) {
+      const safe = new Set([firstIndex,...mineNeighbours(firstIndex)]);
+      const candidates = shuffleMemoryDeck(minesBoard.map((_,index) => index).filter(index => !safe.has(index)));
+      candidates.slice(0,MINES_TOTAL).forEach(index => { minesBoard[index].mine = true; });
+      minesBoard.forEach((cell,index) => { cell.near = mineNeighbours(index).filter(neighbour => minesBoard[neighbour].mine).length; });
+      minesSeeded = true;
+    }
+    function renderMineCell(index) {
+      const cell = minesBoard[index], tile = minesTiles[index];
+      if (!cell || !tile) return;
+      tile.classList.toggle("mines-open",cell.open);
+      tile.classList.toggle("mines-flagged",cell.flagged && !cell.open);
+      tile.classList.toggle("mines-mine",cell.open && cell.mine);
+      if (cell.open && cell.mine) tile.textContent = "×";
+      else if (cell.open && cell.near) tile.textContent = String(cell.near);
+      else if (cell.flagged) tile.textContent = "+";
+      else tile.textContent = "";
+      if (cell.open && cell.near) tile.dataset.near = String(cell.near); else delete tile.dataset.near;
+      tile.setAttribute("aria-label",cell.open ? (cell.mine ? "mine" : `${cell.near} nearby mines`) : cell.flagged ? "flagged field" : "closed field");
+      tile.setAttribute("aria-pressed",String(cell.flagged));
+    }
+    function revealMineCell(startIndex) {
+      const queue = [startIndex], visited = new Set();
+      while (queue.length) {
+        const index = queue.shift();
+        if (visited.has(index)) continue;
+        visited.add(index);
+        const cell = minesBoard[index];
+        if (!cell || cell.open || cell.flagged || cell.mine) continue;
+        cell.open = true; minesOpened += 1; renderMineCell(index);
+        if (!cell.near) mineNeighbours(index).forEach(neighbour => queue.push(neighbour));
+      }
+    }
+    function finishMines(won) {
+      minesEnded = true;
+      if (!won) {
+        minesBoard.forEach((cell,index) => { if (cell.mine) { cell.open = true; renderMineCell(index); } });
+        window.setTimeout(() => { if (minesActive && minesEnded) homeMosaic.classList.add("mines-lost"); },180);
+      } else {
+        homeMosaic.classList.remove("mines-won"); void homeMosaic.offsetWidth; homeMosaic.classList.add("mines-won");
+      }
+      updateMinesUI();
+    }
+    function toggleMineFlag(tile) {
+      if (!minesActive || !minesReady || minesEnded) return;
+      const index = Number(tile.dataset.mineIndex), cell = minesBoard[index];
+      if (!cell || cell.open) return;
+      cell.flagged = !cell.flagged;
+      minesFlags += cell.flagged ? 1 : -1;
+      renderMineCell(index); updateMinesUI();
+    }
+    function playMinesTile(tile) {
+      if (!minesActive || !minesReady || minesEnded || !tile.dataset.mineIndex) return;
+      if (minesFlagMode) { toggleMineFlag(tile); return; }
+      const index = Number(tile.dataset.mineIndex), cell = minesBoard[index];
+      if (!cell || cell.open || cell.flagged) return;
+      if (!minesSeeded) seedMines(index);
+      if (cell.mine) { cell.open = true; renderMineCell(index); finishMines(false); return; }
+      revealMineCell(index);
+      if (minesOpened === minesBoard.length - MINES_TOTAL) finishMines(true);
+      else updateMinesUI();
+    }
+    async function startMines() {
+      if (minesActive || morphing) return;
+      if (memoryActive) stopMemory(false);
+      const generation = ++minesGeneration;
+      minesActive = true; minesPreparing = true; minesReady = false; minesFlagMode = false;
+      freezeHomeGlitches(false); activeGlitchTiles.clear(); updateMinesUI();
+      ensureMinesTiles();
+      await morphHomeGameGrid(MINES_COLUMNS,MINES_ROWS,() => {
+        if (generation !== minesGeneration) return;
+        setHomeGridDimensions(MINES_COLUMNS,MINES_ROWS);
+        homeMosaic.classList.add("mines-mode");
+        resetMinesBoard();
+      });
+      if (generation !== minesGeneration) return;
+      minesPreparing = false; minesReady = true; updateMinesUI();
+    }
+    async function stopMines(resumeGlitches = true, animate = true) {
+      if (!minesActive) return;
+      ++minesGeneration; minesReady = false; minesPreparing = true; updateMinesUI();
+      const cleanup = () => {
+        homeMosaic.classList.remove("mines-mode","mines-lost","mines-won");
+        minesTiles.forEach(clearMinesTile);
+        homeTiles.forEach(tile => { restoreTile(tile); tile.tabIndex = 0; tile.setAttribute("aria-label","Verplaats de glitch"); });
+        setMinesZoom(1,null,null,true);
+        setHomeGridDimensions(mosaicColumns,mosaicRows);
+      };
+      if (animate) await morphHomeGameGrid(mosaicColumns,mosaicRows,cleanup,false); else cleanup();
+      minesActive = false; minesPreparing = false; minesEnded = false; memoryToggle.disabled = false;
+      releaseHomeGlitches();
+      if (resumeGlitches) window.setTimeout(placeGlitches,450);
+      updateMinesUI();
+    }
+    minesToggle.addEventListener("click",() => minesActive ? stopMines() : startMines());
+    minesReset.addEventListener("click",() => { if (minesReady) resetMinesBoard(); });
+    minesAction.addEventListener("click",() => { if (!minesReady || minesEnded) return; minesFlagMode = !minesFlagMode; updateMinesUI(); });
+    memoryToggle.addEventListener("click",event => {
+      if (!minesActive) return;
+      event.preventDefault(); event.stopImmediatePropagation();
+      stopMines(false).then(startMemory);
+    },true);
+    updateMinesUI();
+
+    async function previewMinesEndState(result) {
+      await startMines();
+      if (!minesActive || !minesReady) return;
+      resetMinesBoard();
+      seedMines(0);
+      if (result === "win") {
+        minesBoard.forEach((cell,index) => {
+          if (!cell.mine) { cell.open = true; minesOpened += 1; renderMineCell(index); }
+        });
+        finishMines(true);
+      } else finishMines(false);
+    }
+    const gameTestParams = new URLSearchParams(location.search);
+    if (gameTestParams.get("game") === "mines" && ["win","loss"].includes(gameTestParams.get("result"))) {
+      window.setTimeout(() => previewMinesEndState(gameTestParams.get("result")),1250);
+    }
+
     function setMosaicImage(index) {
       const source = featureItems[index].src;
       homeMosaic.style.setProperty("--mosaic-image", "url(\"" + source + "\")");
@@ -2032,7 +2516,7 @@
     let gridWheelLocked = false;
     const handleGridWheel = event => {
       const onHomeRaster = event.currentTarget === homeMosaic;
-      if (onHomeRaster && memoryActive) {
+      if (onHomeRaster && homeGameActive()) {
         if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) { event.preventDefault(); event.stopPropagation(); }
         return;
       }
@@ -2419,6 +2903,7 @@
       const selected = button.dataset.filter;
       lockPageCanvasHeight();
       if (memoryActive && selected !== "all") stopMemory(false);
+      if (minesActive && selected !== "all") stopMines(false,false);
       if (selected === "about" || selected === "contact") { showDetail(selected); return; }
       if (selected === "all") {
         lockTransitionScroll();
@@ -2456,7 +2941,7 @@
       }
     }));
     function stepSection(direction) {
-      if (memoryActive || pageTransitioning || morphing || viewer.open) return;
+      if (homeGameActive() || pageTransitioning || morphing || viewer.open) return;
       const buttons = Array.from(filters);
       const workButtons = buttons.filter(button => !["all","about","contact"].includes(button.dataset.filter));
       const lastWorkButton = workButtons.at(-1);
@@ -2516,7 +3001,7 @@
     homeMosaic.addEventListener("touchstart", event => {
       if (!overview.classList.contains("show-feature") || event.touches.length !== 1) return;
       const touch = event.touches[0];
-      homeFrameSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now(), axis:null, scrollY:window.scrollY, gameLocked:memoryActive };
+      homeFrameSwipe = { x:touch.clientX, y:touch.clientY, time:performance.now(), axis:null, scrollY:window.scrollY, gameLocked:homeGameActive() };
     }, { passive:true });
     homeMosaic.addEventListener("touchmove", event => {
       if (!homeFrameSwipe || event.touches.length !== 1) return;
