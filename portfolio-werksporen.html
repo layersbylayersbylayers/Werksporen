@@ -1080,9 +1080,9 @@
       window.setTimeout(() => tile.classList.remove("is-arriving"), 360);
       activeGlitchTiles.add(tile);
     }
-    function freezeHomeGlitches() {
+    function freezeHomeGlitches(pauseTileAnimations = true) {
       homeFrozen = true;
-      homeMosaic.classList.add("is-transition-locked");
+      homeMosaic.classList.toggle("is-transition-locked", pauseTileAnimations);
       homeTiles.forEach(tile => {
         tile.classList.remove("is-arriving", "is-leaving");
         tile.getAnimations().forEach(animation => animation.cancel());
@@ -1169,22 +1169,30 @@
         : "00 / 00";
     }
     function concealMemoryTile(tile) {
+      const generation = memoryGeneration;
       return new Promise(resolve => {
         tile.classList.remove("is-arriving");
         // Force the browser to commit the open face before starting the exact
         // same outgoing flip that the regular homepage tiles use.
         void tile.offsetWidth;
         tile.classList.add("is-leaving");
+        let finished = false;
         const finish = () => {
+          if (finished) return;
+          finished = true;
+          window.clearTimeout(fallback);
           tile.removeEventListener("animationend", onAnimationEnd);
-          tile.classList.remove("is-alternate", "memory-face-up", "is-leaving");
+          if (generation === memoryGeneration) {
+            tile.classList.remove("is-alternate", "memory-face-up", "is-leaving");
+            tile.setAttribute("aria-label", "closed memory card");
+          }
           resolve();
         };
         const onAnimationEnd = event => {
           if (event.target === tile && event.animationName === "tileFlipOut") finish();
         };
         tile.addEventListener("animationend", onAnimationEnd);
-        window.setTimeout(finish, 500);
+        const fallback = window.setTimeout(finish, 500);
       });
     }
     function pulseMemoryBoard() {
@@ -1210,7 +1218,8 @@
     }
     function startMemory() {
       const generation = ++memoryGeneration;
-      freezeHomeGlitches();
+      // Stop automatic home activity, but keep player-triggered flips running.
+      freezeHomeGlitches(false);
       activeGlitchTiles.clear();
       memoryActive = true;
       memoryLocked = true;
