@@ -22,6 +22,11 @@
   },
   "sections": [
     {
+      "id": "verf",
+      "label": "schilderij",
+      "note": ""
+    },
+    {
       "id": "inkt",
       "label": "inkt & flash",
       "note": ""
@@ -32,13 +37,13 @@
       "note": ""
     },
     {
-      "id": "proces",
-      "label": "proces",
+      "id": "lino-cuts",
+      "label": "Lino Cuts",
       "note": ""
     },
     {
-      "id": "verf",
-      "label": "schilderij",
+      "id": "proces",
+      "label": "proces",
       "note": ""
     }
   ],
@@ -506,9 +511,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.62,
+      "viewerX": 50.82135523613963,
+      "viewerY": 28.63013698630137,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -544,9 +549,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.56,
+      "viewerX": 46.303901437371664,
+      "viewerY": 25.34246575342466,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -582,9 +587,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.56,
+      "viewerX": 48.97330595482546,
+      "viewerY": 27.534246575342465,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -604,7 +609,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -620,9 +625,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.62,
+      "viewerX": 45.89322381930185,
+      "viewerY": 27.80821917808219,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -642,7 +647,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -658,9 +663,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
+      "viewerScale": 0.5,
       "viewerX": 50,
-      "viewerY": 50,
+      "viewerY": 26.71232876712329,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -680,7 +685,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -696,9 +701,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.64,
+      "viewerX": 50.82135523613963,
+      "viewerY": 28.63013698630137,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -828,7 +833,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -844,9 +849,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.58,
+      "viewerX": 51.437371663244356,
+      "viewerY": 28.63013698630137,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -866,7 +871,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -882,9 +887,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.52,
+      "viewerX": 50.616016427104725,
+      "viewerY": 26.164383561643838,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1540,7 +1545,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -1556,9 +1561,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.52,
+      "viewerX": 49.38398357289528,
+      "viewerY": 27.534246575342465,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1654,7 +1659,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -1692,7 +1697,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -1708,9 +1713,9 @@
       "skewX": -0.5,
       "skewY": 1.25,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.6,
+      "viewerX": 50.616016427104725,
+      "viewerY": 27.26027397260274,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1730,7 +1735,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "inkt"
+        "lino-cuts"
       ],
       "gallery": true,
       "glitch": true,
@@ -1746,9 +1751,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.52,
+      "viewerX": 51.02669404517454,
+      "viewerY": 28.63013698630137,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -2479,6 +2484,44 @@
       "viewerPerspectiveY": 0,
       "format": "image",
       "order": 63
+    },
+    {
+      "id": "964903285fea4278a0cd172e110f838c",
+      "src": "",
+      "originalSrc": "",
+      "mediaType": "image",
+      "title": "",
+      "note": "Selected from the current image archive.",
+      "status": "selected",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "lino-cuts"
+      ],
+      "gallery": true,
+      "glitch": true,
+      "visible": true,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 64
     }
   ]
 }
