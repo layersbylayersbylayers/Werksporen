@@ -473,28 +473,49 @@
     .home-game-console .game-divider { color:var(--hairline); }
     .home-game-console button[aria-pressed="true"] { color:var(--accent); }
     .home-mosaic.mines-mode { touch-action:none; }
+    .home-mosaic.mines-mode::after { opacity:0; }
     .home-mosaic.mines-mode > .home-tile { opacity:0; pointer-events:none; }
-    .mines-board { position:absolute; inset:0; z-index:6; display:none; grid-template-columns:repeat(9,minmax(0,1fr)); grid-template-rows:repeat(13,minmax(0,1fr)); transform-origin:0 0; will-change:transform; }
+    .mines-board { position:absolute; inset:0; z-index:6; display:none; grid-template-columns:repeat(9,minmax(0,1fr)); grid-template-rows:repeat(13,minmax(0,1fr)); transform-origin:center; will-change:transform; backface-visibility:hidden; contain:layout paint; }
     .home-mosaic.mines-mode .mines-board { display:grid; }
-    .mines-cell { display:grid; place-items:center; min-width:0; min-height:0; border:0; padding:0; background:color-mix(in srgb,var(--paper) 76%,transparent); color:var(--ink); cursor:pointer; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--grid-line) 88%,transparent); transition:background-color .2s ease,color .2s ease,opacity .2s ease; font:600 clamp(10px,1.25vw,15px)/1 var(--mono); font-variant-numeric:tabular-nums; }
+    .mines-cell { position:relative; display:grid; place-items:center; min-width:0; min-height:0; border:0; padding:0; background:color-mix(in srgb,var(--paper) 76%,transparent); color:var(--ink); cursor:pointer; box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--hairline) 72%,transparent); transition:background-color .24s ease,color .24s ease,opacity .3s ease,box-shadow .24s ease,filter .3s ease; font:600 clamp(10px,1.25vw,15px)/1 var(--mono); font-variant-numeric:tabular-nums; overflow:hidden; }
     .mines-cell.mines-cell-ready { animation:minesCellSettle .44s cubic-bezier(.22,1,.36,1) both; animation-delay:calc(var(--mine-delay,0) * 1ms); }
     .mines-cell.mines-open { background:color-mix(in srgb,var(--paper) 16%,transparent); cursor:default; animation:minesCellOpen .3s cubic-bezier(.2,.75,.25,1) both; }
-    .mines-cell.mines-flagged { color:var(--accent); }
-    .mines-cell.mines-mine { color:var(--accent); background:color-mix(in srgb,var(--ink) 82%,transparent); }
+    .mines-cell.mines-flagged { color:var(--paper); background:color-mix(in srgb,var(--accent) 82%,var(--ink)); box-shadow:inset 0 0 0 3px var(--accent),inset 0 0 0 5px color-mix(in srgb,var(--paper) 68%,transparent); }
+    .mines-cell.mines-mine { color:var(--accent); background:color-mix(in srgb,var(--ink) 88%,transparent); }
+    .mines-skully-icon { display:block; width:72%; height:72%; fill:currentColor; overflow:visible; filter:drop-shadow(0 0 1px color-mix(in srgb,var(--paper) 45%,transparent)); }
+    .mines-mark-icon { display:block; width:64%; height:64%; fill:currentColor; fill-rule:evenodd; }
     .mines-cell[data-near="1"] { color:#255f83; }
     .mines-cell[data-near="2"] { color:#397643; }
     .mines-cell[data-near="3"] { color:var(--accent); }
     .mines-cell[data-near="4"], .mines-cell[data-near="5"], .mines-cell[data-near="6"] { color:var(--ink); }
-    .mines-loss-shape { position:absolute; inset:5% 14%; z-index:7; pointer-events:none; display:grid; grid-template-columns:repeat(24,minmax(0,1fr)); grid-template-rows:repeat(32,minmax(0,1fr)); opacity:0; contain:layout paint; }
-    .home-mosaic.mines-lost .mines-loss-shape { opacity:1; }
-    .mines-loss-pixel { background:var(--accent); opacity:0; transform-origin:center; }
-    .home-mosaic.mines-lost .mines-loss-pixel { animation:minesLossPixel var(--loss-duration,.58s) cubic-bezier(.18,.72,.22,1) var(--loss-delay,0ms) both; }
+    .home-mosaic.mines-lost .mines-cell { animation:none; pointer-events:none; }
+    .home-mosaic.mines-lost .mines-cell > * { opacity:0; }
+    .home-mosaic.mines-lost .mines-cell.mines-skull-negative { opacity:.16; filter:saturate(.25) brightness(.62); transition-delay:var(--skull-delay,0ms); }
+    .home-mosaic.mines-lost .mines-cell.mines-skull-cell { color:var(--paper); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--paper) 32%,transparent); animation:minesSkullCell .66s cubic-bezier(.18,.72,.22,1) var(--skull-delay,0ms) both; }
     .home-mosaic.mines-won::before { background-color:color-mix(in srgb,var(--accent) 30%,transparent); animation:memoryBoardPulse .72s ease-out both; }
     @keyframes minesCellSettle { from { opacity:0; transform:rotateY(-82deg) scale(.94); } to { opacity:1; transform:rotateY(0) scale(1); } }
     @keyframes minesCellOpen { from { transform:rotateY(-38deg) scale(.96); opacity:.42; } to { transform:rotateY(0) scale(1); opacity:1; } }
-    @keyframes minesLossPixel { 0% { opacity:0; transform:translate3d(var(--loss-drift,0),-120px,0) rotate(var(--loss-turn,0deg)) scale(.72); } 72% { opacity:.92; transform:translate3d(0,3px,0) rotate(0) scale(1.04); } 100% { opacity:.78; transform:translate3d(0,0,0) rotate(0) scale(1); } }
-    @media (max-width:700px) { .mines-cell { font-size:clamp(11px,3vw,14px); } .mines-loss-shape { inset:8% 8% 7%; } }
-    @media (prefers-reduced-motion:reduce) { .mines-cell, .home-mosaic.mines-lost .mines-loss-pixel, .home-mosaic.mines-won::before { animation:none; opacity:.78; transform:none; } }
+    @keyframes minesSkullCell { 0% { opacity:.18; background:color-mix(in srgb,var(--paper) 16%,transparent); transform:translateY(-34%) rotateX(-62deg) scale(.88); } 72% { opacity:1; background:var(--accent); transform:translateY(2%) rotateX(0) scale(1.035); } 100% { opacity:1; background:var(--accent); transform:none; } }
+    .feature-note.mines-note { display:flex!important; flex-direction:column; }
+    .feature-note.mines-note > p:nth-child(1) { order:1; }
+    .feature-note.mines-note > .home-game-console { order:2; margin:0 0 25px; }
+    .feature-note.mines-note > p:nth-child(2) { order:3; }
+    .feature-note.mines-note > p:nth-child(3) { order:4; }
+    .feature-note.mines-note > p:nth-child(4) { order:5; }
+    @media (max-width:700px) {
+      .mines-cell { font-size:clamp(11px,3vw,14px); }
+      .overview-work.show-feature .feature-note { min-height:142px; }
+      .feature-note.mines-note { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px 8px; align-content:start; font-size:8.5px; line-height:1.35; }
+      .feature-note.mines-note > p { display:block!important; min-width:0; max-width:none!important; margin:0!important; }
+      .feature-note.mines-note > p:nth-child(1) { grid-column:1 / -1; grid-row:1; font-size:9px; }
+      .feature-note.mines-note > .home-game-console { grid-column:1 / -1; grid-row:2; flex-wrap:nowrap; gap:5px 8px; margin:0; padding-top:5px; font-size:8px; white-space:nowrap; }
+      .feature-note.mines-note > p:nth-child(2), .feature-note.mines-note > p:nth-child(3), .feature-note.mines-note > p:nth-child(4) { grid-row:3; }
+      .feature-note.mines-note > p:nth-child(2) { grid-column:1; }
+      .feature-note.mines-note > p:nth-child(3) { grid-column:2; }
+      .feature-note.mines-note > p:nth-child(4) { grid-column:3; }
+      .feature-note.mines-note .home-game-state { margin-left:auto; }
+    }
+    @media (prefers-reduced-motion:reduce) { .mines-cell, .home-mosaic.mines-lost .mines-cell.mines-skull-cell, .home-mosaic.mines-won::before { animation:none; transform:none; } }
     @media (max-width:700px) { .home-game-console { margin-top:12px; padding-top:8px; } }
     .contact-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; width:min(100%,610px); margin-top:38px; padding-top:16px; border-top:1px solid var(--ink); }
     .contact-field label { display:block; margin-bottom:5px; color:var(--accent); font-size:10px; text-transform:uppercase; }
@@ -584,7 +605,8 @@
               <span class="home-game-state" id="memory-state">00 / 00</span>
               <span class="game-divider" id="game-divider" aria-hidden="true">/</span>
               <button id="mines-toggle" type="button">MINES / PLAY</button>
-              <button id="mines-action" type="button" hidden aria-pressed="false">OPEN</button>
+              <button id="mines-open-mode" type="button" hidden aria-pressed="true">OPEN / DOUBLE CLICK</button>
+              <button id="mines-action" type="button" hidden aria-pressed="false">M / MARK FLAG</button>
               <button id="mines-reset" type="button" hidden>RESET</button>
               <span class="home-game-state" id="mines-state" hidden>18 / 18</span>
             </div>
@@ -1178,10 +1200,6 @@
     minesBoardElement.className = "mines-board";
     minesBoardElement.setAttribute("aria-label", "Minesweeper board");
     homeMosaic.appendChild(minesBoardElement);
-    const minesLossShape = document.createElement("div");
-    minesLossShape.className = "mines-loss-shape";
-    minesLossShape.setAttribute("aria-hidden", "true");
-    homeMosaic.appendChild(minesLossShape);
     const memoryToggle = document.getElementById("memory-toggle");
     const memoryReset = document.getElementById("memory-reset");
     const memoryState = document.getElementById("memory-state");
@@ -1353,6 +1371,7 @@
     updateMemoryUI();
 
     const minesToggle = document.getElementById("mines-toggle");
+    const minesOpenMode = document.getElementById("mines-open-mode");
     const minesAction = document.getElementById("mines-action");
     const minesReset = document.getElementById("mines-reset");
     const minesState = document.getElementById("mines-state");
@@ -1377,6 +1396,7 @@
     let minesPanGesture = null;
     let minesSuppressActivation = false;
     let minesLastTap = { tile:null, time:0 };
+    let minesNoteSnapshot = null;
     // Quiet, low-resolution reduction of the MASK from skully2H.htm.
     // Only its shape is retained; the original background, colour and glyphs are omitted.
     const MINES_SKULL_MASK = [
@@ -1389,29 +1409,68 @@
       "000000000100111101010000","000000000100101111010000","000000001000101010100000","000000000010011110000000",
       "000000011000110100000000","000000000000001000000000","000000001101110000000000","000000000100000000000000"
     ];
+    // The loss image is the board itself: one value for each cell of the
+    // fixed 9 x 13 Mines grid, reduced from the same Skully source above.
+    const MINES_LOSS_MASK = [
+      "001111000","011111100","111111100","111111110","111111111","011011110","101011100",
+      "011111000","001101100","000001110","000011100","000001000","000110000"
+    ];
+    const SVG_NS = "http://www.w3.org/2000/svg";
 
-    function buildMinesLossShape() {
-      if (minesLossShape.childElementCount) return;
-      const fragment = document.createDocumentFragment();
+    function ensureMinesSkullySymbol() {
+      if (document.getElementById("mines-skully-symbol")) return;
+      const sprite = document.createElementNS(SVG_NS,"svg");
+      sprite.setAttribute("aria-hidden","true");
+      Object.assign(sprite.style,{ position:"absolute", width:"0", height:"0", overflow:"hidden" });
+      const symbol = document.createElementNS(SVG_NS,"symbol");
+      symbol.id = "mines-skully-symbol";
+      symbol.setAttribute("viewBox",`0 0 ${MINES_SKULL_MASK[0].length} ${MINES_SKULL_MASK.length}`);
       MINES_SKULL_MASK.forEach((row,rowIndex) => [...row].forEach((value,columnIndex) => {
         if (value !== "1") return;
-        const pixel = document.createElement("i");
-        pixel.className = "mines-loss-pixel";
-        pixel.style.gridColumn = String(columnIndex + 1);
-        pixel.style.gridRow = String(rowIndex + 1);
-        const stackDelay = (MINES_SKULL_MASK.length - rowIndex) * 13 + ((columnIndex * 17 + rowIndex * 11) % 95);
-        pixel.style.setProperty("--loss-delay",`${stackDelay}ms`);
-        pixel.style.setProperty("--loss-duration",`${480 + ((columnIndex * 23 + rowIndex * 7) % 190)}ms`);
-        pixel.style.setProperty("--loss-drift",`${((columnIndex * 29 + rowIndex * 13) % 25) - 12}px`);
-        pixel.style.setProperty("--loss-turn",`${((columnIndex * 19 + rowIndex * 5) % 19) - 9}deg`);
-        fragment.appendChild(pixel);
+        const block = document.createElementNS(SVG_NS,"rect");
+        block.setAttribute("x",String(columnIndex));
+        block.setAttribute("y",String(rowIndex));
+        block.setAttribute("width","1.08");
+        block.setAttribute("height","1.08");
+        symbol.appendChild(block);
       }));
-      minesLossShape.appendChild(fragment);
+      sprite.appendChild(symbol);
+      const markSymbol = document.createElementNS(SVG_NS,"symbol");
+      markSymbol.id = "mines-mark-symbol";
+      markSymbol.setAttribute("viewBox","0 0 64 64");
+      const mark = document.createElementNS(SVG_NS,"path");
+      mark.setAttribute("fill-rule","evenodd");
+      mark.setAttribute("d","M4 32C9 14 20 8 32 20C44 8 55 14 60 32C55 50 44 56 32 44C20 56 9 50 4 32ZM14 32C18 43 24 46 32 37C40 46 46 43 50 32C46 21 40 18 32 27C24 18 18 21 14 32Z");
+      markSymbol.appendChild(mark);
+      sprite.appendChild(markSymbol);
+      document.body.appendChild(sprite);
+    }
+    function minesSkullyIcon() {
+      ensureMinesSkullySymbol();
+      const icon = document.createElementNS(SVG_NS,"svg");
+      icon.classList.add("mines-skully-icon");
+      icon.setAttribute("viewBox",`0 0 ${MINES_SKULL_MASK[0].length} ${MINES_SKULL_MASK.length}`);
+      icon.setAttribute("aria-hidden","true");
+      const use = document.createElementNS(SVG_NS,"use");
+      use.setAttribute("href","#mines-skully-symbol");
+      icon.appendChild(use);
+      return icon;
+    }
+    function minesMarkIcon() {
+      ensureMinesSkullySymbol();
+      const icon = document.createElementNS(SVG_NS,"svg");
+      icon.classList.add("mines-mark-icon");
+      icon.setAttribute("viewBox","0 0 64 64");
+      icon.setAttribute("aria-hidden","true");
+      const use = document.createElementNS(SVG_NS,"use");
+      use.setAttribute("href","#mines-mark-symbol");
+      icon.appendChild(use);
+      return icon;
     }
 
     function ensureMinesTiles() {
       if (minesTiles.length) return;
-      buildMinesLossShape();
+      ensureMinesSkullySymbol();
       for (let index=0; index<MINES_COLUMNS * MINES_ROWS; index += 1) {
         const tile = document.createElement("button");
         tile.type = "button";
@@ -1629,17 +1688,62 @@
       });
     }
     function clearMinesTile(tile) {
-      tile.textContent = "";
-      tile.classList.remove("mines-cell-ready","mines-open","mines-flagged","mines-mine");
+      tile.replaceChildren();
+      tile.classList.remove("mines-cell-ready","mines-open","mines-flagged","mines-mine","mines-skull-cell","mines-skull-negative");
       delete tile.dataset.near;
+      tile.style.removeProperty("--skull-delay");
       tile.removeAttribute("aria-pressed");
+    }
+    function captureMinesNote() {
+      if (minesNoteSnapshot) return;
+      const paragraphs = Array.from(featureNote.querySelectorAll(":scope > p"));
+      minesNoteSnapshot = {
+        labels:paragraphs.map(paragraph => paragraph.querySelector("strong")?.textContent || ""),
+        note:featureNoteCopy.textContent,
+        status:featureStatusCopy.innerHTML,
+        medium:featureMediumCopy.textContent,
+        format:featureFormatCopy.textContent,
+        mediumHidden:featureMediumBlock.hidden
+      };
+    }
+    function showMinesNote() {
+      captureMinesNote();
+      const paragraphs = Array.from(featureNote.querySelectorAll(":scope > p"));
+      featureNote.classList.add("mines-note");
+      paragraphs[0].querySelector("strong").textContent = "MINES";
+      featureNoteCopy.textContent = "Double-click or double-tap to open. Mark suspected mines. Pinch, wheel or drag to inspect the grid.";
+      const won = minesEnded && minesOpened === MINES_COLUMNS * MINES_ROWS - MINES_TOTAL;
+      const state = minesPreparing ? "PREPARING" : minesEnded ? (won ? "CLEAR" : "GAME OVER") : minesSeeded ? "PLAYING" : "READY";
+      const stateDetail = minesEnded ? (won ? `${MINES_COLUMNS * MINES_ROWS} cells resolved` : `${MINES_TOTAL} mines revealed`) : `${String(Math.max(0,MINES_TOTAL - minesFlags)).padStart(2,"0")} mines remaining`;
+      paragraphs[1].querySelector("strong").textContent = "STATUS";
+      featureStatusCopy.innerHTML = `${state}<br>${stateDetail}`;
+      featureMediumBlock.hidden = false;
+      paragraphs[2].querySelector("strong").textContent = "MEDIUM";
+      featureMediumCopy.textContent = `${MINES_TOTAL} mines / ${MINES_COLUMNS * MINES_ROWS} cells`;
+      paragraphs[3].querySelector("strong").textContent = "FORMAT";
+      featureFormatCopy.textContent = `${MINES_COLUMNS} × ${MINES_ROWS} grid`;
+    }
+    function restoreMinesNote() {
+      if (!minesNoteSnapshot) return;
+      const paragraphs = Array.from(featureNote.querySelectorAll(":scope > p"));
+      paragraphs.forEach((paragraph,index) => { const label = paragraph.querySelector("strong"); if (label) label.textContent = minesNoteSnapshot.labels[index] || ""; });
+      featureNoteCopy.textContent = minesNoteSnapshot.note;
+      featureStatusCopy.innerHTML = minesNoteSnapshot.status;
+      featureMediumCopy.textContent = minesNoteSnapshot.medium;
+      featureFormatCopy.textContent = minesNoteSnapshot.format;
+      featureMediumBlock.hidden = minesNoteSnapshot.mediumHidden;
+      featureNote.classList.remove("mines-note");
+      minesNoteSnapshot = null;
     }
     function updateMinesUI() {
       minesToggle.textContent = minesActive ? "MINES / EXIT" : "MINES / PLAY";
+      minesOpenMode.hidden = !minesActive;
       minesAction.hidden = !minesActive;
       minesReset.hidden = !minesActive;
       minesState.hidden = !minesActive;
-      minesAction.textContent = minesFlagMode ? "FLAG" : "OPEN ×2";
+      minesOpenMode.textContent = "OPEN / DOUBLE CLICK";
+      minesAction.textContent = "M / MARK FLAG";
+      minesOpenMode.setAttribute("aria-pressed",String(!minesFlagMode));
       minesAction.setAttribute("aria-pressed",String(minesFlagMode));
       minesState.textContent = minesPreparing ? "PREPARING" : minesEnded ? (minesOpened === MINES_COLUMNS * MINES_ROWS - MINES_TOTAL ? "CLEAR" : "LOST") : `${String(Math.max(0,MINES_TOTAL - minesFlags)).padStart(2,"0")} / ${String(MINES_TOTAL).padStart(2,"0")}`;
       memoryToggle.disabled = minesActive;
@@ -1647,6 +1751,7 @@
       memoryReset.hidden = minesActive || !memoryActive;
       memoryState.hidden = minesActive;
       gameDivider.hidden = minesActive;
+      if (minesActive) showMinesNote();
     }
     function resetMinesBoard() {
       minesSeeded = false;
@@ -1688,10 +1793,10 @@
       tile.classList.toggle("mines-open",cell.open);
       tile.classList.toggle("mines-flagged",cell.flagged && !cell.open);
       tile.classList.toggle("mines-mine",cell.open && cell.mine);
-      if (cell.open && cell.mine) tile.textContent = "×";
+      tile.replaceChildren();
+      if (cell.open && cell.mine) tile.appendChild(minesSkullyIcon());
       else if (cell.open && cell.near) tile.textContent = String(cell.near);
-      else if (cell.flagged) tile.textContent = "+";
-      else tile.textContent = "";
+      else if (cell.flagged) tile.appendChild(minesMarkIcon());
       if (cell.open && cell.near) tile.dataset.near = String(cell.near); else delete tile.dataset.near;
       tile.setAttribute("aria-label",cell.open ? (cell.mine ? "mine" : `${cell.near} nearby mines`) : cell.flagged ? "flagged field" : "closed field");
       tile.setAttribute("aria-pressed",String(cell.flagged));
@@ -1712,7 +1817,17 @@
       minesEnded = true;
       if (!won) {
         minesBoard.forEach((cell,index) => { if (cell.mine) { cell.open = true; renderMineCell(index); } });
-        window.setTimeout(() => { if (minesActive && minesEnded) homeMosaic.classList.add("mines-lost"); },180);
+        window.setTimeout(() => {
+          if (!minesActive || !minesEnded) return;
+          minesTiles.forEach((tile,index) => {
+            const row = Math.floor(index / MINES_COLUMNS), column = index % MINES_COLUMNS;
+            const inShape = MINES_LOSS_MASK[row]?.[column] === "1";
+            tile.classList.remove("mines-cell-ready","mines-open","mines-flagged","mines-mine");
+            tile.classList.add(inShape ? "mines-skull-cell" : "mines-skull-negative");
+            tile.style.setProperty("--skull-delay",`${row * 34 + ((column * 19 + row * 7) % 72)}ms`);
+          });
+          homeMosaic.classList.add("mines-lost");
+        },360);
       } else {
         homeMosaic.classList.remove("mines-won"); void homeMosaic.offsetWidth; homeMosaic.classList.add("mines-won");
       }
@@ -1762,6 +1877,7 @@
         homeTiles.forEach(tile => { restoreTile(tile); tile.tabIndex = 0; tile.setAttribute("aria-label","Verplaats de glitch"); });
         setMinesZoom(1,null,null,true);
         setHomeGridDimensions(mosaicColumns,mosaicRows);
+        restoreMinesNote();
       };
       if (animate) await morphHomeGameGrid(mosaicColumns,mosaicRows,cleanup,false); else cleanup();
       minesActive = false; minesPreparing = false; minesEnded = false; memoryToggle.disabled = false;
@@ -1771,7 +1887,8 @@
     }
     minesToggle.addEventListener("click",() => minesActive ? stopMines() : startMines());
     minesReset.addEventListener("click",() => { if (minesReady) resetMinesBoard(); });
-    minesAction.addEventListener("click",() => { if (!minesReady || minesEnded) return; minesFlagMode = !minesFlagMode; updateMinesUI(); });
+    minesOpenMode.addEventListener("click",() => { if (!minesReady || minesEnded) return; minesFlagMode = false; updateMinesUI(); });
+    minesAction.addEventListener("click",() => { if (!minesReady || minesEnded) return; minesFlagMode = true; updateMinesUI(); });
     memoryToggle.addEventListener("click",event => {
       if (!minesActive) return;
       event.preventDefault(); event.stopImmediatePropagation();
