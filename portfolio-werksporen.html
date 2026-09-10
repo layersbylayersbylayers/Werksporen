@@ -477,14 +477,15 @@
     .home-mosaic.mines-mode > .home-tile { opacity:0; pointer-events:none; }
     .mines-board { position:absolute; inset:0; z-index:6; display:none; grid-template-columns:repeat(9,minmax(0,1fr)); grid-template-rows:repeat(13,minmax(0,1fr)); transform-origin:center; will-change:transform; backface-visibility:hidden; contain:layout paint; }
     .home-mosaic.mines-mode .mines-board { display:grid; }
-    .mines-grid-lines { position:absolute; inset:0; z-index:3; width:100%; height:100%; overflow:hidden; pointer-events:none; color:color-mix(in srgb,var(--ink) 38%,transparent); }
-    .mines-grid-lines path { fill:none; stroke:currentColor; stroke-width:1; vector-effect:non-scaling-stroke; shape-rendering:geometricPrecision; }
+    .mines-grid-lines { position:absolute; inset:0; z-index:3; width:100%; height:100%; overflow:hidden; pointer-events:none; color:var(--grid-line); }
+    .mines-grid-lines path { fill:none; stroke:currentColor; stroke-width:1; vector-effect:non-scaling-stroke; shape-rendering:crispEdges; }
     .mines-cell { position:relative; z-index:1; display:grid; place-items:center; min-width:0; min-height:0; border:0; padding:0; background:color-mix(in srgb,var(--paper) 76%,transparent); color:var(--ink); cursor:pointer; box-shadow:none; transition:background-color .24s ease,color .24s ease,opacity .3s ease,box-shadow .24s ease,filter .3s ease; font:600 clamp(10px,1.25vw,15px)/1 var(--mono); font-variant-numeric:tabular-nums; overflow:hidden; }
     .mines-cell.mines-cell-ready { animation:minesCellSettle .44s cubic-bezier(.22,1,.36,1) both; animation-delay:calc(var(--mine-delay,0) * 1ms); }
     .mines-cell.mines-open { background:color-mix(in srgb,var(--paper) 16%,transparent); cursor:default; animation:minesCellOpen .3s cubic-bezier(.2,.75,.25,1) both; }
     .mines-cell.mines-flagged { color:#080908; background:rgba(0,0,0,.18); box-shadow:none; }
     .mines-cell.mines-mine { color:#080908; background:rgba(0,0,0,.18); }
     .mines-skully-icon { display:block; width:72%; height:72%; fill:#080908; overflow:visible; filter:none; }
+    .mines-flagged .mines-skully-icon { fill:var(--accent); }
     .mines-mark-icon { display:block; width:70%; height:70%; fill:#080908; }
     .mines-cell[data-near="1"] { color:#255f83; }
     .mines-cell[data-near="2"] { color:#397643; }
@@ -604,7 +605,7 @@
               <span class="game-divider" id="game-divider" aria-hidden="true">/</span>
               <button id="mines-toggle" type="button">MINES / PLAY</button>
               <button id="mines-open-mode" type="button" hidden aria-pressed="true">OPEN / DOUBLE CLICK</button>
-              <button id="mines-action" type="button" hidden aria-pressed="false">M / MARK FLAG</button>
+              <button id="mines-action" type="button" hidden aria-pressed="false">MARK FLAG</button>
               <button id="mines-reset" type="button" hidden>RESET</button>
               <span class="home-game-state" id="mines-state" hidden>18 / 18</span>
             </div>
@@ -1741,7 +1742,7 @@
       minesReset.hidden = !minesActive;
       minesState.hidden = !minesActive;
       minesOpenMode.textContent = "OPEN / DOUBLE CLICK";
-      minesAction.textContent = "M / MARK FLAG";
+      minesAction.textContent = "MARK FLAG";
       minesOpenMode.setAttribute("aria-pressed",String(!minesFlagMode));
       minesAction.setAttribute("aria-pressed",String(minesFlagMode));
       minesState.textContent = minesPreparing ? "PREPARING" : minesEnded ? (minesOpened === MINES_COLUMNS * MINES_ROWS - MINES_TOTAL ? "CLEAR" : "LOST") : `${String(Math.max(0,MINES_TOTAL - minesFlags)).padStart(2,"0")} / ${String(MINES_TOTAL).padStart(2,"0")}`;
@@ -1795,7 +1796,7 @@
       tile.replaceChildren();
       if (cell.open && cell.mine) tile.appendChild(minesSkullyIcon());
       else if (cell.open && cell.near) tile.textContent = String(cell.near);
-      else if (cell.flagged) tile.appendChild(minesMarkIcon());
+      else if (cell.flagged) tile.appendChild(minesSkullyIcon());
       if (cell.open && cell.near) tile.dataset.near = String(cell.near); else delete tile.dataset.near;
       tile.setAttribute("aria-label",cell.open ? (cell.mine ? "mine" : `${cell.near} nearby mines`) : cell.flagged ? "flagged field" : "closed field");
       tile.setAttribute("aria-pressed",String(cell.flagged));
