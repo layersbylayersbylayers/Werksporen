@@ -11,6 +11,9 @@
     .arcade-console[hidden], .arcade-console [hidden], .arcade-canvas[hidden] { display:none; }
     .arcade-help { flex-basis:100%; color:var(--soft); }
     .arcade-status { flex-basis:100%; color:var(--accent); }
+    .tetris-next { display:inline-grid; grid-template-columns:repeat(4,5px); grid-template-rows:repeat(2,5px); gap:1px; margin-left:5px; vertical-align:-1px; }
+    .tetris-next > i { width:5px; height:5px; background:transparent; }
+    .tetris-next > i.is-filled { background:var(--accent); box-shadow:inset 0 0 3px rgba(255,255,255,.72); }
     .arcade-controls { display:flex; flex-wrap:wrap; gap:6px; padding-top:7px; border-top:1px solid var(--hairline); }
     .arcade-controls button { min-width:40px; min-height:40px; touch-action:manipulation; }
     .home-feature:has(.arcade-mode) .home-game-console { display:none; }
@@ -46,7 +49,7 @@
   const tetrisLaunch = document.createElement('button'); tetrisLaunch.type='button'; tetrisLaunch.className='arcade-launch'; tetrisLaunch.dataset.start='tetris'; tetrisLaunch.textContent='TETRIS / PLAY';
   gameMenu.append(snakeLaunch,tetrisLaunch);
   const status = ui.querySelector('.arcade-status'), help = ui.querySelector('.arcade-help');
-  let game = null, busy = false, paused = false, ended = false, frame = 0, last = 0, elapsed = 0;
+  let game = null, busy = false, paused = false, ended = false, frame = 0, last = 0, elapsed = 0, scoreSubmitted = false;
   let cols, rows, snake, direction, turns, food, score, board, piece, bag, next, lines, clearing = [], clearTime = 0;
   let savedNote, savedStatus, savedFormat, savedMinHeight;
   const snakeSkullyMask = [
@@ -60,12 +63,23 @@
     '000000011000110100000000','000000000000001000000000','000000001101110000000000','000000000100000000000000'
   ];
   const skullySprites = new Map();
-  const tetrisHighScore = Object.freeze({ score:19254, lines:49, player:'ANONYMOUS' });
   const shapes = { I:[[0,1],[1,1],[2,1],[3,1]], O:[[1,0],[2,0],[1,1],[2,1]], T:[[1,0],[0,1],[1,1],[2,1]], S:[[1,0],[2,0],[0,1],[1,1]], Z:[[0,0],[1,0],[1,1],[2,1]], J:[[0,0],[0,1],[1,1],[2,1]], L:[[2,0],[0,1],[1,1],[2,1]] };
+  function nextPreview(type) {
+    const occupied = new Set((shapes[type] || []).map(([x,y])=>`${x}:${y}`));
+    return `<span class="tetris-next" aria-label="${type} piece">${Array.from({length:8},(_,index)=>`<i class="${occupied.has(`${index % 4}:${Math.floor(index / 4)}`)?"is-filled":""}"></i>`).join("")}</span>`;
+  }
   function note() {
     const state=ended ? (game === 'snake' && snake.length === cols*rows ? 'CLEAR' : 'GAME OVER') : paused ? 'PAUSED' : 'PLAYING';
     status.textContent = `${game.toUpperCase()} / ${state} / ${score}${game === 'tetris' ? ` / ${lines} LINES / NEXT ${next}` : ''}`;
-    if(game)featureStatusCopy.innerHTML=game==='tetris'?`${state}<br>${score} points · ${lines} lines<br>HIGH SCORE<br>${tetrisHighScore.score} points · ${tetrisHighScore.lines} lines · ${tetrisHighScore.player}`:`${state}<br>${score} points`;
+    if (!game) return;
+    if (ended && !scoreSubmitted) {
+      scoreSubmitted = true;
+      window.portfolioScores?.submit(game,score,game === 'tetris' ? lines : 0);
+    }
+    const record = window.portfolioScores?.get(game) || { score:0, secondary:0 };
+    featureStatusCopy.innerHTML = game === 'tetris'
+      ? `${state}<br>${score} points · ${lines} lines<br>NEXT ${nextPreview(next)}<br>HIGH SCORE<br>${record.score} points · ${record.secondary} lines`
+      : `${state}<br>${score} points<br>HIGH SCORE<br>${record.score} points`;
   }
   function resize() { const r=homeMosaic.getBoundingClientRect(), d=devicePixelRatio||1; canvas.width=Math.round(r.width*d); canvas.height=Math.round(r.height*d); skullySprites.clear(); if(game) draw(); }
   new ResizeObserver(resize).observe(homeMosaic);
@@ -74,7 +88,7 @@
   function spawn() { const type=next; next=take(); piece={type,x:3,y:0,cells:shapes[type].map(p=>[...p])}; if(!fits(piece))ended=true; }
   function fits(p) { return p.cells.every(([x,y])=>{x+=p.x;y+=p.y;return x>=0&&x<cols&&y>=0&&y<rows&&!board[y][x];}); }
   function reset() {
-    paused=false;ended=false;elapsed=0;last=0;score=0;lines=0;clearing=[];clearTime=0;
+    paused=false;ended=false;elapsed=0;last=0;score=0;lines=0;clearing=[];clearTime=0;scoreSubmitted=false;
     if(game==='snake') { snake=[{x:8,y:13},{x:7,y:13},{x:6,y:13}];direction={x:1,y:0};turns=[];food=randomFood(); }
     else { board=Array.from({length:rows},()=>Array(cols).fill(0));bag=[];next=take();spawn(); }
     note();draw();
@@ -147,11 +161,11 @@
     };
     if(game==='snake'){snake.forEach((p,i)=>{cell(p.x,p.y,i===0?accent:'#fff',i===0?.9:.18);glowCell(p.x,p.y,'#fff',i===0?.4:.3);skully(p.x,p.y,'#080908',i===0?1:.9);});if(food){cell(food.x,food.y,accent,.9);glowCell(food.x,food.y,'#fff',.4);skully(food.x,food.y,'#080908',1);}}
     else {
-      const tetrisBlock=(x,y,alpha=1,active=false)=>{cell(x,y,'#fff',alpha*(active?.3:.18));glowCell(x,y,'#fff',alpha*(active?.46:.32));skully(x,y,'#080908',alpha);};
+      const tetrisBlock=(x,y,alpha=1,active=false)=>{cell(x,y,active?accent:'#fff',alpha*(active?.9:.18));glowCell(x,y,'#fff',alpha*(active?.4:.32));skully(x,y,'#080908',alpha);};
       board.forEach((r,y)=>r.forEach((v,x)=>{if(v)tetrisBlock(x,y,clearing.includes(y)?.32:.92);}));
       if(!clearing.length){
         let ghost={...piece};while(fits({...ghost,y:ghost.y+1}))ghost.y++;
-        ghost.cells.forEach(([x,y])=>{glowCell(ghost.x+x,ghost.y+y,'#fff',.12);skully(ghost.x+x,ghost.y+y,'#fff',.22);});
+        ghost.cells.forEach(([x,y])=>{cell(ghost.x+x,ghost.y+y,accent,.08);glowCell(ghost.x+x,ghost.y+y,accent,.16);skully(ghost.x+x,ghost.y+y,accent,.34);});
         piece.cells.forEach(([x,y])=>tetrisBlock(piece.x+x,piece.y+y,1,true));
       }
     }
@@ -218,6 +232,7 @@
   canvas.addEventListener('pointercancel',()=>pointer=null);
   canvas.addEventListener('wheel',e=>{if(game)e.preventDefault();},{passive:false});
   document.addEventListener('visibilitychange',()=>{if(game&&document.hidden){paused=true;note();}});
+  window.addEventListener('portfolio-scores:update',()=>{if(game)note();});
   // Disable game launchers while another game owns the Home board.
   new MutationObserver(()=>{document.querySelectorAll('.arcade-launch').forEach(b=>b.disabled=memoryActive||minesActive);}).observe(homeMosaic,{attributes:true,attributeFilter:['class']});
 })();

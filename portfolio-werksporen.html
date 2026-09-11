@@ -683,6 +683,7 @@
     </dialog>
   </main>
   <script src="portfolio-admin-data.js"></script>
+  <script src="portfolio-scores.js?v=20260911-local-scores-1"></script>
   <script>
     const studioOrigin = window.WERKSPOREN_STUDIO_ORIGIN || "";
     if (location.protocol === "http:" || location.protocol === "https:") {
@@ -1223,6 +1224,34 @@
     let memoryOpenTiles = [];
     let memoryPreparing = false;
     let memoryGeneration = 0;
+    let memoryStartedAt = 0;
+    let memoryElapsedMs = 0;
+    let memoryTimer = 0;
+    let memoryStatusSnapshot = null;
+    function formatMemoryTime(milliseconds) {
+      const tenths = Math.max(0,Math.floor(milliseconds / 100));
+      return `${Math.floor(tenths / 600)}:${String(Math.floor(tenths / 10) % 60).padStart(2,"0")}.${tenths % 10}`;
+    }
+    function updateMemoryStatus() {
+      if (!memoryActive) return;
+      const elapsed = memoryStartedAt ? performance.now() - memoryStartedAt : memoryElapsedMs;
+      const record = window.portfolioScores?.get("memory") || { score:0, secondary:0 };
+      const state = memoryPreparing ? "PREPARING" : memoryMatches === memoryPairCount ? "CLEAR" : "PLAYING";
+      featureStatusCopy.innerHTML = `${state}<br>${formatMemoryTime(elapsed)} · ${memoryMoves} moves<br>HIGH SCORE<br>${formatMemoryTime(record.score)}${record.score ? ` · ${record.secondary} moves` : ""}`;
+    }
+    function stopMemoryTimer() {
+      if (memoryStartedAt) memoryElapsedMs = performance.now() - memoryStartedAt;
+      memoryStartedAt = 0;
+      window.clearInterval(memoryTimer);
+      memoryTimer = 0;
+    }
+    function startMemoryTimer() {
+      stopMemoryTimer();
+      memoryElapsedMs = 0;
+      memoryStartedAt = performance.now();
+      memoryTimer = window.setInterval(updateMemoryStatus,100);
+      updateMemoryStatus();
+    }
     function shuffleMemoryDeck(deck) {
       for (let index = deck.length - 1; index > 0; index -= 1) {
         const target = Math.floor(Math.random() * (index + 1));
@@ -1236,6 +1265,7 @@
       memoryState.textContent = memoryActive
         ? memoryPreparing ? "PREPARING" : `${String(memoryMatches).padStart(2,"0")} / ${String(memoryPairCount).padStart(2,"0")} · ${String(memoryMoves).padStart(3,"0")}`
         : "00 / 00";
+      updateMemoryStatus();
     }
     function concealMemoryTile(tile) {
       const generation = memoryGeneration;
@@ -1282,6 +1312,7 @@
         if (!memoryActive || generation !== memoryGeneration) return;
         memoryPreparing = false;
         memoryLocked = false;
+        startMemoryTimer();
         updateMemoryUI();
       });
     }
@@ -1296,6 +1327,9 @@
       memoryMoves = 0;
       memoryMatches = 0;
       memoryOpenTiles = [];
+      stopMemoryTimer();
+      memoryElapsedMs = 0;
+      if (memoryStatusSnapshot === null) memoryStatusSnapshot = featureStatusCopy.innerHTML;
       memoryPairCount = Math.floor(homeTiles.length / 2);
       const imagePool = Array.from(new Set(featureItems
         .filter(item => item?.src && item.mediaType !== "html" && !/\.html?$/i.test(item.src))
@@ -1325,6 +1359,7 @@
     }
     function stopMemory(resumeGlitches = true) {
       memoryGeneration += 1;
+      stopMemoryTimer();
       memoryActive = false;
       memoryLocked = false;
       memoryPreparing = false;
@@ -1334,6 +1369,8 @@
       releaseHomeGlitches();
       if (resumeGlitches) window.setTimeout(placeGlitches, 450);
       updateMemoryUI();
+      if (memoryStatusSnapshot !== null) featureStatusCopy.innerHTML = memoryStatusSnapshot;
+      memoryStatusSnapshot = null;
     }
     function playMemoryTile(tile) {
       if (!memoryActive || memoryLocked || tile.classList.contains("memory-spare") || tile.classList.contains("memory-face-up") || tile.classList.contains("memory-matched")) return;
@@ -1362,7 +1399,13 @@
           window.setTimeout(() => {
             if (!memoryActive || generation !== memoryGeneration) return;
             first.classList.remove("memory-confirmed"); second.classList.remove("memory-confirmed");
-            if (complete) { memoryToggle.textContent = "COMPLETE / EXIT"; pulseMemoryBoard(); }
+            if (complete) {
+              stopMemoryTimer();
+              window.portfolioScores?.submit("memory",memoryElapsedMs,memoryMoves);
+              updateMemoryStatus();
+              memoryToggle.textContent = "COMPLETE / EXIT";
+              pulseMemoryBoard();
+            }
             else memoryLocked = false;
           }, 710);
         }, 560);
@@ -1380,6 +1423,7 @@
     }
     memoryToggle.addEventListener("click", () => memoryActive ? stopMemory() : startMemory());
     memoryReset.addEventListener("click", startMemory);
+    window.addEventListener("portfolio-scores:update",() => { if (memoryActive) updateMemoryStatus(); });
     updateMemoryUI();
 
     const minesToggle = document.getElementById("mines-toggle");
@@ -1409,6 +1453,8 @@
     let minesSuppressActivation = false;
     let minesLastTap = { tile:null, time:0 };
     let minesNoteSnapshot = null;
+    let minesStreak = (() => { try { return Math.max(0,Number(localStorage.getItem("werksporen-mines-streak-v1")) || 0); } catch { return 0; } })();
+    function saveMinesStreak() { try { localStorage.setItem("werksporen-mines-streak-v1",String(minesStreak)); } catch {} }
     // Quiet, low-resolution reduction of the MASK from skully2H.htm.
     // Only its shape is retained; the original background, colour and glyphs are omitted.
     const MINES_SKULL_MASK = [
@@ -1720,7 +1766,8 @@
       const state = minesPreparing ? "PREPARING" : minesEnded ? (won ? "CLEAR" : "GAME OVER") : minesSeeded ? "PLAYING" : "READY";
       const stateDetail = minesEnded ? (won ? `${MINES_COLUMNS * MINES_ROWS} cells resolved` : `${MINES_TOTAL} mines revealed`) : `${String(Math.max(0,MINES_TOTAL - minesFlags)).padStart(2,"0")} mines remaining`;
       paragraphs[1].querySelector("strong").textContent = "STATUS";
-      featureStatusCopy.innerHTML = `${state}<br>${stateDetail}`;
+      const record = window.portfolioScores?.get("mines") || { score:0 };
+      featureStatusCopy.innerHTML = `${state}<br>${stateDetail}<br>STREAK ${minesStreak}<br>HIGH SCORE<br>${record.score}`;
       featureMediumBlock.hidden = false;
       paragraphs[2].querySelector("strong").textContent = "MEDIUM";
       featureMediumCopy.textContent = `${MINES_TOTAL} mines / ${MINES_COLUMNS * MINES_ROWS} cells`;
@@ -1820,9 +1867,14 @@
     function finishMines(won) {
       minesEnded = true;
       if (!won) {
+        minesStreak = 0;
+        saveMinesStreak();
         minesBoard.forEach((cell,index) => { if (cell.mine) { cell.open = true; renderMineCell(index); } });
         homeMosaic.classList.add("mines-lost");
       } else {
+        minesStreak += 1;
+        saveMinesStreak();
+        window.portfolioScores?.submit("mines",minesStreak,0);
         homeMosaic.classList.remove("mines-won"); void homeMosaic.offsetWidth; homeMosaic.classList.add("mines-won");
       }
       updateMinesUI();
@@ -1883,6 +1935,7 @@
     minesReset.addEventListener("click",() => { if (minesReady) resetMinesBoard(); });
     minesOpenMode.addEventListener("click",() => { if (!minesReady || minesEnded) return; minesFlagMode = false; updateMinesUI(); });
     minesAction.addEventListener("click",() => { if (!minesReady || minesEnded) return; minesFlagMode = true; updateMinesUI(); });
+    window.addEventListener("portfolio-scores:update",() => { if (minesActive) showMinesNote(); });
     memoryToggle.addEventListener("click",event => {
       if (!minesActive) return;
       event.preventDefault(); event.stopImmediatePropagation();
@@ -3150,6 +3203,6 @@
     });
 
   </script>
-  <script src="portfolio-arcade.js?v=20260911-snake-score-4"></script>
+  <script src="portfolio-arcade.js?v=20260911-local-scores-7"></script>
 </body>
 </html>
