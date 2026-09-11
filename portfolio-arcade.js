@@ -6,7 +6,7 @@
     .arcade-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:7; touch-action:none; }
     .arcade-console { display:flex; flex-direction:column; flex-wrap:nowrap; align-items:flex-start; align-content:start; min-height:0; gap:7px; padding-top:7px; font:10px/1.4 var(--mono); }
     .arcade-console button { font:inherit; color:var(--accent); border:1px solid var(--hairline); background:transparent; padding:6px 9px; cursor:pointer; }
-    #memory-toggle, #mines-toggle, .arcade-launch { box-sizing:border-box; width:126px; min-height:28px; border:1px solid var(--hairline); padding:6px 9px; color:var(--accent); text-align:left; }
+    #memory-toggle, #mines-toggle, .home-game-console .arcade-launch { box-sizing:border-box; width:126px; min-height:28px; border:1px solid var(--hairline); padding:6px 9px; color:var(--accent); text-align:left; }
     .home-feature:not(:has(.home-mosaic.memory-mode)) #memory-state, #game-divider { display:none; }
     .arcade-console[hidden], .arcade-console [hidden], .arcade-canvas[hidden] { display:none; }
     .arcade-help { flex-basis:100%; color:var(--soft); }
