@@ -25,11 +25,12 @@
     .arcade-fullscreen .arcade-fullbar { display:flex; gap:8px; }
     .arcade-fullbar button { min-height:40px; padding:6px 12px; border:1px solid var(--hairline); background:var(--paper); color:var(--accent); font:12px var(--mono); }
     @media (pointer:coarse), (max-width:700px) {
-      .arcade-dpad:not([hidden]) { position:relative; display:block; width:120px; height:120px; margin:12px 0 12px auto; overflow:hidden; border:1px solid var(--hairline); border-radius:50%; background:radial-gradient(circle,color-mix(in srgb,var(--paper) 94%,transparent) 0 20%,transparent 21%),color-mix(in srgb,var(--paper) 88%,var(--hairline)); box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 85%,transparent),0 3px 9px color-mix(in srgb,var(--ink) 10%,transparent); touch-action:none; user-select:none; -webkit-user-select:none; }
+      .arcade-dpad:not([hidden]) { position:relative; display:block; width:120px; height:120px; margin:12px 0 12px auto; overflow:hidden; border:1px solid var(--hairline); border-radius:50%; background:radial-gradient(circle at 50% 48%,color-mix(in srgb,var(--paper) 94%,transparent) 0 24%,transparent 25%),color-mix(in srgb,var(--paper) 88%,var(--hairline)); box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 85%,transparent),inset 0 -3px 8px color-mix(in srgb,var(--ink) 6%,transparent),0 3px 9px color-mix(in srgb,var(--ink) 10%,transparent); touch-action:none; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; }
       .arcade-dpad::before, .arcade-dpad::after { content:''; position:absolute; inset:10px 50%; border-left:1px solid color-mix(in srgb,var(--hairline) 72%,transparent); pointer-events:none; }
       .arcade-dpad::after { inset:50% 10px; border:0; border-top:1px solid color-mix(in srgb,var(--hairline) 72%,transparent); }
-      .arcade-stick { position:absolute; left:50%; top:50%; width:42px; height:42px; border:1px solid var(--accent); border-radius:50%; background:color-mix(in srgb,var(--paper) 82%,var(--accent)); box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--paper) 80%,transparent),0 2px 5px color-mix(in srgb,var(--ink) 20%,transparent); transform:translate(-50%,-50%); pointer-events:none; transition:transform 90ms ease-out; }
-      .arcade-dpad.is-dragging .arcade-stick { transition:none; }
+      .arcade-stick { position:absolute; left:50%; top:50%; width:44px; height:44px; border:1px solid var(--accent); border-radius:50%; background:radial-gradient(circle at 40% 34%,color-mix(in srgb,var(--paper) 90%,var(--accent)) 0 12%,color-mix(in srgb,var(--paper) 72%,var(--accent)) 64%,color-mix(in srgb,var(--accent) 72%,var(--paper))); box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--paper) 68%,transparent),0 3px 7px color-mix(in srgb,var(--ink) 24%,transparent); transform:translate3d(-50%,-50%,0); pointer-events:none; transition:transform 110ms cubic-bezier(.2,.8,.2,1),box-shadow 110ms ease; will-change:transform; }
+      .arcade-dpad.is-dragging { border-color:color-mix(in srgb,var(--accent) 58%,var(--hairline)); }
+      .arcade-dpad.is-dragging .arcade-stick { transition:none; box-shadow:inset 0 0 0 4px color-mix(in srgb,var(--paper) 60%,transparent),0 4px 9px color-mix(in srgb,var(--ink) 30%,transparent),0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent); }
     }
     .home-feature:has(.arcade-mode) .home-game-console { display:none; }
     .home-feature:has(.home-mosaic.memory-mode) :is(#mines-toggle,.arcade-launch),
@@ -63,7 +64,7 @@
   ui.innerHTML = `<div class="arcade-status" role="status" hidden></div><div class="arcade-help" hidden></div>
     <div class="arcade-controls" hidden><button data-action="fullscreen">FULLSCREEN</button><button data-action="pause">PAUSE</button><button data-action="reset">RESET</button><button data-action="exit">EXIT</button></div>`;
   featureNote.append(ui);
-  const dpad=document.createElement('div');dpad.className='arcade-dpad';dpad.hidden=true;dpad.setAttribute('aria-label','Game directions');
+  const dpad=document.createElement('div');dpad.className='arcade-dpad';dpad.hidden=true;dpad.setAttribute('role','group');dpad.setAttribute('aria-label','Directional game joystick');
   dpad.innerHTML='<span class="arcade-stick" aria-hidden="true"></span>';
   featureNote.before(dpad);
   const fullbar=document.createElement('div');fullbar.className='arcade-fullbar';fullbar.innerHTML='<button type="button" data-action="pause">PAUSE / RESUME</button><button type="button" data-action="fullscreen">CLOSE FULLSCREEN</button>';featureNote.before(fullbar);
@@ -230,27 +231,38 @@
   }
   [snakeLaunch,tetrisLaunch].forEach(button=>button.addEventListener('click',()=>start(button.dataset.start)));
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(b?.dataset.action)action(b.dataset.action);});
-  let padTimer=0,padPointer=null,padDirection='';
+  let padTimer=0,padPointer=null,padDirection='',padStrength=0;
   const stick=dpad.querySelector('.arcade-stick');
-  function stopPad(){clearTimeout(padTimer);padTimer=0;padPointer=null;padDirection='';dpad.classList.remove('is-dragging');stick.style.transform='translate(-50%,-50%)';}
-  function padMove(event,initial=false){
-    if(!padPointer||event.pointerId!==padPointer)return;
+  function stopPad(){clearTimeout(padTimer);padTimer=0;padPointer=null;padDirection='';padStrength=0;dpad.classList.remove('is-dragging');stick.style.transform='translate3d(-50%,-50%,0)';}
+  function padRepeat(pointerId,direction){
+    if(!padPointer||padPointer.id!==pointerId||padDirection!==direction||game!=='tetris')return;
+    action(direction);
+    const interval=direction==='down'?Math.round(92-padStrength*42):Math.round(126-padStrength*54);
+    padTimer=setTimeout(()=>padRepeat(pointerId,direction),interval);
+  }
+  function padMove(event){
+    if(!padPointer||event.pointerId!==padPointer.id)return;
     const rect=dpad.getBoundingClientRect(),cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
-    let dx=event.clientX-cx,dy=event.clientY-cy;const distance=Math.hypot(dx,dy),limit=34;
+    let dx=event.clientX-cx,dy=event.clientY-cy;const distance=Math.hypot(dx,dy),limit=35,deadzone=11;
     if(distance>limit){dx=dx/distance*limit;dy=dy/distance*limit;}
-    stick.style.transform=`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
-    if(distance<12)return;
+    stick.style.transform=`translate3d(calc(-50% + ${dx}px),calc(-50% + ${dy}px),0)`;
+    const now=performance.now(),deltaTime=Math.max(1,now-padPointer.lastTime);
+    padPointer.velocityY=(event.clientY-padPointer.lastY)/deltaTime;
+    padPointer.lastY=event.clientY;padPointer.lastTime=now;
+    if(distance<deadzone){clearTimeout(padTimer);padTimer=0;padDirection='';padStrength=0;return;}
+    padStrength=Math.min(1,(distance-deadzone)/(limit-deadzone));
     const direction=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
-    if(direction===padDirection&&!initial)return;
+    if(direction===padDirection)return;
     clearTimeout(padTimer);padTimer=0;padDirection=direction;action(direction);
+    if(navigator.vibrate)navigator.vibrate(7);
     if(game==='tetris'&&['left','right','down'].includes(direction)){
-      const repeat=()=>{if(padPointer===event.pointerId&&padDirection===direction){action(direction);padTimer=setTimeout(repeat,direction==='down'?45:70);}};
-      padTimer=setTimeout(repeat,150);
+      padTimer=setTimeout(()=>padRepeat(event.pointerId,direction),170);
     }
   }
-  dpad.addEventListener('pointerdown',e=>{if(!e.isPrimary||!game)return;e.preventDefault();e.stopPropagation();stopPad();padPointer=e.pointerId;dpad.setPointerCapture(e.pointerId);dpad.classList.add('is-dragging');padMove(e,true);});
+  dpad.addEventListener('pointerdown',e=>{if(!e.isPrimary||!game)return;e.preventDefault();e.stopPropagation();stopPad();padPointer={id:e.pointerId,startY:e.clientY,lastY:e.clientY,lastTime:performance.now(),velocityY:0};dpad.setPointerCapture(e.pointerId);dpad.classList.add('is-dragging');padMove(e);});
   dpad.addEventListener('pointermove',e=>padMove(e));
-  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>dpad.addEventListener(type,stopPad));
+  dpad.addEventListener('pointerup',e=>{if(!padPointer||e.pointerId!==padPointer.id)return;const hardDrop=game==='tetris'&&padDirection==='down'&&e.clientY-padPointer.startY>28&&padPointer.velocityY>.48&&performance.now()-padPointer.lastTime<100;stopPad();if(hardDrop)action('drop');});
+  ['pointercancel','lostpointercapture'].forEach(type=>dpad.addEventListener(type,stopPad));
   window.addEventListener('blur',stopPad);
   window.addEventListener('keydown',e=>{if(!game||e.target.closest('input,textarea,select'))return;const key=e.key.length===1?e.key.toLowerCase():e.key;const a={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',' ':'drop',p:'pause',Escape:'pause'}[key];if(a){e.preventDefault();if(!e.repeat||!['drop','pause','up'].includes(a))action(a);}},true);
   let pointer=null;
