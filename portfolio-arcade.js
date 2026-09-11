@@ -25,14 +25,14 @@
     .arcade-fullscreen .arcade-fullbar { display:flex; gap:8px; }
     .arcade-fullbar button { min-height:40px; padding:6px 12px; border:1px solid var(--hairline); background:var(--paper); color:var(--accent); font:12px var(--mono); }
     @media (pointer:coarse), (max-width:700px) {
-      .arcade-dpad:not([hidden]) { display:grid; grid-template-columns:repeat(3,44px); grid-template-rows:repeat(2,44px); gap:5px; width:max-content; margin:12px 0 12px auto; touch-action:none; }
-      .arcade-dpad button { border:1px solid var(--hairline); border-radius:5px; background:var(--paper); color:var(--accent); font:20px var(--mono); padding:0; touch-action:none; user-select:none; -webkit-user-select:none; }
-      .arcade-dpad button:active { background:var(--accent); color:var(--paper); }
-      .arcade-dpad [data-action=up] { grid-column:2; }
+      .arcade-dpad:not([hidden]) { display:grid; grid-template-columns:repeat(3,40px); grid-template-rows:repeat(3,40px); width:120px; height:120px; margin:12px 0 12px auto; overflow:hidden; border:1px solid var(--hairline); border-radius:50%; background:color-mix(in srgb,var(--paper) 88%,var(--hairline)); box-shadow:inset 0 1px 0 color-mix(in srgb,var(--paper) 85%,transparent),0 3px 9px color-mix(in srgb,var(--ink) 10%,transparent); touch-action:none; }
+      .arcade-dpad button { border:0; background:transparent; color:var(--accent); font:20px/1 var(--mono); padding:0; touch-action:none; user-select:none; -webkit-user-select:none; }
+      .arcade-dpad button:active { background:color-mix(in srgb,var(--accent) 18%,transparent); color:var(--ink); }
+      .arcade-dpad [data-action=up] { grid-column:2; grid-row:1; }
       .arcade-dpad [data-action=left] { grid-column:1; grid-row:2; }
-      .arcade-dpad [data-action=down] { grid-column:2; grid-row:2; }
+      .arcade-dpad [data-action=down] { grid-column:2; grid-row:3; }
       .arcade-dpad [data-action=right] { grid-column:3; grid-row:2; }
-      .arcade-dpad [data-action=drop] { grid-column:3; grid-row:1; font-size:12px; }
+      .arcade-dpad [data-action=drop] { grid-column:2; grid-row:2; width:32px; height:32px; align-self:center; justify-self:center; border:1px solid var(--hairline); border-radius:50%; background:var(--paper); font-size:8px; }
     }
     .home-feature:has(.arcade-mode) .home-game-console { display:none; }
     .home-feature:has(.home-mosaic.memory-mode) :is(#mines-toggle,.arcade-launch),
