@@ -60,11 +60,12 @@
     '000000011000110100000000','000000000000001000000000','000000001101110000000000','000000000100000000000000'
   ];
   const skullySprites = new Map();
+  const tetrisHighScore = Object.freeze({ score:19254, lines:49, player:'ANONYMOUS' });
   const shapes = { I:[[0,1],[1,1],[2,1],[3,1]], O:[[1,0],[2,0],[1,1],[2,1]], T:[[1,0],[0,1],[1,1],[2,1]], S:[[1,0],[2,0],[0,1],[1,1]], Z:[[0,0],[1,0],[1,1],[2,1]], J:[[0,0],[0,1],[1,1],[2,1]], L:[[2,0],[0,1],[1,1],[2,1]] };
   function note() {
     const state=ended ? (game === 'snake' && snake.length === cols*rows ? 'CLEAR' : 'GAME OVER') : paused ? 'PAUSED' : 'PLAYING';
     status.textContent = `${game.toUpperCase()} / ${state} / ${score}${game === 'tetris' ? ` / ${lines} LINES / NEXT ${next}` : ''}`;
-    if(game)featureStatusCopy.innerHTML=game==='tetris'?`${state}<br>${score} points · ${lines} lines`:`${state}<br>${score} points`;
+    if(game)featureStatusCopy.innerHTML=game==='tetris'?`${state}<br>${score} points · ${lines} lines<br>HIGH SCORE<br>${tetrisHighScore.score} points · ${tetrisHighScore.lines} lines · ${tetrisHighScore.player}`:`${state}<br>${score} points`;
   }
   function resize() { const r=homeMosaic.getBoundingClientRect(), d=devicePixelRatio||1; canvas.width=Math.round(r.width*d); canvas.height=Math.round(r.height*d); skullySprites.clear(); if(game) draw(); }
   new ResizeObserver(resize).observe(homeMosaic);
@@ -144,7 +145,7 @@
       const startX=cellX+(cellW-skullW)/2,startY=cellY+(cellH-skullH)/2;
       ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(sprite,startX,startY,skullW,skullH);ctx.globalAlpha=1;
     };
-    if(game==='snake'){snake.forEach((p,i)=>{cell(p.x,p.y,'#fff',i===0?.28:.18);glowCell(p.x,p.y,'#fff',i===0?.42:.3);skully(p.x,p.y,'#080908',i===0?1:.9);});if(food){cell(food.x,food.y,accent,.82);glowCell(food.x,food.y,'#fff',.34);}}
+    if(game==='snake'){snake.forEach((p,i)=>{cell(p.x,p.y,i===0?accent:'#fff',i===0?.9:.18);glowCell(p.x,p.y,'#fff',i===0?.4:.3);skully(p.x,p.y,'#080908',i===0?1:.9);});if(food){cell(food.x,food.y,accent,.9);glowCell(food.x,food.y,'#fff',.4);skully(food.x,food.y,'#080908',1);}}
     else {
       const tetrisBlock=(x,y,alpha=1,active=false)=>{cell(x,y,'#fff',alpha*(active?.3:.18));glowCell(x,y,'#fff',alpha*(active?.46:.32));skully(x,y,'#080908',alpha);};
       board.forEach((r,y)=>r.forEach((v,x)=>{if(v)tetrisBlock(x,y,clearing.includes(y)?.32:.92);}));
