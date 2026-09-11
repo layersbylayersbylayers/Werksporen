@@ -16,6 +16,24 @@
     .tetris-next > i.is-filled { background:var(--accent); box-shadow:inset 0 0 3px rgba(255,255,255,.72); }
     .arcade-controls { display:flex; flex-wrap:wrap; gap:6px; padding-top:7px; border-top:1px solid var(--hairline); }
     .arcade-controls button { min-width:40px; min-height:40px; touch-action:manipulation; }
+    .arcade-dpad { display:none; }
+    .arcade-fullscreen { position:fixed!important; inset:0!important; z-index:10000!important; width:100%!important; height:100dvh!important; max-width:none!important; margin:0!important; padding: max(8px,env(safe-area-inset-top)) 12px max(8px,env(safe-area-inset-bottom))!important; background:var(--paper); display:flex!important; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+    .arcade-fullscreen .home-mosaic { flex:none; width:min(calc(100vw - 24px),calc((100dvh - 180px) * .69))!important; height:auto!important; aspect-ratio:9/13!important; margin:0!important; }
+    .home-feature.arcade-fullscreen > :is(.feature-note,.scroll-cue,.home-image) { display:none!important; }
+    .arcade-fullscreen .arcade-dpad { display:grid; align-self:center; margin:0; }
+    .arcade-fullbar { display:none; }
+    .arcade-fullscreen .arcade-fullbar { display:flex; gap:8px; }
+    .arcade-fullbar button { min-height:40px; padding:6px 12px; border:1px solid var(--hairline); background:var(--paper); color:var(--accent); font:12px var(--mono); }
+    @media (pointer:coarse), (max-width:700px) {
+      .arcade-dpad:not([hidden]) { display:grid; grid-template-columns:repeat(3,44px); grid-template-rows:repeat(2,44px); gap:5px; width:max-content; margin:12px 0 12px auto; touch-action:none; }
+      .arcade-dpad button { border:1px solid var(--hairline); border-radius:5px; background:var(--paper); color:var(--accent); font:20px var(--mono); padding:0; touch-action:none; user-select:none; -webkit-user-select:none; }
+      .arcade-dpad button:active { background:var(--accent); color:var(--paper); }
+      .arcade-dpad [data-action=up] { grid-column:2; }
+      .arcade-dpad [data-action=left] { grid-column:1; grid-row:2; }
+      .arcade-dpad [data-action=down] { grid-column:2; grid-row:2; }
+      .arcade-dpad [data-action=right] { grid-column:3; grid-row:2; }
+      .arcade-dpad [data-action=drop] { grid-column:3; grid-row:1; font-size:12px; }
+    }
     .home-feature:has(.arcade-mode) .home-game-console { display:none; }
     .home-feature:has(.home-mosaic.memory-mode) :is(#mines-toggle,.arcade-launch),
     .home-feature:has(.home-mosaic.mines-mode) .arcade-launch { display:none; }
@@ -42,8 +60,21 @@
   const ctx = canvas.getContext('2d');
   const ui = document.createElement('div'); ui.className = 'arcade-console'; ui.hidden = true;
   ui.innerHTML = `<div class="arcade-status" role="status" hidden></div><div class="arcade-help" hidden></div>
-    <div class="arcade-controls" hidden><button data-action="pause">PAUSE</button><button data-action="reset">RESET</button><button data-action="exit">EXIT</button></div>`;
+    <div class="arcade-controls" hidden><button data-action="fullscreen">FULLSCREEN</button><button data-action="pause">PAUSE</button><button data-action="reset">RESET</button><button data-action="exit">EXIT</button></div>`;
   featureNote.append(ui);
+  const dpad=document.createElement('div');dpad.className='arcade-dpad';dpad.hidden=true;dpad.setAttribute('aria-label','Game directions');
+  dpad.innerHTML='<button type="button" data-action="up" aria-label="Up or rotate">↑</button><button type="button" data-action="left" aria-label="Left">←</button><button type="button" data-action="down" aria-label="Down; hold to lower">↓</button><button type="button" data-action="right" aria-label="Right">→</button><button type="button" data-action="drop" aria-label="Drop piece instantly">DROP</button>';
+  featureNote.before(dpad);
+  const fullbar=document.createElement('div');fullbar.className='arcade-fullbar';fullbar.innerHTML='<button type="button" data-action="pause">PAUSE / RESUME</button><button type="button" data-action="fullscreen">CLOSE FULLSCREEN</button>';featureNote.before(fullbar);
+  fullbar.addEventListener('click',e=>{const b=e.target.closest('button');if(b)action(b.dataset.action);});
+  let fullScroll=0,oldOverflow='',fullAnchor=null;
+  function toggleFullscreen(){
+    const opening=!homeFeature.classList.contains('arcade-fullscreen');
+    if(opening){fullScroll=scrollY;oldOverflow=document.body.style.overflow;document.body.style.overflow='hidden';fullAnchor=document.createElement('div');fullAnchor.style.height=homeFeature.getBoundingClientRect().height+'px';homeFeature.before(fullAnchor);document.body.append(homeFeature);}
+    homeFeature.classList.toggle('arcade-fullscreen',opening);
+    if(!opening){fullAnchor.replaceWith(homeFeature);fullAnchor=null;document.body.style.overflow=oldOverflow;window.scrollTo({top:fullScroll,behavior:'instant'});}
+    requestAnimationFrame(resize);
+  }
   const gameMenu = featureNote.querySelector('.home-game-console');
   const snakeLaunch = document.createElement('button'); snakeLaunch.type='button'; snakeLaunch.className='arcade-launch'; snakeLaunch.dataset.start='snake'; snakeLaunch.textContent='SNAKE / PLAY';
   const tetrisLaunch = document.createElement('button'); tetrisLaunch.type='button'; tetrisLaunch.className='arcade-launch'; tetrisLaunch.dataset.start='tetris'; tetrisLaunch.textContent='TETRIS / PLAY';
@@ -85,7 +116,8 @@
   new ResizeObserver(resize).observe(homeMosaic);
   function randomFood() { const free=[]; for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y}); return free[Math.floor(Math.random()*free.length)]; }
   function take() { if(!bag.length) { bag=Object.keys(shapes); for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]];} } return bag.pop(); }
-  function spawn() { const type=next; next=take(); piece={type,x:3,y:0,cells:shapes[type].map(p=>[...p])}; if(!fits(piece))ended=true; }
+  let pieceGeneration=0;
+  function spawn() { const type=next; next=take(); piece={id:++pieceGeneration,type,x:3,y:0,cells:shapes[type].map(p=>[...p])}; if(!fits(piece))ended=true; }
   function fits(p) { return p.cells.every(([x,y])=>{x+=p.x;y+=p.y;return x>=0&&x<cols&&y>=0&&y<rows&&!board[y][x];}); }
   function reset() {
     paused=false;ended=false;elapsed=0;last=0;score=0;lines=0;clearing=[];clearTime=0;scoreSubmitted=false;
@@ -101,6 +133,7 @@
   }
   function action(a) {
     if(!game||busy)return;
+    if(a==='fullscreen'){toggleFullscreen();return;}
     if(a==='exit'){stop();return;} if(a==='reset'){reset();return;}
     if(a==='pause'){paused=!paused;last=0;note();draw();return;}
     if(paused||ended)return;
@@ -181,39 +214,55 @@
     freezeHomeGlitches(false);activeGlitchTiles.clear();
     await morphHomeGameGrid(cols,rows,()=>{setHomeGridDimensions(cols,rows);homeMosaic.classList.add('arcade-mode');canvas.hidden=false;});
     document.querySelectorAll('.arcade-launch').forEach(b=>b.hidden=true);featureNote.classList.add('arcade-note');ui.hidden=false;status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=false;
-    featureNoteCopy.textContent=kind==='snake'?'SNAKE — collect the square. Tap around the snake, swipe, or use arrows / WASD. Edges loop; avoid your tail.':'TETRIS — tap to rotate. Drag left/right to move, drag down to lower, or swipe down quickly to drop instantly. Desktop: arrows / WASD; space drops.';
+    dpad.hidden=false;dpad.querySelector('[data-action=drop]').hidden=kind!=='tetris';
+    featureNoteCopy.textContent=kind==='snake'?'SNAKE — collect the red skull. Tap around the snake, swipe, or use the D-pad. Edges loop; avoid your tail. Keyboard: arrows / WASD.':'TETRIS — tap or ↑ to rotate. Drag sideways to move; drag down or hold ↓ to lower. DROP or a quick downward swipe drops instantly. Keyboard: arrows / WASD; space drops.';
     featureFormatCopy.textContent=kind==='snake'?'18 × 26 grid':'10 × 20 grid';
     resize();reset();busy=false;frame=requestAnimationFrame(loop);
   }
   async function stop() {
     if(busy)return;busy=true;cancelAnimationFrame(frame);
+    if(homeFeature.classList.contains('arcade-fullscreen'))toggleFullscreen();
+    stopPad();dpad.hidden=true;
     await morphHomeGameGrid(mosaicColumns,mosaicRows,()=>{homeMosaic.classList.remove('arcade-mode');canvas.hidden=true;setHomeGridDimensions(mosaicColumns,mosaicRows);},false);
     game=null;window.arcadeGameActive=false;busy=false;featureNote.classList.remove('arcade-note');status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=true;ui.hidden=true;document.querySelectorAll('.arcade-launch').forEach(b=>b.hidden=false);
     featureNoteCopy.textContent=savedNote;featureStatusCopy.innerHTML=savedStatus;featureFormatCopy.textContent=savedFormat;workGrid.style.minHeight=savedMinHeight;releaseHomeGlitches();
   }
   [snakeLaunch,tetrisLaunch].forEach(button=>button.addEventListener('click',()=>start(button.dataset.start)));
   ui.addEventListener('click',e=>{const b=e.target.closest('button');if(b?.dataset.action)action(b.dataset.action);});
+  let padTimer=0;
+  function stopPad(){clearTimeout(padTimer);padTimer=0;}
+  dpad.addEventListener('pointerdown',e=>{
+    const b=e.target.closest('button');if(!b||!e.isPrimary)return;
+    e.preventDefault();e.stopPropagation();stopPad();b.setPointerCapture(e.pointerId);
+    const a=b.dataset.action;action(a);
+    if(game==='tetris'&&['left','right','down'].includes(a)){
+      const repeat=()=>{action(a);padTimer=setTimeout(repeat,a==='down'?45:70);};
+      padTimer=setTimeout(repeat,160);
+    }
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>dpad.addEventListener(type,stopPad));
+  window.addEventListener('blur',stopPad);
   window.addEventListener('keydown',e=>{if(!game||e.target.closest('input,textarea,select'))return;const key=e.key.length===1?e.key.toLowerCase():e.key;const a={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',' ':'drop',p:'pause',Escape:'pause'}[key];if(a){e.preventDefault();if(!e.repeat||!['drop','pause','up'].includes(a))action(a);}},true);
   let pointer=null;
   canvas.addEventListener('pointerdown',e=>{
-    pointer={x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,id:e.pointerId,time:performance.now(),moved:false,softSteps:0,pieceRef:piece};
+    pointer={x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,id:e.pointerId,time:performance.now(),moved:false,softSteps:0,pieceId:piece?.id};
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove',e=>{
     if(!pointer||pointer.id!==e.pointerId||game!=='tetris'||paused||ended||busy)return;
-    if(pointer.pieceRef!==piece)return;
+    if(pointer.pieceId!==piece?.id)return;
     const rect=canvas.getBoundingClientRect(),stepWidth=rect.width/cols,stepHeight=rect.height/rows;
     let stepX=e.clientX-pointer.lastX,stepY=e.clientY-pointer.lastY;
-    while(Math.abs(stepX)>=stepWidth*.72){action(stepX>0?'right':'left');pointer.lastX+=Math.sign(stepX)*stepWidth*.72;stepX=e.clientX-pointer.lastX;pointer.moved=true;}
-    while(stepY>=stepHeight*.72){action('down');pointer.lastY+=stepHeight*.72;stepY=e.clientY-pointer.lastY;pointer.moved=true;pointer.softSteps++;}
+    while(Math.abs(stepX)>=stepWidth*.45&&pointer.pieceId===piece?.id){action(stepX>0?'right':'left');pointer.lastX+=Math.sign(stepX)*stepWidth*.45;stepX=e.clientX-pointer.lastX;pointer.moved=true;}
+    while(stepY>=stepHeight*.4&&pointer.pieceId===piece?.id){action('down');pointer.lastY+=stepHeight*.4;stepY=e.clientY-pointer.lastY;pointer.moved=true;pointer.softSteps++;}
   });
   canvas.addEventListener('pointerup',e=>{
     if(!pointer)return;
     const gesture=pointer,dx=e.clientX-gesture.x,dy=e.clientY-gesture.y,duration=performance.now()-gesture.time;pointer=null;
     if(game==='tetris'){
-      if(gesture.pieceRef!==piece)return;
+      if(gesture.pieceId!==piece?.id)return;
       if(Math.hypot(dx,dy)<15&&!gesture.moved)action('up');
-      else if(dy>55&&duration<260&&Math.abs(dy)>Math.abs(dx)*1.2)action('drop');
+      else if(dy>38&&duration<350&&Math.abs(dy)>Math.abs(dx)*1.2)action('drop');
       return;
     }
     if(Math.hypot(dx,dy)<15){

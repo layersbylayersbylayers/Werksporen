@@ -949,7 +949,7 @@
         });
         cell.replaceChildren(strip);
         cell.dataset.current = next;
-        const duration = 155 + (index * 19) % 86;
+        const duration = 260 + (index * 19) % 100;
         strip.animate([{ transform:"translate3d(0,0,0)" },{ transform:"translate3d(0,-50%,0)" }], { duration, fill:"forwards", easing:"linear" });
         timers.push(window.setTimeout(() => rollCell(cell,index),duration));
       };
@@ -962,13 +962,13 @@
             cell.getAnimations({ subtree:true }).forEach(animation => animation.cancel());
             cell.replaceChildren(document.createTextNode(cell.dataset.target));
             cell.classList.add("is-landed");
-          },index * 58));
+          },index * 75));
           window.setTimeout(() => {
             source.textContent = finalName;
             source.classList.remove("is-glyph-rolling");
             resolve();
-          },target.length * 58 + 120);
-        },1000);
+          },target.length * 75 + 180);
+        },1600);
       });
     }
     function renderTypedWelcome(value) {
@@ -2915,7 +2915,7 @@
       const layer = document.createElement("div");
       layer.className = "raster-morph-layer";
       Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
-      const duration = 1500;
+      const duration = 850;
       const cssGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
       const sampleFrame = overviewGrid.querySelector(".overview-thumb");
       const frameBorder = Math.max(0, Number.parseFloat(sampleFrame ? getComputedStyle(sampleFrame).borderLeftWidth : 1) || 1);
@@ -2990,7 +2990,7 @@
       const layer = document.createElement("div"); layer.className = "raster-morph-layer";
       Object.assign(layer.style,{ left:`${frame.left}px`, top:`${frame.top}px`, width:`${frame.width}px`, height:`${frame.height}px` });
       const sourceGap = Math.max(1, Number.parseFloat(getComputedStyle(overviewGrid).gap) || 12);
-      const duration = 1280;
+      const duration = 850;
       const animations = [];
       const morphCorners = [];
       const axes = [
@@ -3277,6 +3277,6 @@
     });
 
   </script>
-  <script src="portfolio-arcade.js?v=20260911-local-scores-7"></script>
+  <script src="portfolio-arcade.js?v=20260911-touch-8"></script>
 </body>
 </html>
