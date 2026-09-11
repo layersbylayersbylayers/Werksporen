@@ -144,14 +144,14 @@
       const startX=cellX+(cellW-skullW)/2,startY=cellY+(cellH-skullH)/2;
       ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(sprite,startX,startY,skullW,skullH);ctx.globalAlpha=1;
     };
-    if(game==='snake'){snake.forEach((p,i)=>{glowCell(p.x,p.y,i===0?accent:ink,i===0?.22:.13);skully(p.x,p.y,i===0?accent:ink,i===0?1:.82);});if(food){cell(food.x,food.y,accent,.82);glowCell(food.x,food.y,accent,.26);}}
+    if(game==='snake'){snake.forEach((p,i)=>{cell(p.x,p.y,'#fff',i===0?.28:.18);glowCell(p.x,p.y,'#fff',i===0?.42:.3);skully(p.x,p.y,'#080908',i===0?1:.9);});if(food){cell(food.x,food.y,accent,.82);glowCell(food.x,food.y,'#fff',.34);}}
     else {
-      const tetrisBlock=(x,y,color,alpha=1)=>{cell(x,y,color,alpha*.12);glowCell(x,y,color,alpha*.2);skully(x,y,color,alpha);};
-      board.forEach((r,y)=>r.forEach((v,x)=>{if(v)tetrisBlock(x,y,ink,clearing.includes(y)?.32:.88);}));
+      const tetrisBlock=(x,y,alpha=1,active=false)=>{cell(x,y,'#fff',alpha*(active?.3:.18));glowCell(x,y,'#fff',alpha*(active?.46:.32));skully(x,y,'#080908',alpha);};
+      board.forEach((r,y)=>r.forEach((v,x)=>{if(v)tetrisBlock(x,y,clearing.includes(y)?.32:.92);}));
       if(!clearing.length){
         let ghost={...piece};while(fits({...ghost,y:ghost.y+1}))ghost.y++;
-        ghost.cells.forEach(([x,y])=>skully(ghost.x+x,ghost.y+y,ink,.16));
-        piece.cells.forEach(([x,y])=>tetrisBlock(piece.x+x,piece.y+y,accent,1));
+        ghost.cells.forEach(([x,y])=>{glowCell(ghost.x+x,ghost.y+y,'#fff',.12);skully(ghost.x+x,ghost.y+y,'#fff',.22);});
+        piece.cells.forEach(([x,y])=>tetrisBlock(piece.x+x,piece.y+y,1,true));
       }
     }
     if(paused||ended){ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,0,w,h);ctx.fillStyle=ink;ctx.font=`${16*d}px monospace`;ctx.textAlign='center';ctx.fillText(paused?'PAUSED':'GAME OVER',w/2,h/2);}
