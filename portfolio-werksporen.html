@@ -50,12 +50,7 @@
       border-bottom: 1px solid var(--ink);
       padding-bottom: 6px;
     }
-    .name { position:relative; display:inline-block; width:max-content; letter-spacing: -.05em; font-size: 21px; font-weight: 500; color: var(--accent); padding-top: 8px; }
-    .name-source.is-glyph-rolling { display:inline-flex; letter-spacing:0; white-space:pre; }
-    .name-glyph-cell { position:relative; display:inline-block; height:1.45em; overflow:hidden; color:inherit; vertical-align:top; }
-    .name-glyph-strip { display:block; width:100%; height:200%; will-change:transform; }
-    .name-glyph-strip > b { display:block; width:100%; height:1.45em; line-height:1.45em; text-align:center; font:inherit; font-weight:inherit; }
-    .name-glyph-cell.is-landed { overflow:visible; }
+    .name { letter-spacing: -.05em; font-size: 21px; font-weight: 500; color: var(--accent); padding-top: 8px; }
     .edition { color: var(--soft); text-align: center; font-size: 10px; padding-top: 3px; }
     .location { text-align: right; color: var(--soft); font-size: 11px; padding-top: 3px; }
     .language-toggle { border:0; padding:0; background:transparent; color:inherit; font:inherit; letter-spacing:.025em; cursor:pointer; text-align:right; }
@@ -574,7 +569,7 @@
 
   <main class="page">
     <header class="masthead">
-      <a class="name" href="#top" aria-label="Lars Kramer"><span class="name-source">[ Lars Kramer ]</span></a>
+      <a class="name" href="#top">[ Lars Kramer ]</a>
       <div class="edition">WERKSPOREN / 01 — 2026</div>
       <div class="masthead-controls" aria-hidden="true"></div>
     </header>
@@ -754,9 +749,7 @@
         makeFilter("contact", adminTexts.contactButton || "contact")
       );
     }
-    // Preserve the glyph host when applying the admin's configured title.
-    setText(".name-source", adminTexts.name); setText(".edition", adminTexts.edition);
-    document.querySelector(".name").setAttribute("aria-label", document.querySelector(".name-source").textContent);
+    setText(".name", adminTexts.name); setText(".edition", adminTexts.edition);
     const languageToggle = document.getElementById("language-toggle");
     const themeToggle = document.getElementById("theme-toggle");
     const themeStorageKey = "werksporen-theme-v1";
@@ -904,73 +897,6 @@
     const welcomeLead = adminTexts.welcome || translations[currentLanguage].welcome;
     let welcome = `${welcomeLead}\n\n${today}.`;
     const typewriterText = document.getElementById("typewriter-text");
-    const NAME_GLYPHS = Array.from("○●◉◎◌◍◐◑◒◓◔◕□■▢▣◻◼△▲▽▼◇◆◈◊⬡⬢✦★✧✚✜✓✕⟐⟡⟲⟳⊕⊗∧∨¬∀∃∈∉←→↑↓≔≈⌂⌘⚙☰ᚠᚢᚦᚨᚱᚲアイウエオカキクケコ⠁⠃⠇⠉⠋");
-    function runNameIntro() {
-      const name = document.querySelector(".name");
-      const source = name?.querySelector(".name-source");
-      if (!name || !source) return Promise.resolve();
-      const finalName = source.textContent || "[ Lars Kramer ]";
-      const target = Array.from(finalName);
-      const nameBounds = name.getBoundingClientRect();
-      const sourceNode = source.firstChild;
-      const widths = target.map((letter,index) => {
-        if (!sourceNode) return 0;
-        const range = document.createRange();
-        range.setStart(sourceNode,index);
-        range.setEnd(sourceNode,index + 1);
-        return range.getBoundingClientRect().width;
-      });
-      source.classList.add("is-glyph-rolling");
-      const cells = target.map((letter,index) => {
-        const cell = document.createElement("span");
-        cell.className = "name-glyph-cell";
-        cell.dataset.target = letter;
-        cell.style.width = `${Math.max(1,widths[index] || nameBounds.width / target.length)}px`;
-        if (letter !== " ") {
-          cell.textContent = NAME_GLYPHS[(index * 17) % NAME_GLYPHS.length];
-        } else {
-          cell.textContent = " ";
-        }
-        return cell;
-      });
-      source.replaceChildren(...cells);
-      let rolling = true;
-      const timers = [];
-      const rollCell = (cell,index) => {
-        if (!rolling || cell.dataset.target === " ") return;
-        const current = cell.dataset.current || cell.textContent;
-        const next = NAME_GLYPHS[Math.floor(Math.random() * NAME_GLYPHS.length)];
-        const strip = document.createElement("span");
-        strip.className = "name-glyph-strip";
-        [current,next].forEach(value => {
-          const item = document.createElement("b");
-          item.textContent = value;
-          strip.append(item);
-        });
-        cell.replaceChildren(strip);
-        cell.dataset.current = next;
-        const duration = 260 + (index * 19) % 100;
-        strip.animate([{ transform:"translate3d(0,0,0)" },{ transform:"translate3d(0,-50%,0)" }], { duration, fill:"forwards", easing:"linear" });
-        timers.push(window.setTimeout(() => rollCell(cell,index),duration));
-      };
-      cells.forEach((cell,index) => rollCell(cell,index));
-      return new Promise(resolve => {
-        window.setTimeout(() => {
-          rolling = false;
-          timers.forEach(timer => window.clearTimeout(timer));
-          cells.forEach((cell,index) => window.setTimeout(() => {
-            cell.getAnimations({ subtree:true }).forEach(animation => animation.cancel());
-            cell.replaceChildren(document.createTextNode(cell.dataset.target));
-            cell.classList.add("is-landed");
-          },index * 75));
-          window.setTimeout(() => {
-            source.textContent = finalName;
-            source.classList.remove("is-glyph-rolling");
-            resolve();
-          },target.length * 75 + 180);
-        },1600);
-      });
-    }
     function renderTypedWelcome(value) {
       const caret = document.querySelector(".intro .type-caret");
       const typedValue = String(value || "");
@@ -1024,7 +950,7 @@
         finishHomeIntro();
       }
     }
-    runNameIntro().then(() => window.setTimeout(typeWelcome, 160));
+    window.setTimeout(typeWelcome, 500);
     const featureImage = document.getElementById("featured-image");
     const featureNote = document.querySelector(".feature-note");
     const featureNoteCopy = document.getElementById("feature-note-copy");
