@@ -2522,6 +2522,44 @@
       "viewerPerspectiveY": 0,
       "format": "image",
       "order": 64
+    },
+    {
+      "id": "skully2h",
+      "src": "portfolio-animations/skully2H.html",
+      "originalSrc": "portfolio-animations/skully2H.html",
+      "mediaType": "html",
+      "title": "Skully",
+      "note": "Animated digital skull study.",
+      "status": "selected",
+      "year": "2026",
+      "medium": "generative canvas animation",
+      "categories": [
+        "digitaal"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": true,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "animated digital work",
+      "order": 65
     }
   ]
 }
