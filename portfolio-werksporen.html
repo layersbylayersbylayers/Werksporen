@@ -563,7 +563,7 @@
     .home-panel-glitch { position:absolute; display:block; background-repeat:no-repeat; pointer-events:none; }
     .home-mosaic.is-morphing-out::after { opacity:0; }
     .home-mosaic.is-transition-locked .home-tile { animation-play-state:paused !important; }
-    @media (prefers-reduced-motion:reduce) { .is-control-rolling { animation:none; } .name-glyph-loader { display:none!important; } }
+    @media (prefers-reduced-motion:reduce) { .is-control-rolling { animation:none; } }
 
     /* One continuous left-hand dossier line on mobile, desktop and ultrawide. */
     .overview-grid, .detail-panel, .home-feature, .grid-controls { margin-left:0; margin-right:0; }
@@ -908,7 +908,7 @@
       const name = document.querySelector(".name");
       const source = name?.querySelector(".name-source");
       const host = document.getElementById("name-glyph-loader");
-      if (!name || !source || !host || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return Promise.resolve();
+      if (!name || !source || !host) return Promise.resolve();
       const target = Array.from(source.textContent || "[ Lars Kramer ]");
       host.hidden = false;
       host.replaceChildren();
@@ -946,7 +946,7 @@
         });
         cell.replaceChildren(strip);
         cell.dataset.current = next;
-        const duration = 105 + (index * 19) % 70;
+        const duration = 155 + (index * 19) % 86;
         strip.animate([{ transform:"translate3d(0,0,0)" },{ transform:"translate3d(0,-50%,0)" }], { duration, fill:"forwards", easing:"linear" });
         timers.push(window.setTimeout(() => rollCell(cell,index),duration));
       };
@@ -959,14 +959,14 @@
             cell.getAnimations({ subtree:true }).forEach(animation => animation.cancel());
             cell.replaceChildren(document.createTextNode(cell.dataset.target));
             cell.classList.add("is-landed");
-          },index * 24));
+          },index * 44));
           window.setTimeout(() => {
             source.style.visibility = "";
             host.hidden = true;
             host.replaceChildren();
             resolve();
-          },target.length * 24 + 70);
-        },560);
+          },target.length * 44 + 90);
+        },860);
       });
     }
     function renderTypedWelcome(value) {
@@ -1022,7 +1022,7 @@
         finishHomeIntro();
       }
     }
-    runNameIntro().then(() => window.setTimeout(typeWelcome, 120));
+    runNameIntro().then(() => window.setTimeout(typeWelcome, 160));
     const featureImage = document.getElementById("featured-image");
     const featureNote = document.querySelector(".feature-note");
     const featureNoteCopy = document.getElementById("feature-note-copy");
