@@ -754,7 +754,9 @@
         makeFilter("contact", adminTexts.contactButton || "contact")
       );
     }
-    setText(".name", adminTexts.name); setText(".edition", adminTexts.edition);
+    // Preserve the glyph host when applying the admin's configured title.
+    setText(".name-source", adminTexts.name); setText(".edition", adminTexts.edition);
+    document.querySelector(".name").setAttribute("aria-label", document.querySelector(".name-source").textContent);
     const languageToggle = document.getElementById("language-toggle");
     const themeToggle = document.getElementById("theme-toggle");
     const themeStorageKey = "werksporen-theme-v1";
