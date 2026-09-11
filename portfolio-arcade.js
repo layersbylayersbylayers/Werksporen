@@ -38,6 +38,10 @@
     .home-feature:has(.home-mosaic.memory-mode) :is(#mines-toggle,.arcade-launch),
     .home-feature:has(.home-mosaic.mines-mode) .arcade-launch { display:none; }
     @media(max-width:700px) {
+      .home-feature:not(.arcade-fullscreen):has(.arcade-mode) > .arcade-dpad { position:absolute; top:var(--pad-top); right:0; margin:0; z-index:8; }
+      .home-feature:not(.arcade-fullscreen) .feature-note.arcade-note { display:block!important; margin-top:12px; }
+      .home-feature:not(.arcade-fullscreen) .feature-note.arcade-note > p:first-child { box-sizing:border-box; width:calc(100% - 154px); min-height:98px; padding:8px; border:1px solid var(--hairline); font-size:10px; line-height:1.45; }
+      .home-feature:not(.arcade-fullscreen) .feature-note.arcade-note > p:nth-child(2) { clear:both; padding-top:10px; }
       .overview-work.show-feature .feature-note > p:first-child { min-height:75px; }
       .home-mosaic.arcade-mode + .scroll-cue + .feature-note #feature-status-copy br { display:initial; }
       .home-feature:not(:has(.home-mosaic.memory-mode,.home-mosaic.mines-mode,.home-mosaic.arcade-mode)) .home-game-console { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; width:100%; }
@@ -112,7 +116,7 @@
       ? `${state}<br>${score} points · ${lines} lines<br>NEXT ${nextPreview(next)}<br>HIGH SCORE<br>${record.score} points · ${record.secondary} lines`
       : `${state}<br>${score} points<br>HIGH SCORE<br>${record.score} points`;
   }
-  function resize() { const r=homeMosaic.getBoundingClientRect(), d=devicePixelRatio||1; canvas.width=Math.round(r.width*d); canvas.height=Math.round(r.height*d); skullySprites.clear(); if(game) draw(); }
+  function resize() { const r=homeMosaic.getBoundingClientRect(), d=devicePixelRatio||1; canvas.width=Math.round(r.width*d); canvas.height=Math.round(r.height*d); homeFeature.style.setProperty('--pad-top',featureNote.offsetTop+'px'); skullySprites.clear(); if(game) draw(); }
   new ResizeObserver(resize).observe(homeMosaic);
   function randomFood() { const free=[]; for(let y=0;y<rows;y++)for(let x=0;x<cols;x++)if(!snake.some(p=>p.x===x&&p.y===y))free.push({x,y}); return free[Math.floor(Math.random()*free.length)]; }
   function take() { if(!bag.length) { bag=Object.keys(shapes); for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]];} } return bag.pop(); }
@@ -215,7 +219,7 @@
     await morphHomeGameGrid(cols,rows,()=>{setHomeGridDimensions(cols,rows);homeMosaic.classList.add('arcade-mode');canvas.hidden=false;});
     document.querySelectorAll('.arcade-launch').forEach(b=>b.hidden=true);featureNote.classList.add('arcade-note');ui.hidden=false;status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=false;
     dpad.hidden=false;dpad.querySelector('[data-action=drop]').hidden=kind!=='tetris';
-    featureNoteCopy.textContent=kind==='snake'?'SNAKE — collect the red skull. Tap around the snake, swipe, or use the D-pad. Edges loop; avoid your tail. Keyboard: arrows / WASD.':'TETRIS — tap or ↑ to rotate. Drag sideways to move; drag down or hold ↓ to lower. DROP or a quick downward swipe drops instantly. Keyboard: arrows / WASD; space drops.';
+    featureNoteCopy.textContent=kind==='snake'?'SNAKE — tap, swipe or D-pad. Collect red skulls; avoid your tail. Edges loop.':'TETRIS — tap / ↑ rotates. Drag to move. Hold ↓ to lower; DROP lands.';
     featureFormatCopy.textContent=kind==='snake'?'18 × 26 grid':'10 × 20 grid';
     resize();reset();busy=false;frame=requestAnimationFrame(loop);
   }
@@ -253,8 +257,8 @@
     if(pointer.pieceId!==piece?.id)return;
     const rect=canvas.getBoundingClientRect(),stepWidth=rect.width/cols,stepHeight=rect.height/rows;
     let stepX=e.clientX-pointer.lastX,stepY=e.clientY-pointer.lastY;
-    while(Math.abs(stepX)>=stepWidth*.45&&pointer.pieceId===piece?.id){action(stepX>0?'right':'left');pointer.lastX+=Math.sign(stepX)*stepWidth*.45;stepX=e.clientX-pointer.lastX;pointer.moved=true;}
-    while(stepY>=stepHeight*.4&&pointer.pieceId===piece?.id){action('down');pointer.lastY+=stepHeight*.4;stepY=e.clientY-pointer.lastY;pointer.moved=true;pointer.softSteps++;}
+    while(Math.abs(stepX)>=stepWidth*.55&&pointer.pieceId===piece?.id){action(stepX>0?'right':'left');pointer.lastX+=Math.sign(stepX)*stepWidth*.55;stepX=e.clientX-pointer.lastX;pointer.moved=true;}
+    while(stepY>=stepHeight*.5&&pointer.pieceId===piece?.id){action('down');pointer.lastY+=stepHeight*.5;stepY=e.clientY-pointer.lastY;pointer.moved=true;pointer.softSteps++;}
   });
   canvas.addEventListener('pointerup',e=>{
     if(!pointer)return;

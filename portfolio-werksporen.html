@@ -2200,9 +2200,11 @@
         button.type = "button";
         button.className = `viewer-reel-item${index === viewerIndex ? " is-current" : ""}`;
         button.setAttribute("aria-label", `view image ${index + 1}`);
-        const thumbnail = document.createElement("img");
-        thumbnail.src = image.dataset.fullSrc || image.currentSrc || image.src;
-        thumbnail.alt = "";
+        const source = image.dataset.fullSrc || image.currentSrc || image.src;
+        const animated = /\.html?$/i.test(source);
+        const thumbnail = document.createElement(animated ? "span" : "img");
+        if (animated) { thumbnail.textContent = "</>"; thumbnail.style.color = "var(--accent)"; }
+        else { thumbnail.src = source; thumbnail.alt = ""; }
         button.append(thumbnail);
         button.addEventListener("click", () => {
           if (index === viewerIndex) return;
@@ -2222,7 +2224,7 @@
     function unlockViewerPage() {
       document.body.classList.remove("viewer-open");
       document.body.style.removeProperty("top");
-      window.scrollTo(0,viewerScrollY);
+      window.scrollTo({ top:viewerScrollY, left:0, behavior:"instant" });
     }
 
     function updateViewer(image) {
@@ -2289,7 +2291,7 @@
       const frame = image.closest(".overview-thumb");
       const mosaic = image.closest(".home-mosaic");
       viewerImages = frame
-        ? Array.from(stamps).filter(stamp => !stamp.classList.contains("is-hidden")).map(stamp => stamp.querySelector("img")).filter(Boolean)
+        ? Array.from(stamps).filter(stamp => !stamp.classList.contains("is-hidden")).map(stamp => stamp.querySelector("img, iframe")).filter(Boolean)
         : mosaic ? Array.from(document.querySelectorAll(".home-tile img")) : [featureImage];
       viewerIndex = Math.max(0, viewerImages.indexOf(image));
       [viewerImages[viewerIndex], viewerImages[viewerIndex + 1], viewerImages[viewerIndex - 1]].forEach(warmViewerImage);
@@ -2377,7 +2379,7 @@
       let attempts = 0;
       const waitForSection = () => {
         attempts += 1;
-        const images = Array.from(stamps).filter(stamp => !stamp.classList.contains("is-hidden")).map(stamp => stamp.querySelector("img")).filter(Boolean);
+        const images = Array.from(stamps).filter(stamp => !stamp.classList.contains("is-hidden")).map(stamp => stamp.querySelector("img, iframe")).filter(Boolean);
         if (!pageTransitioning && !morphing && activeFilter === targetButton.dataset.filter && images.length) {
           viewerImages = images;
           viewerIndex = direction > 0 ? 0 : images.length - 1;
@@ -3203,6 +3205,6 @@
     });
 
   </script>
-  <script src="portfolio-arcade.js?v=20260911-touch-8"></script>
+  <script src="portfolio-arcade.js?v=20260911-touch-9"></script>
 </body>
 </html>
