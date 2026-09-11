@@ -4,28 +4,47 @@
   style.textContent = `
     .home-mosaic.arcade-mode > .home-tile, .home-mosaic.arcade-mode::after { visibility:hidden; }
     .arcade-canvas { position:absolute; inset:0; width:100%; height:100%; z-index:7; touch-action:none; }
-    .arcade-console { display:flex; flex-direction:column; flex-wrap:nowrap; align-items:flex-start; align-content:start; min-height:330px; gap:7px; padding-top:7px; font:10px/1.4 var(--mono); }
+    .arcade-console { display:flex; flex-direction:column; flex-wrap:nowrap; align-items:flex-start; align-content:start; min-height:0; gap:7px; padding-top:7px; font:10px/1.4 var(--mono); }
     .arcade-console button { font:inherit; color:var(--accent); border:1px solid var(--hairline); background:transparent; padding:6px 9px; cursor:pointer; }
-    #memory-toggle, #mines-toggle, .arcade-console > button[data-start] { box-sizing:border-box; width:126px; min-height:28px; border:1px solid var(--hairline); padding:6px 9px; color:var(--accent); text-align:left; }
+    #memory-toggle, #mines-toggle, .arcade-launch { box-sizing:border-box; width:126px; min-height:28px; border:1px solid var(--hairline); padding:6px 9px; color:var(--accent); text-align:left; }
     .home-feature:not(:has(.home-mosaic.memory-mode)) #memory-state, #game-divider { display:none; }
-    .arcade-console [hidden], .arcade-canvas[hidden] { display:none; }
+    .arcade-console[hidden], .arcade-console [hidden], .arcade-canvas[hidden] { display:none; }
     .arcade-help { flex-basis:100%; color:var(--soft); }
     .arcade-status { flex-basis:100%; color:var(--accent); }
-    .arcade-controls { display:flex; flex-wrap:wrap; gap:6px; }
+    .arcade-controls { display:flex; flex-wrap:wrap; gap:6px; padding-top:7px; border-top:1px solid var(--hairline); }
     .arcade-controls button { min-width:40px; min-height:40px; touch-action:manipulation; }
-    .home-feature:has(.arcade-mode) .home-game-console { visibility:hidden; }
-    @media(max-width:700px) { .overview-work.show-feature .feature-note > p:first-child { min-height:75px; } .home-mosaic.arcade-mode + .scroll-cue + .feature-note #feature-status-copy br { display:initial; } }
+    .home-feature:has(.arcade-mode) .home-game-console { display:none; }
+    .home-feature:has(.home-mosaic.memory-mode) :is(#mines-toggle,.arcade-launch),
+    .home-feature:has(.home-mosaic.mines-mode) .arcade-launch { display:none; }
+    @media(max-width:700px) {
+      .overview-work.show-feature .feature-note > p:first-child { min-height:75px; }
+      .home-mosaic.arcade-mode + .scroll-cue + .feature-note #feature-status-copy br { display:initial; }
+      .home-feature:not(:has(.home-mosaic.memory-mode,.home-mosaic.mines-mode,.home-mosaic.arcade-mode)) .home-game-console { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; width:100%; }
+      .home-feature:not(:has(.home-mosaic.memory-mode,.home-mosaic.mines-mode,.home-mosaic.arcade-mode)) .home-game-console > :is(#memory-toggle,#mines-toggle,.arcade-launch) { display:block; width:100%; min-width:0; padding:7px 5px; font-size:clamp(7px,2.15vw,9px); white-space:nowrap; text-align:center; }
+      .arcade-console { min-height:0; }
+      .arcade-controls button { min-height:34px; }
+      .feature-note.arcade-note { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 12px; align-content:start; }
+      .feature-note.arcade-note > p { display:block!important; min-width:0; max-width:none!important; margin:0!important; }
+      .feature-note.arcade-note > p:nth-child(1) { grid-column:1 / -1; grid-row:1; }
+      .feature-note.arcade-note > p:nth-child(2) { grid-column:1; grid-row:2; margin-bottom:7px!important; }
+      .feature-note.arcade-note > p:nth-child(3) { display:none!important; }
+      .feature-note.arcade-note > p:nth-child(4) { grid-column:2; grid-row:2; margin-bottom:7px!important; }
+      .feature-note.arcade-note > .arcade-console { grid-column:1 / -1; grid-row:3; width:100%; min-height:0; }
+    }
   `;
   document.head.append(style);
   const canvas = document.createElement('canvas');
   canvas.className = 'arcade-canvas'; canvas.hidden = true;
   canvas.setAttribute('aria-label','Game board'); homeMosaic.append(canvas);
   const ctx = canvas.getContext('2d');
-  const ui = document.createElement('div'); ui.className = 'arcade-console';
-  ui.innerHTML = `<button data-start="snake">SNAKE / PLAY</button><button data-start="tetris">TETRIS / PLAY</button>
-    <div class="arcade-status" role="status" hidden></div><div class="arcade-help" hidden></div>
-    <div class="arcade-controls" hidden><button data-action="left" aria-label="Left">←</button><button data-action="up" aria-label="Up or rotate">↑</button><button data-action="down" aria-label="Down">↓</button><button data-action="right" aria-label="Right">→</button><button data-action="drop">DROP</button><button data-action="pause">PAUSE</button><button data-action="reset">RESET</button><button data-action="exit">EXIT</button></div>`;
+  const ui = document.createElement('div'); ui.className = 'arcade-console'; ui.hidden = true;
+  ui.innerHTML = `<div class="arcade-status" role="status" hidden></div><div class="arcade-help" hidden></div>
+    <div class="arcade-controls" hidden><button data-action="pause">PAUSE</button><button data-action="reset">RESET</button><button data-action="exit">EXIT</button></div>`;
   featureNote.append(ui);
+  const gameMenu = featureNote.querySelector('.home-game-console');
+  const snakeLaunch = document.createElement('button'); snakeLaunch.type='button'; snakeLaunch.className='arcade-launch'; snakeLaunch.dataset.start='snake'; snakeLaunch.textContent='SNAKE / PLAY';
+  const tetrisLaunch = document.createElement('button'); tetrisLaunch.type='button'; tetrisLaunch.className='arcade-launch'; tetrisLaunch.dataset.start='tetris'; tetrisLaunch.textContent='TETRIS / PLAY';
+  gameMenu.append(snakeLaunch,tetrisLaunch);
   const status = ui.querySelector('.arcade-status'), help = ui.querySelector('.arcade-help');
   let game = null, busy = false, paused = false, ended = false, frame = 0, last = 0, elapsed = 0;
   let cols, rows, snake, direction, turns, food, score, board, piece, bag, next, lines, clearing = [], clearTime = 0;
@@ -103,6 +122,12 @@
     ctx.clearRect(0,0,w,h);ctx.fillStyle='rgba(0,0,0,.16)';ctx.fillRect(0,0,w,h);
     if(game==='tetris'){ctx.fillStyle=grid;for(let x=0;x<=cols;x++)ctx.fillRect(Math.round(ox+x*cellW),oy,d,rows*cellH);for(let y=0;y<=rows;y++)ctx.fillRect(ox,Math.round(oy+y*cellH),cols*cellW,d);}
     const cell=(x,y,color,alpha=1)=>{ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.fillRect(ox+x*cellW+d,oy+y*cellH+d,cellW-2*d,cellH-2*d);ctx.globalAlpha=1;};
+    const glowCell=(x,y,color,alpha=.14)=>{
+      const x0=ox+x*cellW+d,y0=oy+y*cellH+d,cw=cellW-2*d,ch=cellH-2*d;
+      const glow=ctx.createRadialGradient(x0+cw/2,y0+ch/2,0,x0+cw/2,y0+ch/2,Math.max(cw,ch)*.72);
+      glow.addColorStop(0,color);glow.addColorStop(.52,color);glow.addColorStop(1,'transparent');
+      ctx.globalAlpha=alpha;ctx.fillStyle=glow;ctx.fillRect(x0,y0,cw,ch);ctx.globalAlpha=1;
+    };
     const skullySprite=(color,size)=>{
       const key=`${color}/${Math.round(size)}`;
       if(skullySprites.has(key))return skullySprites.get(key);
@@ -119,9 +144,9 @@
       const startX=cellX+(cellW-skullW)/2,startY=cellY+(cellH-skullH)/2;
       ctx.globalAlpha=alpha;ctx.imageSmoothingEnabled=false;ctx.drawImage(sprite,startX,startY,skullW,skullH);ctx.globalAlpha=1;
     };
-    if(game==='snake'){snake.forEach((p,i)=>skully(p.x,p.y,i===0?accent:ink,i===0?1:.82));if(food)cell(food.x,food.y,accent);}
+    if(game==='snake'){snake.forEach((p,i)=>{glowCell(p.x,p.y,i===0?accent:ink,i===0?.22:.13);skully(p.x,p.y,i===0?accent:ink,i===0?1:.82);});if(food){cell(food.x,food.y,accent,.82);glowCell(food.x,food.y,accent,.26);}}
     else {
-      const tetrisBlock=(x,y,color,alpha=1)=>{cell(x,y,color,alpha*.16);skully(x,y,color,alpha);};
+      const tetrisBlock=(x,y,color,alpha=1)=>{cell(x,y,color,alpha*.12);glowCell(x,y,color,alpha*.2);skully(x,y,color,alpha);};
       board.forEach((r,y)=>r.forEach((v,x)=>{if(v)tetrisBlock(x,y,ink,clearing.includes(y)?.32:.88);}));
       if(!clearing.length){
         let ghost={...piece};while(fits({...ghost,y:ghost.y+1}))ghost.y++;
@@ -140,18 +165,19 @@
     workGrid.style.minHeight=`${Math.max(0,gridBox.height-gridPadding)}px`;
     freezeHomeGlitches(false);activeGlitchTiles.clear();
     await morphHomeGameGrid(cols,rows,()=>{setHomeGridDimensions(cols,rows);homeMosaic.classList.add('arcade-mode');canvas.hidden=false;});
-    ui.querySelectorAll('[data-start]').forEach(b=>b.hidden=true);status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=false;ui.querySelector('[data-action="drop"]').hidden=kind==='snake';
-    featureNoteCopy.textContent=kind==='snake'?'SNAKE — collect the square. Tap around the snake, swipe, or use arrows / WASD. Edges loop; avoid your tail.':'TETRIS — tap to rotate. Drag to move; flick down to drop. Desktop: arrows / WASD, space to drop.';
+    document.querySelectorAll('.arcade-launch').forEach(b=>b.hidden=true);featureNote.classList.add('arcade-note');ui.hidden=false;status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=false;
+    featureNoteCopy.textContent=kind==='snake'?'SNAKE — collect the square. Tap around the snake, swipe, or use arrows / WASD. Edges loop; avoid your tail.':'TETRIS — tap to rotate. Drag left/right to move, drag down to lower, or swipe down quickly to drop instantly. Desktop: arrows / WASD; space drops.';
     featureFormatCopy.textContent=kind==='snake'?'18 × 26 grid':'10 × 20 grid';
     resize();reset();busy=false;frame=requestAnimationFrame(loop);
   }
   async function stop() {
     if(busy)return;busy=true;cancelAnimationFrame(frame);
     await morphHomeGameGrid(mosaicColumns,mosaicRows,()=>{homeMosaic.classList.remove('arcade-mode');canvas.hidden=true;setHomeGridDimensions(mosaicColumns,mosaicRows);},false);
-    game=null;window.arcadeGameActive=false;busy=false;status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=true;ui.querySelectorAll('[data-start]').forEach(b=>b.hidden=false);
+    game=null;window.arcadeGameActive=false;busy=false;featureNote.classList.remove('arcade-note');status.hidden=true;help.hidden=true;ui.querySelector('.arcade-controls').hidden=true;ui.hidden=true;document.querySelectorAll('.arcade-launch').forEach(b=>b.hidden=false);
     featureNoteCopy.textContent=savedNote;featureStatusCopy.innerHTML=savedStatus;featureFormatCopy.textContent=savedFormat;workGrid.style.minHeight=savedMinHeight;releaseHomeGlitches();
   }
-  ui.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.start)start(b.dataset.start);else action(b.dataset.action);});
+  [snakeLaunch,tetrisLaunch].forEach(button=>button.addEventListener('click',()=>start(button.dataset.start)));
+  ui.addEventListener('click',e=>{const b=e.target.closest('button');if(b?.dataset.action)action(b.dataset.action);});
   window.addEventListener('keydown',e=>{if(!game||e.target.closest('input,textarea,select'))return;const key=e.key.length===1?e.key.toLowerCase():e.key;const a={ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right',ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',' ':'drop',p:'pause',Escape:'pause'}[key];if(a){e.preventDefault();if(!e.repeat||!['drop','pause','up'].includes(a))action(a);}},true);
   let pointer=null;
   canvas.addEventListener('pointerdown',e=>{
@@ -192,5 +218,5 @@
   canvas.addEventListener('wheel',e=>{if(game)e.preventDefault();},{passive:false});
   document.addEventListener('visibilitychange',()=>{if(game&&document.hidden){paused=true;note();}});
   // Disable game launchers while another game owns the Home board.
-  new MutationObserver(()=>{ui.querySelectorAll('[data-start]').forEach(b=>b.disabled=memoryActive||minesActive);}).observe(homeMosaic,{attributes:true,attributeFilter:['class']});
+  new MutationObserver(()=>{document.querySelectorAll('.arcade-launch').forEach(b=>b.disabled=memoryActive||minesActive);}).observe(homeMosaic,{attributes:true,attributeFilter:['class']});
 })();
