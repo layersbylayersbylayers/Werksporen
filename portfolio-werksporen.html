@@ -1025,6 +1025,7 @@
     const galleryFormat = document.getElementById("gallery-format");
     function thumbnailSource(source) {
       const value = String(source || "");
+      if (/^portfolio-images\/\d{10,}-/.test(value)) return value;
       return value.startsWith("portfolio-images/") ? `portfolio-thumbs/${value.slice("portfolio-images/".length)}.thumb.jpg` : value;
     }
     overviewGrid.querySelectorAll('img[data-full-src="portfolio-images/IMG_1218.jpg"]').forEach(image => image.closest("figure").remove());
