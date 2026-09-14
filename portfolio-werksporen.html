@@ -298,7 +298,8 @@
     .home-feature > .scroll-cue { position: absolute; top: 100%; right: 0; margin: 7px 0 0 !important; border: 0; padding: 0; background: transparent; color: var(--accent); cursor: pointer; font: 500 12px var(--mono); }
 @media (max-width: 700px) { .home-feature { width: 100%; } .feature-note { position: static; width: auto; margin-top: 20px; } .home-feature > .scroll-cue { position: static; display: block; margin: 8px 0 0 auto !important; } }
     .full-image-hint { color: var(--accent); font-size: 10px; }
-    .image-viewer { position:relative; width:fit-content; height:fit-content; min-width:0; max-width:min(94vw,1300px); max-height:92vh; margin:auto; padding:0; overflow:visible; border:0; background:transparent; opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:contain; touch-action:none; }
+    .image-viewer { position:relative; width:fit-content; height:fit-content; min-width:0; max-width:min(94vw,1300px); max-height:92vh; margin:auto; padding:0; overflow:visible; border:0; background:transparent; opacity:1; transform:translateZ(0) scale(1); transform-origin:center; overscroll-behavior:none; touch-action:none; }
+    html.viewer-open, body.viewer-open { overscroll-behavior:none; }
     .image-viewer::backdrop { background:rgba(23,22,15,.38); -webkit-backdrop-filter:blur(10px) saturate(.82); backdrop-filter:blur(10px) saturate(.82); opacity:1; transition:opacity .24s ease, backdrop-filter .28s ease; }
     .image-viewer.is-closing::backdrop { opacity:0; }
     .viewer-polaroid { position:relative; display:inline-flex; flex-direction:column; align-items:flex-start; max-width:min(88vw,1100px); padding:8px 8px 22px; background:var(--paper); box-shadow:0 18px 48px rgba(0,0,0,.22); text-align:left; }
@@ -2218,11 +2219,13 @@
 
     function lockViewerPage() {
       viewerScrollY = window.scrollY;
+      document.documentElement.classList.add("viewer-open");
       document.body.style.top = `-${viewerScrollY}px`;
       document.body.classList.add("viewer-open");
     }
 
     function unlockViewerPage() {
+      document.documentElement.classList.remove("viewer-open");
       document.body.classList.remove("viewer-open");
       document.body.style.removeProperty("top");
       window.scrollTo({ top:viewerScrollY, left:0, behavior:"instant" });
@@ -2300,6 +2303,7 @@
       if (viewer.open || viewerClosing) return;
       lockViewerPage();
       viewer.showModal();
+      viewer.focus({ preventScroll:true });
       if (reducedMotion.matches) return;
       viewerAnimation?.cancel();
       viewerAnimation = viewer.animate([
@@ -2467,16 +2471,29 @@
     });
 
     let viewerWheelLock = false;
-    viewer.addEventListener("wheel", event => {
-      if (!viewer.open || viewerImages.length < 2 || viewerWheelLock) return;
-      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
-      if (Math.abs(delta) < 18) return;
+    // While the modal is open, always consume trackpad/mouse-wheel input.
+    // In particular, do not let a throttled follow-up horizontal gesture become browser history navigation.
+    document.addEventListener("wheel", event => {
+      if (!viewer.open) return;
       event.preventDefault();
       event.stopPropagation();
+      if (viewerImages.length < 2 || viewerWheelLock) return;
+      const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX;
+      if (Math.abs(delta) < 18) return;
       viewerWheelLock = true;
       stepViewer(delta > 0 ? 1 : -1);
-      window.setTimeout(() => { viewerWheelLock = false; }, 420);
-    }, { passive:false });
+      window.setTimeout(() => { viewerWheelLock = false; }, 300);
+    }, { capture:true, passive:false });
+
+    // Dialog focus differs by browser; handle navigation globally while the viewer owns the screen.
+    window.addEventListener("keydown", event => {
+      if (!viewer.open || event.altKey || event.ctrlKey || event.metaKey) return;
+      const target = event.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))) return;
+      if (event.key === "ArrowLeft") { event.preventDefault(); event.stopPropagation(); stepViewer(-1); }
+      else if (event.key === "ArrowRight") { event.preventDefault(); event.stopPropagation(); stepViewer(1); }
+      else if (event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeViewer(); }
+    }, true);
 
     let viewerSwipe = null;
     const touchDistance = touches => Math.hypot(touches[0].clientX - touches[1].clientX,touches[0].clientY - touches[1].clientY);
