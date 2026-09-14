@@ -2,7 +2,12 @@
 portfolio-admin-auth.json
 portfolio-messages.json
 portfolio-analytics.json
-portfolio-images/
+portfolio-images/*
+!portfolio-images/[0-9]*.jpg
+!portfolio-images/[0-9]*.jpeg
+!portfolio-images/[0-9]*.png
+!portfolio-images/[0-9]*.webp
+!portfolio-images/[0-9]*.gif
 
 # Systeem & afhankelijkheden
 node_modules/
