@@ -2,6 +2,7 @@
 cd "${0:A:h}"
 
 NODE_BIN="$PWD/portfolio-runtime/macos-arm64/node"
+if [[ ! -x "$NODE_BIN" ]]; then NODE_BIN="$PWD/../portfolio/portfolio-runtime/macos-arm64/node"; fi
 if [[ ! -x "$NODE_BIN" ]]; then NODE_BIN="/Users/lars/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node"; fi
 if [[ ! -x "$NODE_BIN" ]]; then NODE_BIN="$(command -v node)"; fi
 if [[ -z "$NODE_BIN" ]]; then
