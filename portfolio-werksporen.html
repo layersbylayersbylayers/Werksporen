@@ -701,6 +701,7 @@
     }
     const adminConfig = window.PORTFOLIO_ADMIN_DATA || null;
     const adminTexts = adminConfig?.texts || {};
+    const adminTextsNl = adminConfig?.textsNl || {};
     if (adminConfig?.theme) {
       document.documentElement.style.setProperty("--paper", adminConfig.theme.background || "#f6f5f0");
       document.documentElement.style.setProperty("--accent", adminConfig.theme.accent || "#a3442e");
@@ -876,9 +877,11 @@
         return adminConfig.items.filter(item => item.visible && item.gallery && item.src && (item.categories || []).includes(filterId)).length;
       };
       document.querySelectorAll(".project-menu .filter").forEach((button, index) => {
-        const cleanLabel = translatedTabLabel(button.dataset.filter,button.textContent);
+        const configuredLabel = currentLanguage === "nl" && button.dataset.filter === "about" && adminTextsNl.aboutLabel ? adminTextsNl.aboutLabel : button.textContent;
+        const cleanLabel = translatedTabLabel(button.dataset.filter,configuredLabel);
         const cleanIndex = String(index).padStart(2,"0");
         const imageCount = String(tabImageCount(button.dataset.filter)).padStart(2,"0");
+        if (button.dataset.filter === "about") button.textContent = `${cleanIndex} ${cleanLabel}`;
         button.dataset.mobileIndex = cleanIndex;
         button.dataset.mobileCount = imageCount;
         button.dataset.mobileLabel = cleanLabel;
@@ -2723,7 +2726,10 @@
     overviewGrid.addEventListener("wheel",handleGridWheel,{ passive:false });
     homeMosaic.addEventListener("wheel",handleGridWheel,{ passive:false });
 
-    const detailCopy = { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram", disclaimer: adminTexts.legal || "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message." };
+    function detailCopyFor(kind) {
+      if (currentLanguage === "nl" && String(adminTextsNl[kind] || "").trim()) return adminTextsNl[kind];
+      return { about: adminTexts.about || "A small selection of drawings, paintings and digital work.\n\nMade slowly, kept in motion.", contact: adminTexts.contact || "[ your name ]\nhello@yourdomain.com\n@yourinstagram", disclaimer: adminTexts.legal || "© 2026 Lars Kramer. All artworks, images, texts and visual animations on this website are original work. Use or reproduction without prior permission is not permitted. Contact details are used only to reply to your message." }[kind] || "";
+    }
     const detailTyping = new Map();
     function stopDetailTyping(kind) {
       const typing = detailTyping.get(kind);
@@ -2733,7 +2739,7 @@
     function typeDetail(kind) {
       stopDetailTyping(kind);
       const target = document.getElementById(kind + "-text");
-      const copy = localizedContent(detailCopy[kind]);
+      const copy = localizedContent(detailCopyFor(kind));
       const run = { timer:0 };
       detailTyping.set(kind,run);
       let index = 0;

@@ -67,6 +67,10 @@
     "footer": "laatst bijgewerkt / september 2026",
     "galleryNote": ""
   },
+  "textsNl": {
+    "aboutLabel": "05 Over",
+    "about": "Ik ben Lars Kramer—\n\nEen selectie tekeningen, schilderijen en digitaal werk.\n\nLangzaam gemaakt, voortdurend in beweging.\nMijn werk beweegt tussen traditionele media zoals olieverfschilderijen en grafiek, en procedurele code, canvasanimaties en webexperimenten. Ik maak graag dingen vanaf nul—of dat nu een handgedrukte linosnede is of een eigen browsergame.\n"
+  },
   "items": [
     {
       "id": "72057ab48d0b267bf5",
