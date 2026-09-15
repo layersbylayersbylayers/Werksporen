@@ -636,6 +636,7 @@
 
     function renderTexts() {
       data.theme ||= { background:"#f6f5f0", accent:"#a3442e", homeTone:"color", glitchTone:"warm", glitchGlowMode:"off", glitchGlowColor:"#d94f8f", glitchGlowOpacity:80, glitchGlowSoftness:18, frameRadius:0, homeGridSize:1, shadowColor:"#1c1b19", shadowAngle:45, shadowDistance:0, shadowBlur:0 };
+      data.textsNl ||= {};
       const toneOptions = value => [["color","kleur"],["gray","zwart-wit"],["warm","warm"],["cool","koud"]].map(([key,label]) => `<option value="${key}" ${value === key ? "selected" : ""}>${label}</option>`).join("");
       const colors = `<section class="text-card"><h3>Kleuren</h3><div class="field"><label>Achtergrond</label><div class="color-row"><input type="color" data-theme="background" value="${data.theme.background}"><input type="text" data-theme-text="background" value="${data.theme.background}"></div></div><div class="field"><label>Rode accenttekst</label><div class="color-row"><input type="color" data-theme="accent" value="${data.theme.accent}"><input type="text" data-theme-text="accent" value="${data.theme.accent}"></div></div></section>`;
       const glowOptions = [["off","uit"],["synth","synth"],["earth","earthly warm"],["research","research / medical cold"],["mono","mono / eigen kleur"]].map(([key,label]) => `<option value="${key}" ${(data.theme.glitchGlowMode || (data.theme.glitchGlow ? "synth" : "off")) === key ? "selected" : ""}>${label}</option>`).join("");
@@ -644,7 +645,8 @@
       data.theme.shadowTabs ??= false;
       const shadow = `<section class="text-card"><h3>Schaduw beelden</h3><div class="checks"><label><input type="checkbox" data-theme-check="shadowHome" ${data.theme.shadowHome ? "checked" : ""}>home-achtergrond</label><label><input type="checkbox" data-theme-check="shadowTabs" ${data.theme.shadowTabs ? "checked" : ""}>afbeeldingen in tabs</label></div><div class="field"><label>kleur</label><input type="color" data-theme="shadowColor" value="${data.theme.shadowColor || "#1c1b19"}"></div><div class="field"><label>angle <span>${data.theme.shadowAngle ?? 45}°</span></label><input type="range" data-theme-range="shadowAngle" min="0" max="360" step="1" value="${data.theme.shadowAngle ?? 45}"></div><div class="field"><label>distance <span>${data.theme.shadowDistance ?? 0}px</span></label><input type="range" data-theme-range="shadowDistance" min="0" max="28" step="1" value="${data.theme.shadowDistance ?? 0}"></div><div class="field"><label>softness <span>${data.theme.shadowBlur ?? 0}px</span></label><input type="range" data-theme-range="shadowBlur" min="0" max="40" step="1" value="${data.theme.shadowBlur ?? 0}"></div></section>`;
       const typography = `<section class="text-card"><h3>Tekstgroottes</h3>${[["welcomePt","Welcome",12],["datePt","Datum",12],["navigationPt","Tabbladen",10],["aboutPt","About / contact / disclaimer",12],["metadataPt","Work notes",8]].map(([key,label,fallback]) => `<div class="field"><label>${label} (pt)</label><input type="number" min="6" max="36" step=".5" data-theme-pt="${key}" value="${data.theme[key] ?? fallback}"></div>`).join("")}</section>`;
-      textForm.innerHTML = navigationEditorMarkup() + colors + home + shadow + typography + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key] || "")}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key] || "")}">`}</div>`).join("")}</section>`).join("");
+      const dutchAbout = `<section class="text-card"><h3>Nederlandse About</h3><p class="gesture-hint">Deze velden verschijnen alleen wanneer bezoekers NL kiezen. De Engelse About-velden hierboven blijven de Engelse versie.</p><div class="field"><label>About-tab in Nederlands</label><input type="text" data-text-nl="aboutLabel" value="${escapeHtml(data.textsNl.aboutLabel || "05 Over")}"></div><div class="field"><label>About-tekst in Nederlands</label><textarea data-text-nl="about">${escapeHtml(data.textsNl.about || "")}</textarea></div></section>`;
+      textForm.innerHTML = navigationEditorMarkup() + colors + home + shadow + typography + textGroups.map(group => `<section class="text-card"><h3>${group.title}</h3>${group.fields.map(([key,label,type]) => `<div class="field"><label>${label}</label>${type === "textarea" ? `<textarea data-text="${key}">${escapeHtml(data.texts[key] || "")}</textarea>` : `<input type="text" data-text="${key}" value="${escapeHtml(data.texts[key] || "")}">`}</div>`).join("")}</section>`).join("") + dutchAbout;
     }
 
     async function renderDashboard() {
@@ -941,6 +943,11 @@
         const key = event.target.dataset.text;
         const fixedNumbers = { all:"00", aboutLabel:"06", contactButton:"07" };
         data.texts[key] = fixedNumbers[key] ? keepTabNumber(data.texts[key], event.target.value, fixedNumbers[key]) : event.target.value;
+      }
+      if (event.target.dataset.textNl) {
+        const key = event.target.dataset.textNl;
+        data.textsNl ||= {};
+        data.textsNl[key] = key === "aboutLabel" ? keepTabNumber(data.textsNl[key], event.target.value, "06") : event.target.value;
       }
       if (event.target.dataset.navSection) {
         const section = data.sections.find(entry => entry.id === event.target.dataset.navSection);
