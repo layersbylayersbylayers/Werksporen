@@ -50,7 +50,7 @@
       border-bottom: 1px solid var(--ink);
       padding-bottom: 6px;
     }
-    .name { letter-spacing: -.05em; font-size: 21px; font-weight: 500; color: var(--accent); padding-top: 8px; }
+    .name { font-family:var(--name-font, var(--mono)); letter-spacing: -.05em; font-size:var(--name-size,21px); font-weight:var(--name-weight,500); color: var(--accent); padding-top: 8px; }
     .edition { color: var(--soft); text-align: center; font-size: 10px; padding-top: 3px; }
     .location { text-align: right; color: var(--soft); font-size: 11px; padding-top: 3px; }
     .language-toggle { border:0; padding:0; background:transparent; color:inherit; font:inherit; letter-spacing:.025em; cursor:pointer; text-align:right; }
@@ -120,7 +120,7 @@
     .filter:is(:hover,:focus-visible,.is-active) { flex-basis:158px; padding-left:12px; color:var(--paper); background:var(--ink); border-color:var(--ink); transform:translateY(0); outline:none; }
     .filter:is(:hover,:focus-visible,.is-active)::after { max-width:118px; margin-left:7px; opacity:1; transform:translateX(0); }
     .mobile-swipe-hint { display:none; }
-    .grid-swipe-hint { min-height:30px; margin:0; padding-top:10px; color:var(--soft); font-size:10px; letter-spacing:.025em; text-align:right; visibility:hidden; }
+    .grid-swipe-hint { min-height:20px; margin:0; padding-top:5px; color:var(--soft); font-size:10px; letter-spacing:.025em; text-align:right; visibility:hidden; }
 
     .work { border-bottom: 1px solid var(--hairline); }
     .work-topline {
@@ -236,13 +236,13 @@
     .overview-thumb.has-image img { display:block; } .overview-thumb:hover { transform:translateY(-3px); border-color:var(--ink); }
     .overview-thumb iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#020504; pointer-events:none; }
     .overview-thumb.is-hidden { display: none; }
-    .overview-work .work-grid { padding-top: 42px; padding-bottom: 42px; }
+    .overview-work .work-grid { padding-top: 18px; padding-bottom: 42px; }
     .contact-button { border: 0; padding: 0; background: none; color: var(--accent); cursor: pointer; font: inherit; }
     .disclaimer-button { grid-column:1; grid-row:1; justify-self:start; border:0; padding:0; background:none; color:var(--accent); cursor:pointer; font:inherit; }
     .contact-links { grid-column: 1; grid-row: 1; margin-top: 42px; }
     .footer-controls { grid-column:3; grid-row:1; justify-self:end; display:flex; align-items:center; gap:14px; color:var(--soft); font-size:10px; }
     .detail-meta { margin:0 0 18px; color:var(--soft); font-size:10px; }
-    .overview-work.show-feature .work-topline { visibility:hidden; }
+    .overview-work.show-feature .work-topline { display:none; }
     @media (max-width:700px) { .footer-controls { grid-column:2; grid-row:1; justify-self:end; margin:0; gap:8px; white-space:nowrap; } }
     .overview-thumb::after { content: ""; position: absolute; inset: 7px; border: 1px solid rgba(28,27,25,.28); pointer-events: none; }
     .overview-thumb figcaption { position: absolute; z-index: 1; left: 9px; right: 9px; bottom: 8px; display: flex; justify-between: space-between; color: var(--paper); font-size: 9px; mix-blend-mode: difference; }
@@ -710,6 +710,10 @@
       document.documentElement.style.setProperty("--navigation-size", `${Number(adminConfig.theme.navigationPt ?? 10)}pt`);
       document.documentElement.style.setProperty("--about-size", `${Number(adminConfig.theme.aboutPt ?? 12)}pt`);
       document.documentElement.style.setProperty("--metadata-size", `${Number(adminConfig.theme.metadataPt ?? 8)}pt`);
+      const nameFonts = { mono:"var(--mono)", serif:"var(--serif)", sans:"Arial, Helvetica, sans-serif", system:"system-ui, -apple-system, BlinkMacSystemFont, sans-serif" };
+      document.documentElement.style.setProperty("--name-font", nameFonts[adminConfig.theme.nameFont] || nameFonts.mono);
+      document.documentElement.style.setProperty("--name-size", `${Number(adminConfig.theme.nameSizePx ?? 21)}px`);
+      document.documentElement.style.setProperty("--name-weight", String(Number(adminConfig.theme.nameWeight ?? 500)));
       const shadowAngle = Number(adminConfig.theme.shadowAngle ?? 45) * Math.PI / 180;
       const shadowDistance = Number(adminConfig.theme.shadowDistance ?? 0);
       const shadowX = Math.cos(shadowAngle) * shadowDistance;
@@ -888,7 +892,7 @@
         button.setAttribute("aria-label",`${cleanIndex} ${imageCount} ${cleanLabel}`.trim());
       });
       if (typeof today !== "undefined") today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday:"long", day:"numeric", month:"long", year:"numeric" }).format(new Date());
-      if (typeof welcome !== "undefined") welcome = `${t.welcome}\n\n${today}.`;
+      if (typeof welcome !== "undefined") welcome = composeWelcome();
       if (typeof introFinished !== "undefined" && introFinished && typewriterText) renderTypedWelcome(welcome);
       localStorage.setItem(languageStorageKey, currentLanguage);
     }
@@ -898,14 +902,20 @@
       window.location.reload();
     });
     let today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
-    const welcomeLead = adminTexts.welcome || translations[currentLanguage].welcome;
-    let welcome = `${welcomeLead}\n\n${today}.`;
+    function composeWelcome() {
+      const lead = adminTexts.welcome || translations[currentLanguage].welcome;
+      const extra = String(adminTexts.welcomeExtra || "").trim();
+      return `${lead}${extra ? `\n\n${extra}` : ""}\n\n${today}.`;
+    }
+    let welcome = composeWelcome();
     const typewriterText = document.getElementById("typewriter-text");
     function renderTypedWelcome(value) {
       const caret = document.querySelector(".intro .type-caret");
       const typedValue = String(value || "");
-      const hasDateLine = typedValue.includes("\n\n");
-      const [lead, date = ""] = typedValue.split("\n\n");
+      const divider = typedValue.lastIndexOf("\n\n");
+      const hasDateLine = divider !== -1;
+      const lead = hasDateLine ? typedValue.slice(0, divider) : typedValue;
+      const date = hasDateLine ? typedValue.slice(divider + 2) : "";
       const leadSpan = document.createElement("span"); leadSpan.textContent = lead;
       typewriterText.replaceChildren(leadSpan);
       if (hasDateLine) {

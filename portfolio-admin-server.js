@@ -402,7 +402,15 @@ function safeData(input) {
       shadowColor: /^#[0-9a-f]{6}$/i.test(input.theme?.shadowColor || "") ? input.theme.shadowColor : "#1c1b19",
       shadowAngle: Math.min(360, Math.max(0, Number(input.theme?.shadowAngle) || 0)),
       shadowDistance: Math.min(28, Math.max(0, Number(input.theme?.shadowDistance) || 0)),
-      shadowBlur: Math.min(40, Math.max(0, Number(input.theme?.shadowBlur) || 0))
+      shadowBlur: Math.min(40, Math.max(0, Number(input.theme?.shadowBlur) || 0)),
+      welcomePt: Math.min(36, Math.max(6, finiteNumber(input.theme?.welcomePt, 12))),
+      datePt: Math.min(36, Math.max(6, finiteNumber(input.theme?.datePt, 12))),
+      navigationPt: Math.min(36, Math.max(6, finiteNumber(input.theme?.navigationPt, 10))),
+      aboutPt: Math.min(36, Math.max(6, finiteNumber(input.theme?.aboutPt, 12))),
+      metadataPt: Math.min(36, Math.max(6, finiteNumber(input.theme?.metadataPt, 8))),
+      nameFont: ["mono", "serif", "sans", "system"].includes(input.theme?.nameFont) ? input.theme.nameFont : "mono",
+      nameWeight: [300,400,500,600,700,800].includes(Number(input.theme?.nameWeight)) ? Number(input.theme.nameWeight) : 500,
+      nameSizePx: Math.min(48, Math.max(12, finiteNumber(input.theme?.nameSizePx, 21)))
     },
     home: { baseItemId:String(input.home?.baseItemId || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64) },
     sections,
