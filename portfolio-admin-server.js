@@ -183,7 +183,7 @@ function syncNonLiveArchive(data) {
   data.sections ||= [];
   let section = data.sections.find(entry => entry.id === "niet-live");
   if (!section) {
-    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken." };
+    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken.", adminOnly:true };
     data.sections.push(section);
   }
   let changed = false;
@@ -203,7 +203,7 @@ function syncDirectImageImports(data) {
   data.sections ||= [];
   let section = data.sections.find(entry => entry.id === "niet-live");
   if (!section) {
-    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken." };
+    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken.", adminOnly:true };
     data.sections.push(section);
   }
   const configured = new Set((data.items || []).flatMap(item => [item.src, item.originalSrc]).filter(Boolean).map(source => path.basename(source)));
@@ -343,7 +343,7 @@ function safeData(input) {
     const id = String(section.id || `pagina-${index + 1}`).toLowerCase().replace(/[^a-z0-9_-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
     if (!id || usedSectionIds.has(id)) return;
     usedSectionIds.add(id);
-    sections.push({ id, label:String(section.label || id).slice(0, 80), note:String(section.note || "").slice(0, 1000) });
+    sections.push({ id, label:String(section.label || id).slice(0, 80), note:String(section.note || "").slice(0, 1000), adminOnly:id === "niet-live" || Boolean(section.adminOnly) });
   });
   if (!sections.length) sections.push({ id:"werk", label:"werk" });
   const categories = new Set(sections.map(section => section.id));

@@ -746,7 +746,7 @@
       };
       menu.replaceChildren(
         makeFilter("all", adminTexts.all || "alles", true),
-        ...adminConfig.sections.map(section => makeFilter(section.id, section.label)),
+        ...adminConfig.sections.filter(section => !section.adminOnly).map(section => makeFilter(section.id, section.label)),
         makeFilter("about", adminTexts.aboutLabel || "about"),
         makeFilter("contact", adminTexts.contactButton || "contact")
       );
