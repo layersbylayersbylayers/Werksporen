@@ -603,7 +603,7 @@
         `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${tabCode(0)} ${escapeHtml(cleanTabName(data.texts.all || "home"))}</button>`,
         `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">alle werken</button>`,
         ...data.sections.map((section,index) => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" draggable="true" data-section-drag-tab data-gallery-filter="${section.id}" title="Sleep om de paginavolgorde te wijzigen">${tabCode(index + 1,visibleImageCount(section.id))} ${escapeHtml(cleanTabName(section.label))}</button>`),
-        `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
+        `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">verborgen</button>`
       ].join("");
       sectionList.innerHTML = sectionRowsMarkup();
     }

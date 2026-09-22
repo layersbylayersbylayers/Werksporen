@@ -18,6 +18,7 @@ const MESSAGES_FILE = path.join(ROOT, "portfolio-messages.json");
 const PUBLIC_FILE = path.join(ROOT, "portfolio-werksporen.html");
 const IMAGE_DIR = path.join(ROOT, "portfolio-images");
 const sessions = new Map();
+const IMPORTABLE_IMAGE = /\.(?:jpe?g|png|webp|gif)$/i;
 
 function atomicWrite(file, contents) {
   const temporary = file + ".tmp";
@@ -130,6 +131,40 @@ function writeData(data) {
   atomicWrite(DATA_SCRIPT, "window.PORTFOLIO_ADMIN_DATA = " + JSON.stringify(data) + ";\n");
 }
 
+// Files added directly to portfolio-images stay private by default. They are
+// registered in Admin’s "niet live" section, ready for Lars to review.
+function untrackedImageFilenames() {
+  try {
+    const { execFileSync } = require("child_process");
+    const output = execFileSync("git", ["status", "--porcelain", "--untracked-files=all", "--", "portfolio-images"], { cwd:ROOT, encoding:"utf8" });
+    return output.split(/\r?\n/).map(line => line.slice(3).trim()).filter(file => file.startsWith("portfolio-images/") && IMPORTABLE_IMAGE.test(file) && !path.basename(file).startsWith("._")).map(file => path.basename(file));
+  } catch { return []; }
+}
+
+function syncDirectImageImports(data) {
+  const filenames = untrackedImageFilenames();
+  if (!filenames.length) return { data, added:0 };
+  data.sections ||= [];
+  let section = data.sections.find(entry => entry.id === "niet-live");
+  if (!section) {
+    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken." };
+    data.sections.push(section);
+  }
+  const configured = new Set((data.items || []).flatMap(item => [item.src, item.originalSrc]).filter(Boolean).map(source => path.basename(source)));
+  const additions = filenames.filter(filename => !configured.has(filename)).map((filename, index) => ({
+    id:makeId(), src:`portfolio-images/${filename}`, originalSrc:`portfolio-images/${filename}`, mediaType:"image",
+    title:path.basename(filename, path.extname(filename)).replace(/[-_]+/g," "), note:"Nieuw werk — nog niet live.",
+    status:"niet live", year:String(new Date().getFullYear()), medium:"", categories:[section.id], gallery:true, glitch:false, visible:false,
+    thumbFit:"cover", scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0,
+    viewerFit:"contain", viewerScale:1, viewerX:50, viewerY:50, viewerRotate:0, viewerSkewX:0, viewerSkewY:0, viewerPerspectiveX:0, viewerPerspectiveY:0, format:"image",
+    order:(data.items || []).length + index
+  }));
+  if (!additions.length) return { data, added:0 };
+  data.items.push(...additions);
+  writeData(data);
+  return { data, added:additions.length };
+}
+
 function readAnalytics() {
   if (!fs.existsSync(ANALYTICS_FILE)) atomicWrite(ANALYTICS_FILE, JSON.stringify({ version:1, totalViews:0, totalSessions:0, days:{} }, null, 2));
   return JSON.parse(fs.readFileSync(ANALYTICS_FILE, "utf8"));
@@ -179,7 +214,8 @@ function recordVisit(event) {
 
 function readData() {
   if (!fs.existsSync(DATA_FILE)) writeData(buildInitialData());
-  return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+  return syncDirectImageImports(data).data;
 }
 
 function cookies(request) {
@@ -273,6 +309,7 @@ function safeData(input) {
     home: { baseItemId:String(input.home?.baseItemId || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64) },
     sections,
     texts: Object.fromEntries(Object.entries(input.texts).map(([key, value]) => [String(key).slice(0, 80), String(value).slice(0, 10000)])),
+    textsNl: Object.fromEntries(Object.entries(input.textsNl || {}).map(([key, value]) => [String(key).slice(0, 80), String(value).slice(0, 10000)])),
     items: input.items.map((item, index) => ({
       id: String(item.id || makeId()).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64),
       src: String(item.src || "").replace(/^\/+/, "").slice(0, 500),
