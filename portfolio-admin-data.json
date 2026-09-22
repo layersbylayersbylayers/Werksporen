@@ -15,7 +15,15 @@
     "shadowColor": "#1c1b19",
     "shadowAngle": 45,
     "shadowDistance": 8,
-    "shadowBlur": 14
+    "shadowBlur": 14,
+    "welcomePt": 16,
+    "datePt": 16,
+    "navigationPt": 10,
+    "aboutPt": 12,
+    "metadataPt": 8,
+    "nameFont": "sans",
+    "nameWeight": 600,
+    "nameSizePx": 27.5
   },
   "home": {
     "baseItemId": "73973e2e21ddd99bb6"
@@ -65,10 +73,10 @@
     }
   ],
   "texts": {
-    "name": "[Lars Kramer] Paintings, Illustrations & More",
+    "name": "Lars Kramer ",
     "edition": "WERKSPOREN / 00 — 2026",
     "location": "NL · OPEN VOOR WERK",
-    "welcome": "Welcome;",
+    "welcome": "Welcome; this is a selection of my \npaintings, illustrations & more.",
     "all": "00 Home",
     "ink": "01 Prints & Flash",
     "paint": "02 Paintings",
