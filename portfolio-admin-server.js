@@ -133,16 +133,18 @@ function writeData(data) {
 
 // Files added directly to portfolio-images stay private by default. They are
 // registered in Admin’s "niet live" section, ready for Lars to review.
-function untrackedImageFilenames() {
+function directImageFilenames() {
   try {
-    const { execFileSync } = require("child_process");
-    const output = execFileSync("git", ["status", "--porcelain", "--untracked-files=all", "--", "portfolio-images"], { cwd:ROOT, encoding:"utf8" });
-    return output.split(/\r?\n/).map(line => line.slice(3).trim()).filter(file => file.startsWith("portfolio-images/") && IMPORTABLE_IMAGE.test(file) && !path.basename(file).startsWith("._")).map(file => path.basename(file));
+    return fs.readdirSync(IMAGE_DIR).filter(filename => {
+      if (!IMPORTABLE_IMAGE.test(filename) || filename.startsWith("._")) return false;
+      const stats = fs.statSync(path.join(IMAGE_DIR, filename));
+      return stats.isFile() && stats.size >= 10 * 1024;
+    }).sort();
   } catch { return []; }
 }
 
 function syncDirectImageImports(data) {
-  const filenames = untrackedImageFilenames();
+  const filenames = directImageFilenames();
   if (!filenames.length) return { data, added:0 };
   data.sections ||= [];
   let section = data.sections.find(entry => entry.id === "niet-live");
