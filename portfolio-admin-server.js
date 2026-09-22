@@ -144,11 +144,15 @@ function isHeifFile(file) {
 
 function browserSafeImageFilename(filename) {
   const source = path.join(IMAGE_DIR, filename);
-  if (!isHeifFile(source)) return filename;
+  // Older iPhone imports were converted to 16-bit PNGs named "*-heic.png".
+  // Firefox can fail to paint those consistently in a large archive grid, so
+  // an ordinary JPEG preview is used while the original remains untouched.
+  const needsPreview = isHeifFile(source) || /-heic\.png$/i.test(filename);
+  if (!needsPreview) return filename;
   const safeFilename = path.basename(filename, path.extname(filename)) + "-browser.jpg";
   const destination = path.join(IMAGE_DIR, safeFilename);
   if (!fs.existsSync(destination)) {
-    const result = spawnSync("sips", ["-s", "format", "jpeg", source, "--out", destination], { encoding:"utf8" });
+    const result = spawnSync("sips", ["-s", "format", "jpeg", "-s", "formatOptions", "82", source, "--out", destination], { encoding:"utf8" });
     if (result.status !== 0 || !fs.existsSync(destination)) return filename;
   }
   return safeFilename;
@@ -164,7 +168,9 @@ function normalizeBrowserImageSources(data) {
     if (safeFilename === filename) continue;
     const safeSource = "portfolio-images/" + safeFilename;
     item.src = safeSource;
-    item.originalSrc = safeSource;
+    // Preserve the original source for archive/download use; only the
+    // displayed source needs the browser-safe preview.
+    if (!item.originalSrc) item.originalSrc = source;
     changed = true;
   }
   return changed;
@@ -190,8 +196,12 @@ function syncNonLiveArchive(data) {
   for (const item of data.items || []) {
     const source = String(item.src || "");
     if (!source || item.mediaType === "html" || /\.html?$/i.test(source)) continue;
-    if (item.visible && item.gallery) continue;
     item.categories ||= [];
+    if (item.visible && item.gallery) {
+      const nextCategories = item.categories.filter(id => id !== section.id);
+      if (nextCategories.length !== item.categories.length) { item.categories = nextCategories; changed = true; }
+      continue;
+    }
     if (!item.categories.includes(section.id)) { item.categories.push(section.id); changed = true; }
   }
   return changed;
@@ -207,7 +217,7 @@ function syncDirectImageImports(data) {
     data.sections.push(section);
   }
   const configured = new Set((data.items || []).flatMap(item => [item.src, item.originalSrc]).filter(Boolean).map(source => path.basename(source)));
-  const additions = filenames.filter(filename => !configured.has(filename)).map((filename, index) => ({
+  const additions = filenames.filter(filename => !configured.has(filename) && !configured.has(browserSafeImageFilename(filename))).map((filename, index) => ({
     id:makeId(), src:`portfolio-images/${browserSafeImageFilename(filename)}`, originalSrc:`portfolio-images/${browserSafeImageFilename(filename)}`, mediaType:"image",
     title:path.basename(filename, path.extname(filename)).replace(/[-_]+/g," "), note:"Nieuw werk — nog niet live.",
     status:"niet live", year:String(new Date().getFullYear()), medium:"", categories:[section.id], gallery:true, glitch:false, visible:false,
@@ -219,6 +229,33 @@ function syncDirectImageImports(data) {
   data.items.push(...additions);
   writeData(data);
   return { data, added:additions.length };
+}
+
+// One source file must create one Admin work. Old browser drafts can contain
+// duplicate records; keep the user-selected live version and merge its categories.
+function dedupeImageItems(data) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const winners = new Map();
+  const sourceKey = item => {
+    const source = String(item.originalSrc || item.src || "");
+    return source.startsWith("portfolio-images/") ? path.basename(source).replace(/-browser\.jpg$/i, "") : "";
+  };
+  const score = item => (item.visible && item.gallery ? 4 : item.visible ? 3 : item.gallery ? 2 : 1);
+  for (const item of items) {
+    const key = sourceKey(item);
+    if (!key) { winners.set(`unique:${item.id || Math.random()}`, item); continue; }
+    const current = winners.get(key);
+    if (!current) { winners.set(key, item); continue; }
+    const preferred = score(item) > score(current) ? item : current;
+    const other = preferred === item ? current : item;
+    const categories = [...new Set([...(preferred.categories || []), ...(other.categories || [])])];
+    preferred.categories = preferred.visible && preferred.gallery ? categories.filter(id => id !== "niet-live") : categories;
+    winners.set(key, preferred);
+  }
+  const next = [...winners.values()];
+  if (next.length === items.length) return false;
+  data.items = next.map((item, index) => ({ ...item, order:index }));
+  return true;
 }
 
 function readAnalytics() {
@@ -272,9 +309,10 @@ function readData() {
   if (!fs.existsSync(DATA_FILE)) writeData(buildInitialData());
   const data = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
   const normalized = normalizeBrowserImageSources(data);
+  const deduped = dedupeImageItems(data);
   const archived = syncNonLiveArchive(data);
   const synced = syncDirectImageImports(data);
-  if ((normalized || archived) && !synced.added) writeData(data);
+  if ((normalized || deduped || archived) && !synced.added) writeData(data);
   return synced.data;
 }
 
@@ -437,9 +475,10 @@ async function api(request, response, pathname) {
   if ((pathname === "/api/data" || pathname === "/api/publish") && request.method === "POST") {
     const data = safeData(await readJson(request));
     const normalized = normalizeBrowserImageSources(data);
+    const deduped = dedupeImageItems(data);
     const archived = syncNonLiveArchive(data);
     const synced = syncDirectImageImports(data);
-    if (normalized || archived || !synced.added) writeData(data);
+    if (normalized || deduped || archived || !synced.added) writeData(data);
     return send(response, 200, { ok: true, data });
   }
   if (pathname === "/api/upload" && request.method === "POST") {
