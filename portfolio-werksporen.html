@@ -430,7 +430,12 @@
     .home-mosaic::before { content:""; position:absolute; inset:0; z-index:4; pointer-events:none; opacity:0; border-radius:inherit; background:linear-gradient(90deg,rgba(255,255,255,.08),transparent 24%,transparent 68%,rgba(255,255,255,.24) 86%,rgba(28,27,25,.16)); transition:opacity 1.35s ease; }
     .home-feature.intro-opening .home-mosaic::before { opacity:1; }
     .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; --home-corner-radius:max(2px,var(--frame-radius,0px)); background-image:radial-gradient(circle at 100% 100%,var(--grid-line) 0 var(--home-corner-radius),transparent calc(var(--home-corner-radius) + 1px)),repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),var(--grid-line) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),var(--grid-line) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); background-size:var(--mosaic-cell-width) var(--mosaic-cell-height),auto,auto; border-radius:inherit; }
-    @media (max-width:700px) { .home-mosaic::after { --home-corner-radius:5px; } }
+    @media (max-width:700px) {
+      /* Mobile cells can round to fractional pixels. Draw the quarter-mark inside
+         each real CSS-grid cell, rather than in a percentage-repeated overlay. */
+      .home-mosaic::after { background-image:repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),var(--grid-line) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),var(--grid-line) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); background-size:auto,auto; }
+      .home-tile::after { content:""; position:absolute; z-index:2; right:0; bottom:0; width:10px; height:10px; pointer-events:none; background:radial-gradient(circle at 100% 100%,var(--grid-line) 0 5px,transparent 6px); }
+    }
     .home-tile { position:relative; z-index:1; background-color:transparent; background-image:none; background-size:auto; box-shadow:none; }
     .home-tile.is-alternate { background-image:var(--tile-image); background-size:cover; background-position:center; box-shadow:none; overflow:hidden; clip-path:inset(0 round var(--frame-radius,0px)); }
 
