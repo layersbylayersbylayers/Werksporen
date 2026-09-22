@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const os = require("os");
+const { spawnSync } = require("child_process");
 
 const ROOT = __dirname;
 const PORT = Number(process.env.PORTFOLIO_ADMIN_PORT || 4173);
@@ -18,6 +19,7 @@ const MESSAGES_FILE = path.join(ROOT, "portfolio-messages.json");
 const PUBLIC_FILE = path.join(ROOT, "portfolio-werksporen.html");
 const IMAGE_DIR = path.join(ROOT, "portfolio-images");
 const sessions = new Map();
+const IMPORTABLE_IMAGE = /\.(?:jpe?g|png|webp|gif)$/i;
 
 function atomicWrite(file, contents) {
   const temporary = file + ".tmp";
@@ -130,6 +132,132 @@ function writeData(data) {
   atomicWrite(DATA_SCRIPT, "window.PORTFOLIO_ADMIN_DATA = " + JSON.stringify(data) + ";\n");
 }
 
+// Files added directly to portfolio-images stay private by default. They are
+// registered in Admin’s "niet live" section, ready for Lars to review.
+function isHeifFile(file) {
+  try {
+    const descriptor = fs.openSync(file, "r");
+    const header = Buffer.alloc(32); fs.readSync(descriptor, header, 0, header.length, 0); fs.closeSync(descriptor);
+    return /ftyp(?:heic|heix|hevc|hevx|mif1|msf1)/.test(header.toString("ascii"));
+  } catch { return false; }
+}
+
+function browserSafeImageFilename(filename) {
+  const source = path.join(IMAGE_DIR, filename);
+  // Older iPhone imports were converted to 16-bit PNGs named "*-heic.png".
+  // Firefox can fail to paint those consistently in a large archive grid, so
+  // an ordinary JPEG preview is used while the original remains untouched.
+  const needsPreview = isHeifFile(source) || /-heic\.png$/i.test(filename);
+  if (!needsPreview) return filename;
+  const safeFilename = path.basename(filename, path.extname(filename)) + "-browser.jpg";
+  const destination = path.join(IMAGE_DIR, safeFilename);
+  if (!fs.existsSync(destination)) {
+    const result = spawnSync("sips", ["-s", "format", "jpeg", "-s", "formatOptions", "82", source, "--out", destination], { encoding:"utf8" });
+    if (result.status !== 0 || !fs.existsSync(destination)) return filename;
+  }
+  return safeFilename;
+}
+
+function normalizeBrowserImageSources(data) {
+  let changed = false;
+  for (const item of data.items || []) {
+    const source = String(item.src || "");
+    if (!source.startsWith("portfolio-images/")) continue;
+    const filename = path.basename(source);
+    const safeFilename = browserSafeImageFilename(filename);
+    if (safeFilename === filename) continue;
+    const safeSource = "portfolio-images/" + safeFilename;
+    item.src = safeSource;
+    // Preserve the original source for archive/download use; only the
+    // displayed source needs the browser-safe preview.
+    if (!item.originalSrc) item.originalSrc = source;
+    changed = true;
+  }
+  return changed;
+}
+function directImageFilenames() {
+  try {
+    return fs.readdirSync(IMAGE_DIR).filter(filename => {
+      if (!IMPORTABLE_IMAGE.test(filename) || filename.startsWith("._") || /-browser\.jpg$/i.test(filename)) return false;
+      const stats = fs.statSync(path.join(IMAGE_DIR, filename));
+      return stats.isFile() && stats.size >= 10 * 1024;
+    }).sort();
+  } catch { return []; }
+}
+
+function syncNonLiveArchive(data) {
+  data.sections ||= [];
+  let section = data.sections.find(entry => entry.id === "niet-live");
+  if (!section) {
+    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken.", adminOnly:true };
+    data.sections.push(section);
+  }
+  let changed = false;
+  for (const item of data.items || []) {
+    const source = String(item.src || "");
+    if (!source || item.mediaType === "html" || /\.html?$/i.test(source)) continue;
+    item.categories ||= [];
+    if (item.visible && item.gallery) {
+      const nextCategories = item.categories.filter(id => id !== section.id);
+      if (nextCategories.length !== item.categories.length) { item.categories = nextCategories; changed = true; }
+      continue;
+    }
+    if (!item.categories.includes(section.id)) { item.categories.push(section.id); changed = true; }
+  }
+  return changed;
+}
+
+function syncDirectImageImports(data) {
+  const filenames = directImageFilenames();
+  if (!filenames.length) return { data, added:0 };
+  data.sections ||= [];
+  let section = data.sections.find(entry => entry.id === "niet-live");
+  if (!section) {
+    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken.", adminOnly:true };
+    data.sections.push(section);
+  }
+  const configured = new Set((data.items || []).flatMap(item => [item.src, item.originalSrc]).filter(Boolean).map(source => path.basename(source)));
+  const additions = filenames.filter(filename => !configured.has(filename) && !configured.has(browserSafeImageFilename(filename))).map((filename, index) => ({
+    id:makeId(), src:`portfolio-images/${browserSafeImageFilename(filename)}`, originalSrc:`portfolio-images/${browserSafeImageFilename(filename)}`, mediaType:"image",
+    title:path.basename(filename, path.extname(filename)).replace(/[-_]+/g," "), note:"Nieuw werk — nog niet live.",
+    status:"niet live", year:String(new Date().getFullYear()), medium:"", categories:[section.id], gallery:true, glitch:false, visible:false,
+    thumbFit:"cover", scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0,
+    viewerFit:"contain", viewerScale:1, viewerX:50, viewerY:50, viewerRotate:0, viewerSkewX:0, viewerSkewY:0, viewerPerspectiveX:0, viewerPerspectiveY:0, format:"image",
+    order:(data.items || []).length + index
+  }));
+  if (!additions.length) return { data, added:0 };
+  data.items.push(...additions);
+  writeData(data);
+  return { data, added:additions.length };
+}
+
+// One source file must create one Admin work. Old browser drafts can contain
+// duplicate records; keep the user-selected live version and merge its categories.
+function dedupeImageItems(data) {
+  const items = Array.isArray(data.items) ? data.items : [];
+  const winners = new Map();
+  const sourceKey = item => {
+    const source = String(item.originalSrc || item.src || "");
+    return source.startsWith("portfolio-images/") ? path.basename(source).replace(/-browser\.jpg$/i, "") : "";
+  };
+  const score = item => (item.visible && item.gallery ? 4 : item.visible ? 3 : item.gallery ? 2 : 1);
+  for (const item of items) {
+    const key = sourceKey(item);
+    if (!key) { winners.set(`unique:${item.id || Math.random()}`, item); continue; }
+    const current = winners.get(key);
+    if (!current) { winners.set(key, item); continue; }
+    const preferred = score(item) > score(current) ? item : current;
+    const other = preferred === item ? current : item;
+    const categories = [...new Set([...(preferred.categories || []), ...(other.categories || [])])];
+    preferred.categories = preferred.visible && preferred.gallery ? categories.filter(id => id !== "niet-live") : categories;
+    winners.set(key, preferred);
+  }
+  const next = [...winners.values()];
+  if (next.length === items.length) return false;
+  data.items = next.map((item, index) => ({ ...item, order:index }));
+  return true;
+}
+
 function readAnalytics() {
   if (!fs.existsSync(ANALYTICS_FILE)) atomicWrite(ANALYTICS_FILE, JSON.stringify({ version:1, totalViews:0, totalSessions:0, days:{} }, null, 2));
   return JSON.parse(fs.readFileSync(ANALYTICS_FILE, "utf8"));
@@ -179,7 +307,13 @@ function recordVisit(event) {
 
 function readData() {
   if (!fs.existsSync(DATA_FILE)) writeData(buildInitialData());
-  return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+  const normalized = normalizeBrowserImageSources(data);
+  const deduped = dedupeImageItems(data);
+  const archived = syncNonLiveArchive(data);
+  const synced = syncDirectImageImports(data);
+  if ((normalized || deduped || archived) && !synced.added) writeData(data);
+  return synced.data;
 }
 
 function cookies(request) {
@@ -247,7 +381,7 @@ function safeData(input) {
     const id = String(section.id || `pagina-${index + 1}`).toLowerCase().replace(/[^a-z0-9_-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
     if (!id || usedSectionIds.has(id)) return;
     usedSectionIds.add(id);
-    sections.push({ id, label:String(section.label || id).slice(0, 80), note:String(section.note || "").slice(0, 1000) });
+    sections.push({ id, label:String(section.label || id).slice(0, 80), note:String(section.note || "").slice(0, 1000), adminOnly:id === "niet-live" || Boolean(section.adminOnly) });
   });
   if (!sections.length) sections.push({ id:"werk", label:"werk" });
   const categories = new Set(sections.map(section => section.id));
@@ -273,6 +407,7 @@ function safeData(input) {
     home: { baseItemId:String(input.home?.baseItemId || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64) },
     sections,
     texts: Object.fromEntries(Object.entries(input.texts).map(([key, value]) => [String(key).slice(0, 80), String(value).slice(0, 10000)])),
+    textsNl: Object.fromEntries(Object.entries(input.textsNl || {}).map(([key, value]) => [String(key).slice(0, 80), String(value).slice(0, 10000)])),
     items: input.items.map((item, index) => ({
       id: String(item.id || makeId()).replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64),
       src: String(item.src || "").replace(/^\/+/, "").slice(0, 500),
@@ -339,7 +474,11 @@ async function api(request, response, pathname) {
   if (pathname === "/api/messages" && request.method === "GET") return send(response, 200, readMessages());
   if ((pathname === "/api/data" || pathname === "/api/publish") && request.method === "POST") {
     const data = safeData(await readJson(request));
-    writeData(data);
+    const normalized = normalizeBrowserImageSources(data);
+    const deduped = dedupeImageItems(data);
+    const archived = syncNonLiveArchive(data);
+    const synced = syncDirectImageImports(data);
+    if (normalized || deduped || archived || !synced.added) writeData(data);
     return send(response, 200, { ok: true, data });
   }
   if (pathname === "/api/upload" && request.method === "POST") {

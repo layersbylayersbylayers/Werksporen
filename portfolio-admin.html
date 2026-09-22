@@ -112,7 +112,6 @@
     .admin-view-icon.dots i { width:3px; height:3px; border-radius:50%; background:currentColor; }
     .admin-view-button { opacity:.48; }
     .admin-view-button.is-active { opacity:1; border-color:var(--red); background:#f4eee8; }
-    .item.is-off { opacity:.52; }
     .item-preview { position:relative; aspect-ratio:4 / 5; height:auto; overflow:hidden; background:repeating-conic-gradient(#d9d7d0 0 25%,#efeee8 0 50%) 50% / 18px 18px; border-bottom:1px solid var(--line); box-shadow:var(--admin-tab-shadow); transition:box-shadow .18s ease; touch-action:none; }
     .item-preview img, .item-preview iframe { width:100%; height:100%; object-fit:cover; transform-origin:center; display:block; border:0; }
     .item-preview iframe { pointer-events:none; background:#020504; }
@@ -580,7 +579,7 @@
     // Numbers are generated from the tab's actual position on the public site.
     // Saving just the name prevents old prefixes from reappearing after reordering.
     const keepTabNumber = (_previous, value, _fallback) => cleanTabName(value);
-    const visibleImageCount = sectionId => data.items.filter(item => item.visible && item.gallery && item.src && (item.categories || []).includes(sectionId)).length;
+    const visibleImageCount = sectionId => data.items.filter(item => item.gallery && item.src && (item.categories || []).includes(sectionId) && (sectionId === "niet-live" || item.visible)).length;
     const tabCode = (index, imageCount = 0) => `${String(index).padStart(2,"0")} ${String(imageCount).padStart(2,"0")}`;
 
     function fixedNavigationRow(key, note, code) {
@@ -603,7 +602,6 @@
         `<button class="gallery-filter ${adminFilter === "home" ? "is-active" : ""}" type="button" data-gallery-filter="home">${tabCode(0)} ${escapeHtml(cleanTabName(data.texts.all || "home"))}</button>`,
         `<button class="gallery-filter ${adminFilter === "all" ? "is-active" : ""}" type="button" data-gallery-filter="all">alle werken</button>`,
         ...data.sections.map((section,index) => `<button class="gallery-filter ${adminFilter === section.id ? "is-active" : ""}" type="button" draggable="true" data-section-drag-tab data-gallery-filter="${section.id}" title="Sleep om de paginavolgorde te wijzigen">${tabCode(index + 1,visibleImageCount(section.id))} ${escapeHtml(cleanTabName(section.label))}</button>`),
-        `<button class="gallery-filter ${adminFilter === "hidden" ? "is-active" : ""}" type="button" data-gallery-filter="hidden">niet live</button>`
       ].join("");
       sectionList.innerHTML = sectionRowsMarkup();
     }
@@ -616,7 +614,7 @@
       document.getElementById("add-frame").hidden = isHome;
       if (isHome) { renderHomeEditor(); return; }
       ensureEmptyFrame();
-      const matching = data.items.filter(item => adminFilter === "hidden" ? (!item.visible || !item.gallery) : (item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter))));
+      const matching = data.items.filter(item => adminFilter === "all" ? (Boolean(item.src) && item.mediaType !== "html" && !/\.html?$/i.test(item.src)) : (adminFilter === "niet-live" ? (Boolean(item.src) && item.categories.includes(adminFilter)) : (item.gallery && Boolean(item.src) && item.categories.includes(adminFilter))));
       const pageSize = adminViewMode === "single" ? 1 : 12;
       const pages = Math.max(1, Math.ceil(matching.length / pageSize));
       adminPage = Math.min(adminPage, pages - 1);
@@ -854,7 +852,7 @@
       if (adminViewMode !== "grid" || event.target.closest(".drag-handle") || document.body.classList.contains("is-sorting")) return;
       const card = event.target.closest(".item");
       if (!card) return;
-      const matching = data.items.filter(item => adminFilter === "hidden" ? (!item.visible || !item.gallery) : (item.visible && item.gallery && (adminFilter === "all" || item.categories.includes(adminFilter))));
+      const matching = data.items.filter(item => adminFilter === "all" ? (Boolean(item.src) && item.mediaType !== "html" && !/\.html?$/i.test(item.src)) : (adminFilter === "niet-live" ? (Boolean(item.src) && item.categories.includes(adminFilter)) : (item.gallery && Boolean(item.src) && item.categories.includes(adminFilter))));
       const selectedIndex = matching.findIndex(item => item.id === card.dataset.id);
       adminViewMode = "single";
       adminPage = Math.max(0, selectedIndex);
@@ -1233,10 +1231,8 @@
     async function start() {
       try {
         data = await request("/api/data");
-        try {
-          const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
-          if (draft?.data?.items && draft?.data?.sections) { data = draft.data; dirty = true; saveState.textContent = "lokaal concept hersteld"; }
-        } catch {}
+        // Als de SSD-server bereikbaar is, blijft die data leidend.
+        // Een oud browserconcept blijft lokaal bewaard, maar overschrijft dit niet meer.
         await restoreOfflineImages(); render(); loginView.hidden = true; adminView.hidden = false;
       } catch {
         try {
