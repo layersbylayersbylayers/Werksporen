@@ -1028,9 +1028,10 @@
     const galleryMedium = document.getElementById("gallery-medium");
     const galleryFormat = document.getElementById("gallery-format");
     function thumbnailSource(source) {
-      const value = String(source || "");
-      if (/^portfolio-images\/\d{10,}-/.test(value)) return value;
-      return value.startsWith("portfolio-images/") ? `portfolio-thumbs/${value.slice("portfolio-images/".length)}.thumb.jpg` : value;
+      // Home glitch tiles render their image as a CSS background and cannot
+      // recover from a missing thumbnail URL. Use the available source for
+      // every work so newly published images never become empty orange cells.
+      return String(source || "");
     }
     overviewGrid.querySelectorAll('img[data-full-src="portfolio-images/IMG_1218.jpg"]').forEach(image => image.closest("figure").remove());
     const archiveKinds = ["inkt", "verf", "digitaal", "proces"];
