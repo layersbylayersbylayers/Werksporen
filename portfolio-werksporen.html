@@ -1085,7 +1085,7 @@
         const animated = item.mediaType === "html" || /\.html?$/i.test(item.src);
         const image = document.createElement(animated ? "iframe" : "img");
         if (animated) { image.src = item.src; image.title = item.title || "Animated portfolio work"; image.setAttribute("sandbox","allow-scripts"); image.dataset.fullSrc = item.src; image.style.transform = managedTransform(item); image.style.transformOrigin = `${item.x ?? 50}% ${item.y ?? 50}%`; }
-        else { image.dataset.fullSrc = item.src; image.dataset.thumbSrc = thumbnailSource(item.src); image.loading = "lazy"; image.decoding = "async"; image.alt = item.title || "Portfolio work"; image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); }
+        else { image.dataset.fullSrc = item.src; image.dataset.thumbSrc = thumbnailSource(item.src); image.loading = "lazy"; image.decoding = "async"; image.alt = item.title || "Portfolio work"; image.addEventListener("error", () => { const full = image.dataset.fullSrc; if (full && image.getAttribute("src") !== full) image.src = full; }, { once:false }); image.style.objectFit = item.thumbFit === "contain" ? "contain" : "cover"; image.style.objectPosition = `${item.x ?? 50}% ${item.y ?? 50}%`; image.style.transform = managedTransform(item); image.style.filter = managedFilter(item); }
         image.dataset.managedId = item.id;
         const caption = document.createElement("figcaption"); caption.innerHTML = `<span>${item.title || ""}</span><span>${String(index + 1).padStart(2,"0")}</span>`;
         figure.append(image, caption); overviewGrid.appendChild(figure);
