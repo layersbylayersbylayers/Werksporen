@@ -27,6 +27,11 @@
       "note": ""
     },
     {
+      "id": "spraypaint",
+      "label": "Spraypaint",
+      "note": ""
+    },
+    {
       "id": "inkt",
       "label": "inkt & flash",
       "note": ""
@@ -164,11 +169,11 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "verf"
+        "spraypaint"
       ],
       "gallery": true,
       "glitch": true,
-      "visible": false,
+      "visible": true,
       "thumbFit": "cover",
       "scale": 1,
       "x": 50,
@@ -392,7 +397,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "verf"
+        "spraypaint"
       ],
       "gallery": true,
       "glitch": true,
@@ -466,7 +471,7 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "verf"
+        "spraypaint"
       ],
       "gallery": true,
       "glitch": true,
@@ -908,11 +913,11 @@
       "order": 21
     },
     {
-      "id": "e828ff2428b425ba71",
-      "src": "portfolio-images/IMG_0492-heic.png",
-      "originalSrc": "portfolio-images/IMG_0492-heic.png",
+      "id": "692b3e600808ebc349",
+      "src": "portfolio-images/IMG_0496-heic.png",
+      "originalSrc": "portfolio-images/IMG_0496-heic.png",
       "mediaType": "image",
-      "title": "Archive 0492",
+      "title": "Archive 0496",
       "note": "Selected from the current image archive.",
       "status": "selected",
       "year": "2026",
@@ -924,19 +929,19 @@
       "glitch": true,
       "visible": true,
       "thumbFit": "cover",
-      "scale": 2.5,
-      "x": 0,
-      "y": 43.72862029646522,
+      "scale": 1.95,
+      "x": 94,
+      "y": 13,
       "filter": "normal",
-      "brightness": 1,
+      "brightness": 1.25,
       "contrast": 1,
       "rotate": 0,
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
       "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerX": 54.123711340206185,
+      "viewerY": 24.770642201834864,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -972,9 +977,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.86,
+      "viewerX": 52.74914089347079,
+      "viewerY": 30.504587155963304,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1048,9 +1053,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.8,
+      "viewerX": 57.38831615120275,
+      "viewerY": 27.98165137614679,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -1060,11 +1065,11 @@
       "order": 25
     },
     {
-      "id": "692b3e600808ebc349",
-      "src": "portfolio-images/IMG_0496-heic.png",
-      "originalSrc": "portfolio-images/IMG_0496-heic.png",
+      "id": "e828ff2428b425ba71",
+      "src": "portfolio-images/IMG_0492-heic.png",
+      "originalSrc": "portfolio-images/IMG_0492-heic.png",
       "mediaType": "image",
-      "title": "Archive 0496",
+      "title": "Archive 0492",
       "note": "Selected from the current image archive.",
       "status": "selected",
       "year": "2026",
@@ -1076,11 +1081,11 @@
       "glitch": true,
       "visible": true,
       "thumbFit": "cover",
-      "scale": 1.95,
-      "x": 94,
-      "y": 13,
+      "scale": 2.5,
+      "x": 0,
+      "y": 43.72862029646522,
       "filter": "normal",
-      "brightness": 1.25,
+      "brightness": 1,
       "contrast": 1,
       "rotate": 0,
       "skewX": 0,
@@ -1208,6 +1213,44 @@
       "order": 29
     },
     {
+      "id": "73973e2e21ddd99bb6",
+      "src": "portfolio-images/IMG_5470.JPG",
+      "originalSrc": "portfolio-images/IMG_5470.JPG",
+      "mediaType": "image",
+      "title": "IMG 5470",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "verf"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 0,
+      "y": 51.710376282782214,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 0.56,
+      "viewerX": 49.48453608247423,
+      "viewerY": 28.44036697247706,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 30
+    },
+    {
       "id": "48d05df83dd707be75",
       "src": "portfolio-images/IMG_0745-heic.png",
       "originalSrc": "portfolio-images/IMG_0745-heic.png",
@@ -1217,16 +1260,14 @@
       "status": "selected",
       "year": "2026",
       "medium": "",
-      "categories": [
-        "verf"
-      ],
+      "categories": [],
       "gallery": true,
       "glitch": true,
       "visible": true,
       "thumbFit": "cover",
       "scale": 3,
       "x": 0,
-      "y": 9.009122006841505,
+      "y": 0,
       "filter": "normal",
       "brightness": 1,
       "contrast": 1.05,
@@ -1243,7 +1284,7 @@
       "viewerPerspectiveX": 0.5,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 30
+      "order": 31
     },
     {
       "id": "fea37849e2baffebb9",
@@ -1279,7 +1320,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 31
+      "order": 32
     },
     {
       "id": "7a0f63565c875c737d",
@@ -1317,7 +1358,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 32
+      "order": 33
     },
     {
       "id": "4b60a7cdc7950e3ff6",
@@ -1353,7 +1394,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 33
+      "order": 34
     },
     {
       "id": "45e3933e55ba0075f8",
@@ -1391,7 +1432,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 34
+      "order": 35
     },
     {
       "id": "1284c4251dd913653c",
@@ -1429,7 +1470,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 35
+      "order": 36
     },
     {
       "id": "b5cd3695da97161711",
@@ -1467,7 +1508,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 36
+      "order": 37
     },
     {
       "id": "1e9733e75d2876a605",
@@ -1479,9 +1520,7 @@
       "status": "selected",
       "year": "2026",
       "medium": "",
-      "categories": [
-        "verf"
-      ],
+      "categories": [],
       "gallery": true,
       "glitch": true,
       "visible": true,
@@ -1505,7 +1544,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "painting",
-      "order": 37
+      "order": 38
     },
     {
       "id": "850cde18b4c3afea12",
@@ -1541,7 +1580,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "print",
-      "order": 38
+      "order": 39
     },
     {
       "id": "f238e4ee25d008e682",
@@ -1579,7 +1618,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "print",
-      "order": 39
+      "order": 40
     },
     {
       "id": "b8954d6f8e2511cfbd",
@@ -1617,7 +1656,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "painting detail",
-      "order": 40
+      "order": 41
     },
     {
       "id": "ff7d9047af45509165",
@@ -1655,7 +1694,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "painting",
-      "order": 41
+      "order": 42
     },
     {
       "id": "9f3f3123b9551c51d9",
@@ -1693,7 +1732,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "textile print",
-      "order": 42
+      "order": 43
     },
     {
       "id": "77ba5e1756533eb486",
@@ -1731,7 +1770,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 43
+      "order": 44
     },
     {
       "id": "fd70b6a835820b51d6",
@@ -1769,7 +1808,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "print",
-      "order": 44
+      "order": 45
     },
     {
       "id": "9746a043993b93b09c",
@@ -1807,7 +1846,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "mixed media",
-      "order": 45
+      "order": 46
     },
     {
       "id": "ec5c601a731e180487",
@@ -1845,7 +1884,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "painting detail",
-      "order": 46
+      "order": 47
     },
     {
       "id": "b5040e5243bfe9802a",
@@ -1883,7 +1922,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "painting detail",
-      "order": 47
+      "order": 48
     },
     {
       "id": "782b13001ce141d7f8",
@@ -1921,7 +1960,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 48
+      "order": 49
     },
     {
       "id": "03e8cf009370d305fb",
@@ -1959,7 +1998,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 49
+      "order": 50
     },
     {
       "id": "7b9dc4b6db51dfb2e4",
@@ -1997,7 +2036,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 50
+      "order": 51
     },
     {
       "id": "d202acd514bdd063cf",
@@ -2035,7 +2074,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 51
+      "order": 52
     },
     {
       "id": "f4784ca86be58b6642",
@@ -2073,7 +2112,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 52
+      "order": 53
     },
     {
       "id": "5c8f7e95b9f5a4bbc4",
@@ -2112,7 +2151,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 53
+      "order": 54
     },
     {
       "id": "16fb371353869d54d9",
@@ -2150,7 +2189,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 54
+      "order": 55
     },
     {
       "id": "faa58b05280cea5756",
@@ -2188,7 +2227,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 55
+      "order": 56
     },
     {
       "id": "6874d736d9954f2e2b",
@@ -2226,7 +2265,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 56
+      "order": 57
     },
     {
       "id": "a6d773585620dea7e2",
@@ -2264,7 +2303,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 57
+      "order": 58
     },
     {
       "id": "daf2abc2ae07986fb8",
@@ -2302,7 +2341,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 58
+      "order": 59
     },
     {
       "id": "89a01471d707c74bf0",
@@ -2340,7 +2379,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 59
+      "order": 60
     },
     {
       "id": "8054f53c04fb43bbab2b24d0d2022abe",
@@ -2378,7 +2417,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 60
+      "order": 61
     },
     {
       "id": "55b81336cd2c420c9f263bcf645e9b64",
@@ -2416,7 +2455,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 61
+      "order": 62
     },
     {
       "id": "f24e47fb31eb4c92a740efc4550aaf32",
@@ -2454,7 +2493,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 62
+      "order": 63
     },
     {
       "id": "e5f4b7ce27ce4711a5e78dec952470f3",
@@ -2492,7 +2531,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 63
+      "order": 64
     },
     {
       "id": "964903285fea4278a0cd172e110f838c",
@@ -2530,7 +2569,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 64
+      "order": 65
     },
     {
       "id": "acf9e30cb7734635a764cf6c4accef6d",
@@ -2568,7 +2607,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 65
+      "order": 66
     },
     {
       "id": "691f9b82bbf246a091442befeae16036",
@@ -2606,7 +2645,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 66
+      "order": 67
     },
     {
       "id": "ae196d7ef68fd82adb",
@@ -2644,7 +2683,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 67
+      "order": 68
     },
     {
       "id": "5b68c45aee79bb2888",
@@ -2657,11 +2696,11 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "niet-live"
+        "spraypaint"
       ],
       "gallery": true,
       "glitch": false,
-      "visible": false,
+      "visible": true,
       "thumbFit": "cover",
       "scale": 1,
       "x": 50,
@@ -2682,7 +2721,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 68
+      "order": 69
     },
     {
       "id": "68d6d225588ebd8710",
@@ -2720,7 +2759,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 69
+      "order": 70
     },
     {
       "id": "62a27eada0722a5546",
@@ -2758,7 +2797,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 70
+      "order": 71
     },
     {
       "id": "248cc6d5d4d71d69da",
@@ -2796,7 +2835,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 71
+      "order": 72
     },
     {
       "id": "2558cdd5ff961377f4",
@@ -2834,7 +2873,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 72
+      "order": 73
     },
     {
       "id": "28468c5ad0b4d13a90",
@@ -2872,7 +2911,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 73
+      "order": 74
     },
     {
       "id": "a9d28a611feb82620a",
@@ -2910,7 +2949,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 74
+      "order": 75
     },
     {
       "id": "6a79004cb9715a701c",
@@ -2948,7 +2987,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 75
+      "order": 76
     },
     {
       "id": "33a5365ed97aaa7330",
@@ -2986,7 +3025,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 76
+      "order": 77
     },
     {
       "id": "ec595b3f433af0fd88",
@@ -3024,7 +3063,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 77
+      "order": 78
     },
     {
       "id": "fce02073ab1d78aa82",
@@ -3062,7 +3101,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 78
+      "order": 79
     },
     {
       "id": "0bf384272a95314168",
@@ -3075,11 +3114,11 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "niet-live"
+        "spraypaint"
       ],
       "gallery": true,
       "glitch": false,
-      "visible": false,
+      "visible": true,
       "thumbFit": "cover",
       "scale": 1,
       "x": 50,
@@ -3091,16 +3130,16 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.94,
+      "viewerX": 57.7319587628866,
+      "viewerY": 28.89908256880734,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 79
+      "order": 80
     },
     {
       "id": "6ac85ba63477b6ca95",
@@ -3138,7 +3177,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 80
+      "order": 81
     },
     {
       "id": "580ccf6fab94d6ab15",
@@ -3151,11 +3190,11 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "niet-live"
+        "spraypaint"
       ],
       "gallery": true,
       "glitch": false,
-      "visible": false,
+      "visible": true,
       "thumbFit": "cover",
       "scale": 1,
       "x": 50,
@@ -3176,7 +3215,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 81
+      "order": 82
     },
     {
       "id": "730bfcc7dbf94ca99b23f31f76303442",
@@ -3214,7 +3253,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 82
+      "order": 83
     },
     {
       "id": "fb552c4aecbae5886a",
@@ -3252,7 +3291,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 83
+      "order": 84
     },
     {
       "id": "969c9a704c735a73f8",
@@ -3265,11 +3304,11 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "niet-live"
+        "inkt"
       ],
       "gallery": true,
       "glitch": false,
-      "visible": false,
+      "visible": true,
       "thumbFit": "cover",
       "scale": 1,
       "x": 50,
@@ -3281,47 +3320,9 @@
       "skewX": 0,
       "skewY": 0,
       "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
-      "viewerRotate": 0,
-      "viewerSkewX": 0,
-      "viewerSkewY": 0,
-      "viewerPerspectiveX": 0,
-      "viewerPerspectiveY": 0,
-      "format": "image",
-      "order": 84
-    },
-    {
-      "id": "b555843bd0ef95ae42",
-      "src": "portfolio-images/IMG_0243.JPEG",
-      "originalSrc": "portfolio-images/IMG_0243.JPEG",
-      "mediaType": "image",
-      "title": "IMG 0243",
-      "note": "Nieuw werk — nog niet live.",
-      "status": "niet live",
-      "year": "2026",
-      "medium": "",
-      "categories": [
-        "niet-live"
-      ],
-      "gallery": true,
-      "glitch": false,
-      "visible": false,
-      "thumbFit": "cover",
-      "scale": 1,
-      "x": 50,
-      "y": 50,
-      "filter": "normal",
-      "brightness": 1,
-      "contrast": 1,
-      "rotate": 0,
-      "skewX": 0,
-      "skewY": 0,
-      "viewerFit": "contain",
-      "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerScale": 0.66,
+      "viewerX": 50.687285223367695,
+      "viewerY": 31.422018348623855,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
@@ -3331,11 +3332,11 @@
       "order": 85
     },
     {
-      "id": "4c14f8e812b54815e0",
-      "src": "portfolio-images/IMG_0264.JPEG",
-      "originalSrc": "portfolio-images/IMG_0264.JPEG",
+      "id": "b555843bd0ef95ae42",
+      "src": "portfolio-images/IMG_0243-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0243-browser.jpg",
       "mediaType": "image",
-      "title": "IMG 0264",
+      "title": "IMG 0243",
       "note": "Nieuw werk — nog niet live.",
       "status": "niet live",
       "year": "2026",
@@ -3369,9 +3370,47 @@
       "order": 86
     },
     {
+      "id": "4c14f8e812b54815e0",
+      "src": "portfolio-images/IMG_0264-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0264-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 0264",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 87
+    },
+    {
       "id": "99a35adc7ccffd7489",
-      "src": "portfolio-images/IMG_0405.JPEG",
-      "originalSrc": "portfolio-images/IMG_0405.JPEG",
+      "src": "portfolio-images/IMG_0405-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0405-browser.jpg",
       "mediaType": "image",
       "title": "IMG 0405",
       "note": "Nieuw werk — nog niet live.",
@@ -3404,7 +3443,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 87
+      "order": 88
     },
     {
       "id": "283828347c84016ca9",
@@ -3442,7 +3481,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 88
+      "order": 89
     },
     {
       "id": "38dbd6bb2422dd0cbb",
@@ -3454,9 +3493,7 @@
       "status": "niet live",
       "year": "2026",
       "medium": "",
-      "categories": [
-        "niet-live"
-      ],
+      "categories": [],
       "gallery": true,
       "glitch": false,
       "visible": false,
@@ -3480,7 +3517,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 89
+      "order": 90
     },
     {
       "id": "2a592f54a3cfa11491",
@@ -3518,7 +3555,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 90
+      "order": 91
     },
     {
       "id": "5ba4de493dc059ea00",
@@ -3556,7 +3593,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 91
+      "order": 92
     },
     {
       "id": "da6b5bda16eb686fdd",
@@ -3594,7 +3631,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 92
+      "order": 93
     },
     {
       "id": "2f493cea6a4448b35d",
@@ -3632,7 +3669,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 93
+      "order": 94
     },
     {
       "id": "0dcef3eb3cea3f491f",
@@ -3670,7 +3707,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 94
+      "order": 95
     },
     {
       "id": "031e2766cb5a547530",
@@ -3708,7 +3745,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 95
+      "order": 96
     },
     {
       "id": "f9f5591868c8e6e864",
@@ -3746,7 +3783,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 96
+      "order": 97
     },
     {
       "id": "230f17cbf0bfc21a24",
@@ -3784,7 +3821,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 97
+      "order": 98
     },
     {
       "id": "e746a186851048215e",
@@ -3822,7 +3859,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 98
+      "order": 99
     },
     {
       "id": "2a8776cfffcb8cfca3",
@@ -3860,7 +3897,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 99
+      "order": 100
     },
     {
       "id": "06f732ccad8ca51eec",
@@ -3898,7 +3935,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 100
+      "order": 101
     },
     {
       "id": "41e4581317e92169ee",
@@ -3936,7 +3973,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 101
+      "order": 102
     },
     {
       "id": "9790edfe3b192e0954",
@@ -3949,11 +3986,11 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "niet-live"
+        "verf"
       ],
       "gallery": true,
       "glitch": false,
-      "visible": false,
+      "visible": true,
       "thumbFit": "cover",
       "scale": 1,
       "x": 50,
@@ -3974,7 +4011,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 102
+      "order": 103
     },
     {
       "id": "0dfe53a4da7c6931ca",
@@ -4012,7 +4049,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 103
+      "order": 104
     },
     {
       "id": "ee0bada78e5cac9df6",
@@ -4050,7 +4087,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 104
+      "order": 105
     },
     {
       "id": "9d42132fb4bfaed85c",
@@ -4088,7 +4125,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 105
+      "order": 106
     },
     {
       "id": "d2c47367112b811b8c",
@@ -4101,11 +4138,11 @@
       "year": "2026",
       "medium": "",
       "categories": [
-        "niet-live"
+        "spraypaint"
       ],
       "gallery": true,
-      "glitch": false,
-      "visible": false,
+      "glitch": true,
+      "visible": true,
       "thumbFit": "cover",
       "scale": 1,
       "x": 50,
@@ -4118,15 +4155,15 @@
       "skewY": 0,
       "viewerFit": "contain",
       "viewerScale": 1,
-      "viewerX": 50,
-      "viewerY": 50,
+      "viewerX": 48.10996563573883,
+      "viewerY": 24.08256880733945,
       "viewerRotate": 0,
       "viewerSkewX": 0,
       "viewerSkewY": 0,
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 106
+      "order": 107
     },
     {
       "id": "65383609b5c03dfda9",
@@ -4164,7 +4201,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 107
+      "order": 108
     },
     {
       "id": "292ec141e9ed85f557",
@@ -4202,12 +4239,12 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 108
+      "order": 109
     },
     {
       "id": "883565bfa5f1014f33",
-      "src": "portfolio-images/Mikiri boekje 2.JPEG",
-      "originalSrc": "portfolio-images/Mikiri boekje 2.JPEG",
+      "src": "portfolio-images/Mikiri boekje 2-browser.jpg",
+      "originalSrc": "portfolio-images/Mikiri boekje 2-browser.jpg",
       "mediaType": "image",
       "title": "Mikiri boekje 2",
       "note": "Nieuw werk — nog niet live.",
@@ -4240,12 +4277,12 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 109
+      "order": 110
     },
     {
       "id": "b546b9d94b0d240463",
-      "src": "portfolio-images/Mikiri boekje.JPEG",
-      "originalSrc": "portfolio-images/Mikiri boekje.JPEG",
+      "src": "portfolio-images/Mikiri boekje-browser.jpg",
+      "originalSrc": "portfolio-images/Mikiri boekje-browser.jpg",
       "mediaType": "image",
       "title": "Mikiri boekje",
       "note": "Nieuw werk — nog niet live.",
@@ -4278,7 +4315,7 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 110
+      "order": 111
     },
     {
       "id": "65c1677c98b24ffb47",
@@ -4316,7 +4353,767 @@
       "viewerPerspectiveX": 0,
       "viewerPerspectiveY": 0,
       "format": "image",
-      "order": 111
+      "order": 112
+    },
+    {
+      "id": "d974e518793face735",
+      "src": "portfolio-images/14ECDEDE-0A93-414B-967B-9BD3718782BD.jpg",
+      "originalSrc": "portfolio-images/14ECDEDE-0A93-414B-967B-9BD3718782BD.jpg",
+      "mediaType": "image",
+      "title": "14ECDEDE 0A93 414B 967B 9BD3718782BD",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 113
+    },
+    {
+      "id": "c7f9826d5242ef6c52",
+      "src": "portfolio-images/724830E4-EC08-4ADC-A952-9F4E04D3A0B7.jpg",
+      "originalSrc": "portfolio-images/724830E4-EC08-4ADC-A952-9F4E04D3A0B7.jpg",
+      "mediaType": "image",
+      "title": "724830E4 EC08 4ADC A952 9F4E04D3A0B7",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 114
+    },
+    {
+      "id": "0f962d6193518e22d2",
+      "src": "portfolio-images/E817B78E-64A1-4144-AAD6-A6E9EB447A4C.jpg",
+      "originalSrc": "portfolio-images/E817B78E-64A1-4144-AAD6-A6E9EB447A4C.jpg",
+      "mediaType": "image",
+      "title": "E817B78E 64A1 4144 AAD6 A6E9EB447A4C",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 115
+    },
+    {
+      "id": "f33c7bae2102344c2b",
+      "src": "portfolio-images/IMG_0395-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0395-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 0395",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 116
+    },
+    {
+      "id": "ba0aeb23f6de93cd30",
+      "src": "portfolio-images/IMG_3855-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_3855-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 3855",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 117
+    },
+    {
+      "id": "854a6bd2b8d4d5940e",
+      "src": "portfolio-images/IMG_3953(1)-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_3953(1)-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 3953(1)",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 118
+    },
+    {
+      "id": "a0f162a10215f9eacf",
+      "src": "portfolio-images/IMG_3972-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_3972-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 3972",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 119
+    },
+    {
+      "id": "555344c3e3722c0cb9",
+      "src": "portfolio-images/IMG_5307.JPG",
+      "originalSrc": "portfolio-images/IMG_5307.JPG",
+      "mediaType": "image",
+      "title": "IMG 5307",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 120
+    },
+    {
+      "id": "6d38d88c53d573be9a",
+      "src": "portfolio-images/IMG_5352.JPG",
+      "originalSrc": "portfolio-images/IMG_5352.JPG",
+      "mediaType": "image",
+      "title": "IMG 5352",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 121
+    },
+    {
+      "id": "b98c9e8e3e26e0ea67",
+      "src": "portfolio-images/IMG_5549.JPG",
+      "originalSrc": "portfolio-images/IMG_5549.JPG",
+      "mediaType": "image",
+      "title": "IMG 5549",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 122
+    },
+    {
+      "id": "096feae7512a48a395d9ad894971c6b2",
+      "src": "",
+      "originalSrc": "",
+      "mediaType": "image",
+      "title": "",
+      "note": "Selected from the current image archive.",
+      "status": "selected",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "spraypaint"
+      ],
+      "gallery": true,
+      "glitch": true,
+      "visible": true,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 123
+    },
+    {
+      "id": "3d32b6257ffb5414e2",
+      "src": "portfolio-images/IMG_0243-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0243-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 0243",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 124
+    },
+    {
+      "id": "d6bc705324076fbfe2",
+      "src": "portfolio-images/IMG_0264-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0264-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 0264",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 125
+    },
+    {
+      "id": "319baf38e7247de876",
+      "src": "portfolio-images/IMG_0395-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0395-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 0395",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 126
+    },
+    {
+      "id": "bd3c656f87c9fa75ff",
+      "src": "portfolio-images/IMG_0405-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_0405-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 0405",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 127
+    },
+    {
+      "id": "05d8d94f3b834dffe2",
+      "src": "portfolio-images/IMG_3855-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_3855-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 3855",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 128
+    },
+    {
+      "id": "cfd6a88d7986544c5a",
+      "src": "portfolio-images/IMG_3953(1)-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_3953(1)-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 3953(1)",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 129
+    },
+    {
+      "id": "3cf3ce071319574ba1",
+      "src": "portfolio-images/IMG_3972-browser.jpg",
+      "originalSrc": "portfolio-images/IMG_3972-browser.jpg",
+      "mediaType": "image",
+      "title": "IMG 3972",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 130
+    },
+    {
+      "id": "465d91bc22a1a1509d",
+      "src": "portfolio-images/Mikiri boekje 2-browser.jpg",
+      "originalSrc": "portfolio-images/Mikiri boekje 2-browser.jpg",
+      "mediaType": "image",
+      "title": "Mikiri boekje 2",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 131
+    },
+    {
+      "id": "3bf8ef015da60aff0d",
+      "src": "portfolio-images/Mikiri boekje-browser.jpg",
+      "originalSrc": "portfolio-images/Mikiri boekje-browser.jpg",
+      "mediaType": "image",
+      "title": "Mikiri boekje",
+      "note": "Nieuw werk — nog niet live.",
+      "status": "niet live",
+      "year": "2026",
+      "medium": "",
+      "categories": [
+        "niet-live"
+      ],
+      "gallery": true,
+      "glitch": false,
+      "visible": false,
+      "thumbFit": "cover",
+      "scale": 1,
+      "x": 50,
+      "y": 50,
+      "filter": "normal",
+      "brightness": 1,
+      "contrast": 1,
+      "rotate": 0,
+      "skewX": 0,
+      "skewY": 0,
+      "viewerFit": "contain",
+      "viewerScale": 1,
+      "viewerX": 50,
+      "viewerY": 50,
+      "viewerRotate": 0,
+      "viewerSkewX": 0,
+      "viewerSkewY": 0,
+      "viewerPerspectiveX": 0,
+      "viewerPerspectiveY": 0,
+      "format": "image",
+      "order": 132
     }
   ]
 }

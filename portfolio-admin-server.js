@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const os = require("os");
+const { spawnSync } = require("child_process");
 
 const ROOT = __dirname;
 const PORT = Number(process.env.PORTFOLIO_ADMIN_PORT || 4173);
@@ -133,10 +134,45 @@ function writeData(data) {
 
 // Files added directly to portfolio-images stay private by default. They are
 // registered in Admin’s "niet live" section, ready for Lars to review.
+function isHeifFile(file) {
+  try {
+    const descriptor = fs.openSync(file, "r");
+    const header = Buffer.alloc(32); fs.readSync(descriptor, header, 0, header.length, 0); fs.closeSync(descriptor);
+    return /ftyp(?:heic|heix|hevc|hevx|mif1|msf1)/.test(header.toString("ascii"));
+  } catch { return false; }
+}
+
+function browserSafeImageFilename(filename) {
+  const source = path.join(IMAGE_DIR, filename);
+  if (!isHeifFile(source)) return filename;
+  const safeFilename = path.basename(filename, path.extname(filename)) + "-browser.jpg";
+  const destination = path.join(IMAGE_DIR, safeFilename);
+  if (!fs.existsSync(destination)) {
+    const result = spawnSync("sips", ["-s", "format", "jpeg", source, "--out", destination], { encoding:"utf8" });
+    if (result.status !== 0 || !fs.existsSync(destination)) return filename;
+  }
+  return safeFilename;
+}
+
+function normalizeBrowserImageSources(data) {
+  let changed = false;
+  for (const item of data.items || []) {
+    const source = String(item.src || "");
+    if (!source.startsWith("portfolio-images/")) continue;
+    const filename = path.basename(source);
+    const safeFilename = browserSafeImageFilename(filename);
+    if (safeFilename === filename) continue;
+    const safeSource = "portfolio-images/" + safeFilename;
+    item.src = safeSource;
+    item.originalSrc = safeSource;
+    changed = true;
+  }
+  return changed;
+}
 function directImageFilenames() {
   try {
     return fs.readdirSync(IMAGE_DIR).filter(filename => {
-      if (!IMPORTABLE_IMAGE.test(filename) || filename.startsWith("._")) return false;
+      if (!IMPORTABLE_IMAGE.test(filename) || filename.startsWith("._") || /-browser\.jpg$/i.test(filename)) return false;
       const stats = fs.statSync(path.join(IMAGE_DIR, filename));
       return stats.isFile() && stats.size >= 10 * 1024;
     }).sort();
@@ -154,7 +190,7 @@ function syncDirectImageImports(data) {
   }
   const configured = new Set((data.items || []).flatMap(item => [item.src, item.originalSrc]).filter(Boolean).map(source => path.basename(source)));
   const additions = filenames.filter(filename => !configured.has(filename)).map((filename, index) => ({
-    id:makeId(), src:`portfolio-images/${filename}`, originalSrc:`portfolio-images/${filename}`, mediaType:"image",
+    id:makeId(), src:`portfolio-images/${browserSafeImageFilename(filename)}`, originalSrc:`portfolio-images/${browserSafeImageFilename(filename)}`, mediaType:"image",
     title:path.basename(filename, path.extname(filename)).replace(/[-_]+/g," "), note:"Nieuw werk — nog niet live.",
     status:"niet live", year:String(new Date().getFullYear()), medium:"", categories:[section.id], gallery:true, glitch:false, visible:false,
     thumbFit:"cover", scale:1, x:50, y:50, filter:"normal", brightness:1, contrast:1, rotate:0, skewX:0, skewY:0,
@@ -217,7 +253,10 @@ function recordVisit(event) {
 function readData() {
   if (!fs.existsSync(DATA_FILE)) writeData(buildInitialData());
   const data = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
-  return syncDirectImageImports(data).data;
+  const normalized = normalizeBrowserImageSources(data);
+  const synced = syncDirectImageImports(data);
+  if (normalized && !synced.added) writeData(data);
+  return synced.data;
 }
 
 function cookies(request) {
