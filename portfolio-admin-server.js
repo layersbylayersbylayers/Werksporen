@@ -178,7 +178,8 @@ function normalizeBrowserImageSources(data) {
 function directImageFilenames() {
   try {
     return fs.readdirSync(IMAGE_DIR).filter(filename => {
-      if (!IMPORTABLE_IMAGE.test(filename) || filename.startsWith("._") || /-browser\.jpg$/i.test(filename)) return false;
+      // Ignore legacy timestamp-named temporary variants; they are not new direct imports.
+      if (!IMPORTABLE_IMAGE.test(filename) || filename.startsWith("._") || /-browser\.jpg$/i.test(filename) || /^\d{13}-/.test(filename)) return false;
       const stats = fs.statSync(path.join(IMAGE_DIR, filename));
       return stats.isFile() && stats.size >= 10 * 1024;
     }).sort();
