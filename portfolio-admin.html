@@ -579,7 +579,7 @@
     // Numbers are generated from the tab's actual position on the public site.
     // Saving just the name prevents old prefixes from reappearing after reordering.
     const keepTabNumber = (_previous, value, _fallback) => cleanTabName(value);
-    const visibleImageCount = sectionId => data.items.filter(item => item.visible && item.gallery && item.src && (item.categories || []).includes(sectionId)).length;
+    const visibleImageCount = sectionId => data.items.filter(item => item.gallery && item.src && (item.categories || []).includes(sectionId) && (sectionId === "niet-live" || item.visible)).length;
     const tabCode = (index, imageCount = 0) => `${String(index).padStart(2,"0")} ${String(imageCount).padStart(2,"0")}`;
 
     function fixedNavigationRow(key, note, code) {
@@ -1231,10 +1231,8 @@
     async function start() {
       try {
         data = await request("/api/data");
-        try {
-          const draft = JSON.parse(localStorage.getItem(draftKey) || "null");
-          if (draft?.data?.items && draft?.data?.sections) { data = draft.data; dirty = true; saveState.textContent = "lokaal concept hersteld"; }
-        } catch {}
+        // Als de SSD-server bereikbaar is, blijft die data leidend.
+        // Een oud browserconcept blijft lokaal bewaard, maar overschrijft dit niet meer.
         await restoreOfflineImages(); render(); loginView.hidden = true; adminView.hidden = false;
       } catch {
         try {
