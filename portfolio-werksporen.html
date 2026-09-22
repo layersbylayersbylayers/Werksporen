@@ -260,6 +260,7 @@
     .detail-copy { margin: 0; font: 400 clamp(14px, 1.25vw, 18px)/1.55 var(--mono); white-space: pre-line; }
     .detail-copy .type-caret { vertical-align: -.12em; }
     .intro h1 { font-size:var(--welcome-size,16px); }
+    #typewriter-text > span:first-child { white-space:pre-line; }
     .typewriter-date { display:block; margin-top:.9em; font-size:var(--date-size,16px); }
     /* The button's text is kept only for accessibility. Visual tab numbers and
        names come from the ordered data attributes above, so legacy admin labels
@@ -683,7 +684,7 @@
       </div>
     </dialog>
   </main>
-  <script src="portfolio-admin-data.js"></script>
+  <script>document.write("<script src=\"portfolio-admin-data.js?config=" + Date.now() + \"\"><\\/script>");</script>
   <script src="portfolio-scores.js?v=20260911-local-scores-1"></script>
   <script>
     const studioOrigin = window.WERKSPOREN_STUDIO_ORIGIN || "";
