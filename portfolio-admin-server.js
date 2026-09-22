@@ -179,6 +179,24 @@ function directImageFilenames() {
   } catch { return []; }
 }
 
+function syncNonLiveArchive(data) {
+  data.sections ||= [];
+  let section = data.sections.find(entry => entry.id === "niet-live");
+  if (!section) {
+    section = { id:"niet-live", label:"niet live", note:"Nieuwe werken — eerst beoordelen en daarna handmatig zichtbaar maken." };
+    data.sections.push(section);
+  }
+  let changed = false;
+  for (const item of data.items || []) {
+    const source = String(item.src || "");
+    if (!source || item.mediaType === "html" || /\.html?$/i.test(source)) continue;
+    if (item.visible && item.gallery) continue;
+    item.categories ||= [];
+    if (!item.categories.includes(section.id)) { item.categories.push(section.id); changed = true; }
+  }
+  return changed;
+}
+
 function syncDirectImageImports(data) {
   const filenames = directImageFilenames();
   if (!filenames.length) return { data, added:0 };
@@ -254,8 +272,9 @@ function readData() {
   if (!fs.existsSync(DATA_FILE)) writeData(buildInitialData());
   const data = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
   const normalized = normalizeBrowserImageSources(data);
+  const archived = syncNonLiveArchive(data);
   const synced = syncDirectImageImports(data);
-  if (normalized && !synced.added) writeData(data);
+  if ((normalized || archived) && !synced.added) writeData(data);
   return synced.data;
 }
 
@@ -417,7 +436,10 @@ async function api(request, response, pathname) {
   if (pathname === "/api/messages" && request.method === "GET") return send(response, 200, readMessages());
   if ((pathname === "/api/data" || pathname === "/api/publish") && request.method === "POST") {
     const data = safeData(await readJson(request));
-    writeData(data);
+    const normalized = normalizeBrowserImageSources(data);
+    const archived = syncNonLiveArchive(data);
+    const synced = syncDirectImageImports(data);
+    if (normalized || archived || !synced.added) writeData(data);
     return send(response, 200, { ok: true, data });
   }
   if (pathname === "/api/upload" && request.method === "POST") {
