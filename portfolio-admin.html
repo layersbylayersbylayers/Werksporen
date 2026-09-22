@@ -614,7 +614,7 @@
       document.getElementById("add-frame").hidden = isHome;
       if (isHome) { renderHomeEditor(); return; }
       ensureEmptyFrame();
-      const matching = data.items.filter(item => adminFilter === "hidden" ? (!item.visible || !item.gallery) : (item.gallery && Boolean(item.src) && (adminFilter === "all" ? item.visible : item.categories.includes(adminFilter))));
+      const matching = data.items.filter(item => adminFilter === "all" ? (Boolean(item.src) && item.mediaType !== "html" && !/\.html?$/i.test(item.src)) : (item.gallery && Boolean(item.src) && item.categories.includes(adminFilter)));
       const pageSize = adminViewMode === "single" ? 1 : 12;
       const pages = Math.max(1, Math.ceil(matching.length / pageSize));
       adminPage = Math.min(adminPage, pages - 1);
@@ -852,7 +852,7 @@
       if (adminViewMode !== "grid" || event.target.closest(".drag-handle") || document.body.classList.contains("is-sorting")) return;
       const card = event.target.closest(".item");
       if (!card) return;
-      const matching = data.items.filter(item => adminFilter === "hidden" ? (!item.visible || !item.gallery) : (item.gallery && Boolean(item.src) && (adminFilter === "all" ? item.visible : item.categories.includes(adminFilter))));
+      const matching = data.items.filter(item => adminFilter === "all" ? (Boolean(item.src) && item.mediaType !== "html" && !/\.html?$/i.test(item.src)) : (item.gallery && Boolean(item.src) && item.categories.includes(adminFilter)));
       const selectedIndex = matching.findIndex(item => item.id === card.dataset.id);
       adminViewMode = "single";
       adminPage = Math.max(0, selectedIndex);
