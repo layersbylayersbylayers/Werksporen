@@ -39,7 +39,7 @@
     a { color: inherit; text-decoration: none; }
     button { font: inherit; }
     .project-menu, .overview-work, .contact { transition:opacity 2.56s cubic-bezier(.22,1,.36,1), transform 2.56s cubic-bezier(.22,1,.36,1); }
-    body.intro-pending > .page > :is(.project-menu,.overview-work,.contact) { opacity:0; transform:translateY(7px); pointer-events:none; }
+    body.intro-pending > .page > :is(.project-menu,.contact) { opacity:0; transform:translateY(7px); pointer-events:none; }
 
     .page { max-width: 1440px; margin: 0 auto; padding: 18px 24px 58px; }
     .masthead {
@@ -277,6 +277,7 @@
     .intro { display:none; }
     .project-menu { border-top-color:var(--ink); }
     .project-menu.dossier-pending { opacity:0; transform:translateX(18px); pointer-events:none; }
+    .project-menu.dossier-pending + .grid-swipe-hint { visibility:hidden !important; opacity:0; }
     .project-menu.dossier-opening { animation:dossierLineIn .48s cubic-bezier(.22,1,.36,1) both; }
     .project-menu.dossier-opening .filter { opacity:0; transform:translateX(12px) scaleX(.72); transform-origin:right center; animation:dossierTabIn .44s cubic-bezier(.22,1,.36,1) both; }
     .project-menu.dossier-opening .filter:nth-child(1) { animation-delay:.08s; }
@@ -290,12 +291,10 @@
     .project-menu.dossier-opening .filter:nth-child(9) { animation-delay:.56s; }
     .home-feature .home-mosaic { transition-duration:1.28s,1.34s,1.34s,1.34s; }
     .home-welcome { display:block; grid-column:1; grid-row:2; width:100%; margin:18px 0 0; padding:0 0 2px; border-top:1px solid var(--hairline); color:var(--ink); }
-    .home-welcome h1 { width:min(100%,610px); margin:13px 0 0; font:400 var(--welcome-size,16px)/1.35 var(--mono); letter-spacing:-.035em; white-space:pre-line; }
+    .home-welcome h1 { width:100%; max-width:none; margin:13px 0 0; font:400 var(--welcome-size,16px)/1.35 var(--mono); letter-spacing:-.035em; white-space:pre-line; }
+    .home-welcome-hint { color:var(--soft); white-space:nowrap; }
     .home-welcome .typewriter-date { display:block; margin-top:.9em; font-size:var(--date-size,16px); }
     @media (max-width:700px) {
-      /* A visible closed book invites the small upward scroll that starts the shared intro. */
-      body.intro-pending > .page > .overview-work { opacity:1; transform:none; pointer-events:none; }
-      .home-feature.intro-pending .home-mosaic { opacity:.28 !important; transform:perspective(900px) rotateY(-48deg) translateX(-7px) scaleY(.99); }
       .home-welcome { grid-column:1; grid-row:2; margin-top:14px; }
       .home-welcome h1 { margin-top:11px; font-size:var(--welcome-size,16px); }
       .overview-work.show-feature .feature-note { grid-row:3; }
@@ -605,7 +604,6 @@
 
     /* Final mobile placement: keep the new welcome line separate from the dossier note. */
     @media (max-width:700px) {
-      body.intro-pending .home-feature.intro-pending .home-mosaic { opacity:.28 !important; transform:perspective(900px) rotateY(-48deg) translateX(-7px) scaleY(.99) !important; }
       .overview-work.show-feature .home-feature { grid-template-rows:auto auto auto; }
       .overview-work.show-feature .home-welcome { grid-column:1; grid-row:2; }
       .overview-work.show-feature .feature-note { grid-column:1; grid-row:3 !important; }
@@ -634,7 +632,6 @@
       <button class="filter" data-filter="proces">proces</button>
       <button class="filter" type="button" data-filter="about">about</button>
     </nav>
-    <p class="grid-swipe-hint" aria-hidden="true">← SWIPE PAGES →</p>
 
     <article class="work overview-work show-feature" data-kind="inkt verf digitaal proces">
       <div class="work-topline"><span class="work-number">01 / SELECTIE</span><span>WERKOVERZICHT</span></div>
@@ -953,9 +950,9 @@
     });
     let today = new Intl.DateTimeFormat(currentLanguage === "nl" ? "nl-NL" : "en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date());
     function composeWelcome() {
-      const lead = adminTexts.welcome || translations[currentLanguage].welcome;
-      const extra = String(adminTexts.welcomeExtra || "").trim();
-      return `${lead}${extra ? `\n\n${extra}` : ""}\n\n${today}.`;
+      const lead = String(adminTexts.welcome || translations[currentLanguage].welcome).replace(/\s*\n+\s*/g," ").trim();
+      const extra = String(adminTexts.welcomeExtra || "").replace(/\s*\n+\s*/g," ").trim();
+      return `${lead}${extra ? ` ${extra}` : ""}\n\n${today}.`;
     }
     let welcome = composeWelcome();
     const typewriterText = document.getElementById("typewriter-text");
@@ -970,6 +967,13 @@
       const lead = hasDateLine ? typedValue.slice(0, divider) : typedValue;
       const date = hasDateLine ? typedValue.slice(divider + 2) : "";
       const leadSpan = document.createElement("span"); leadSpan.textContent = lead;
+      const fullLead = String(welcome || "").split("\n\n")[0];
+      if (lead === fullLead) {
+        const hint = document.createElement("span");
+        hint.className = "home-welcome-hint";
+        hint.textContent = "  ← SWIPE PAGES →";
+        leadSpan.append(hint);
+      }
       target.replaceChildren(leadSpan);
       if (hasDateLine) {
         const dateSpan = document.createElement("span");
@@ -1013,30 +1017,31 @@
       }
     }
     function startHomeIntro() {
-      window.setTimeout(() => requestAnimationFrame(() => {
+      window.setTimeout(() => {
         document.body.classList.remove("intro-pending");
-        homeFeature.classList.remove("intro-pending");
+        // Use an explicit animation: CSS paint coalescing otherwise lets some browsers skip the book opening.
         homeFeature.classList.add("intro-opening");
-        requestAnimationFrame(() => window.setTimeout(() => homeFeature.classList.remove("intro-opening"), 80));
+        homeFeature.classList.remove("intro-pending");
+        const book = homeFeature.querySelector(".home-mosaic");
+        if (book && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          const bookOpening = book.animate([
+            { opacity:0, transform:"perspective(1450px) rotateY(-76deg) translateX(-10px) scaleY(.985)", filter:"brightness(.9) saturate(.94)" },
+            { opacity:1, transform:"perspective(1450px) rotateY(0) translateX(0) scaleY(1)", filter:"brightness(1) saturate(1)" }
+          ], { duration:1280, easing:"cubic-bezier(.18,.72,.18,1)", fill:"forwards" });
+          bookOpening.finished.catch(() => {}).finally(() => {
+            homeFeature.classList.remove("intro-opening");
+            bookOpening.cancel();
+          });
+        } else homeFeature.classList.remove("intro-opening");
         // Let the left-hand book open first; the dossier tabs then arrive from the other side.
         window.setTimeout(() => {
           projectMenu?.classList.remove("dossier-pending");
           projectMenu?.classList.add("dossier-opening");
           window.setTimeout(typeWelcome, 560);
         }, 1380);
-      }), 160);
+      }, 160);
     }
-    if (window.matchMedia("(max-width:700px)").matches) {
-      let mobileIntroStarted = false;
-      const startMobileIntroOnScroll = () => {
-        if (mobileIntroStarted || window.scrollY < 18) return;
-        mobileIntroStarted = true;
-        window.removeEventListener("scroll", startMobileIntroOnScroll);
-        startHomeIntro();
-      };
-      window.addEventListener("scroll", startMobileIntroOnScroll, { passive:true });
-      requestAnimationFrame(startMobileIntroOnScroll);
-    } else startHomeIntro();
+    startHomeIntro();
     const featureImage = document.getElementById("featured-image");
     const featureNote = document.querySelector(".feature-note");
     const featureNoteCopy = document.getElementById("feature-note-copy");
