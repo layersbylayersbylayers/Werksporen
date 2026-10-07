@@ -276,31 +276,30 @@
     .masthead { border-bottom:0; }
     .intro { display:none; }
     .project-menu { border-top-color:var(--ink); }
-    .project-menu.dossier-pending { opacity:0; transform:translateX(18px); pointer-events:none; }
-    .project-menu.dossier-pending + .grid-swipe-hint { visibility:hidden !important; opacity:0; }
-    .project-menu.dossier-opening { animation:dossierLineIn .48s cubic-bezier(.22,1,.36,1) both; }
-    .project-menu.dossier-opening .filter { opacity:0; transform:translateX(12px) scaleX(.72); transform-origin:right center; animation:dossierTabIn .44s cubic-bezier(.22,1,.36,1) both; }
-    .project-menu.dossier-opening .filter:nth-child(1) { animation-delay:.08s; }
-    .project-menu.dossier-opening .filter:nth-child(2) { animation-delay:.14s; }
-    .project-menu.dossier-opening .filter:nth-child(3) { animation-delay:.20s; }
-    .project-menu.dossier-opening .filter:nth-child(4) { animation-delay:.26s; }
-    .project-menu.dossier-opening .filter:nth-child(5) { animation-delay:.32s; }
-    .project-menu.dossier-opening .filter:nth-child(6) { animation-delay:.38s; }
-    .project-menu.dossier-opening .filter:nth-child(7) { animation-delay:.44s; }
-    .project-menu.dossier-opening .filter:nth-child(8) { animation-delay:.50s; }
-    .project-menu.dossier-opening .filter:nth-child(9) { animation-delay:.56s; }
-    .home-feature .home-mosaic { transition-duration:1.28s,1.34s,1.34s,1.34s; }
-    .home-welcome { display:block; grid-column:1; grid-row:2; width:100%; margin:18px 0 0; padding:0 0 2px; border-top:1px solid var(--hairline); color:var(--ink); }
-    .home-welcome h1 { width:100%; max-width:none; margin:13px 0 0; font:400 var(--welcome-size,16px)/1.35 var(--mono); letter-spacing:-.035em; white-space:pre-line; }
-    .home-welcome-hint { color:var(--soft); white-space:nowrap; }
+    .project-menu.dossier-pending { opacity:0; pointer-events:none; }
+    .project-menu.dossier-bar-opening { opacity:1; transform:none; pointer-events:none; animation:dossierBarIn .72s cubic-bezier(.22,1,.36,1) both; }
+    .project-menu.dossier-bar-opening .filter { opacity:0; transform:translateX(-10px) scaleX(.72); transform-origin:left center; }
+    .project-menu.dossier-bar-opening .filter:first-child { opacity:1; transform:none; }
+    .project-menu.dossier-tabs-opening { pointer-events:auto; }
+    .project-menu.dossier-tabs-opening .filter:not(:first-child) { animation:dossierTabIn .54s cubic-bezier(.22,1,.36,1) both; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(2) { animation-delay:.08s; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(3) { animation-delay:.17s; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(4) { animation-delay:.26s; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(5) { animation-delay:.35s; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(6) { animation-delay:.44s; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(7) { animation-delay:.53s; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(8) { animation-delay:.62s; }
+    .project-menu.dossier-tabs-opening .filter:nth-child(9) { animation-delay:.71s; }
+    .home-welcome { display:block; grid-column:1; grid-row:2; width:100%; margin:38px 0 0; padding:0 0 2px; border-top:1px solid var(--hairline); color:var(--ink); }
+    .home-welcome h1 { width:100%; max-width:none; margin:14px 0 0; font:400 var(--welcome-size,16px)/1.35 var(--mono); letter-spacing:-.035em; white-space:pre-line; }
     .home-welcome .typewriter-date { display:block; margin-top:.9em; font-size:var(--date-size,16px); }
     @media (max-width:700px) {
-      .home-welcome { grid-column:1; grid-row:2; margin-top:14px; }
+      .home-welcome { grid-column:1; grid-row:2; margin-top:30px; }
       .home-welcome h1 { margin-top:11px; font-size:var(--welcome-size,16px); }
       .overview-work.show-feature .feature-note { grid-row:3; }
     }
-    @keyframes dossierLineIn { from { opacity:0; transform:translateX(18px); } to { opacity:1; transform:translateX(0); } }
-    @keyframes dossierTabIn { from { opacity:0; transform:translateX(12px) scaleX(.72); } to { opacity:1; transform:translateX(0) scaleX(1); } }
+    @keyframes dossierBarIn { from { clip-path:inset(0 0 0 100%); } to { clip-path:inset(0 0 0 0); } }
+    @keyframes dossierTabIn { from { opacity:0; transform:translateX(-10px) scaleX(.72); } to { opacity:1; transform:translateX(0) scaleX(1); } }
 
     /* Main-page dossier view */
     .home-feature { display: none; grid-column: 1 / -1; grid-template-columns: minmax(0, 610px) minmax(180px, 235px); justify-content: center; gap: clamp(34px, 4.4vw, 66px); }
@@ -424,11 +423,9 @@
 
     /* Portrait mosaic home */
     .overview-work.show-feature .home-feature { display: grid; grid-template-columns: minmax(0, 715px) minmax(170px, 190px); gap: clamp(28px, 4vw, 58px); width: min(100%, 965px); align-items: start; }
-    .home-feature .home-mosaic, .home-feature .feature-note { transition:opacity 2.08s cubic-bezier(.22,1,.36,1); }
-    .home-feature.intro-opening .home-mosaic { opacity:0; transform:perspective(1450px) rotateY(-76deg) translateX(-10px) scaleY(.985); filter:brightness(.9) saturate(.94); border-radius:var(--frame-radius,0) calc(var(--frame-radius,0px) + 16px) calc(var(--frame-radius,0px) + 16px) var(--frame-radius,0); }
-    .home-feature.intro-opening .feature-note { opacity:0; transform:translateY(7px); }
-    .home-feature .home-mosaic { transform-origin:left center; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform,opacity; transition:opacity 1.95s cubic-bezier(.22,1,.36,1), transform 2.05s cubic-bezier(.18,.72,.18,1), filter 2.05s ease, border-radius 2.05s cubic-bezier(.18,.72,.18,1); }
     .home-feature .feature-note { transition:opacity 1.12s cubic-bezier(.22,1,.36,1), transform 1.12s cubic-bezier(.22,1,.36,1); }
+    .home-feature.intro-opening .feature-note { opacity:0; transform:translateY(7px); }
+    .home-feature .home-mosaic { transform-origin:left center; transform-style:preserve-3d; backface-visibility:hidden; will-change:transform,opacity; }
     .home-feature.intro-pending .home-mosaic, .home-feature.intro-pending .feature-note { opacity: 0 !important; pointer-events: none; }
     .overview-work.show-feature .home-image, .overview-work.show-feature .scroll-cue { display: none !important; }
     .overview-work.show-feature .feature-note { display: block !important; position: static; grid-column: 2; grid-row: 1; width: auto; margin: 0; padding-top: 3px; }
@@ -458,7 +455,7 @@
     /* Proportional source photo behind the 10 × 14 clipping grid. */
     .home-mosaic { position:relative; grid-template-columns:repeat(var(--mosaic-columns,9),minmax(0,1fr)); grid-template-rows:repeat(var(--mosaic-rows,13),minmax(0,1fr)); aspect-ratio:9 / 13; gap:0; background-image:var(--mosaic-image); background-size:cover; background-position:center; background-repeat:no-repeat; }
     .home-mosaic::before { content:""; position:absolute; inset:0; z-index:4; pointer-events:none; opacity:0; border-radius:inherit; background:linear-gradient(90deg,rgba(255,255,255,.08),transparent 24%,transparent 68%,rgba(255,255,255,.24) 86%,rgba(28,27,25,.16)); transition:opacity 1.35s ease; }
-    .home-feature.intro-opening .home-mosaic::before { opacity:1; }
+
     .home-mosaic::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; --home-corner-radius:max(2px,var(--frame-radius,0px)); background-image:radial-gradient(circle at 100% 100%,var(--grid-line) 0 var(--home-corner-radius),transparent calc(var(--home-corner-radius) + 1px)),repeating-linear-gradient(to right,transparent 0 calc(var(--mosaic-cell-width) - 1px),var(--grid-line) calc(var(--mosaic-cell-width) - 1px) var(--mosaic-cell-width)),repeating-linear-gradient(to bottom,transparent 0 calc(var(--mosaic-cell-height) - 1px),var(--grid-line) calc(var(--mosaic-cell-height) - 1px) var(--mosaic-cell-height)); background-size:var(--mosaic-cell-width) var(--mosaic-cell-height),auto,auto; border-radius:inherit; }
     @media (max-width:700px) {
       /* Mobile cells can round to fractional pixels. Draw the quarter-mark inside
@@ -952,7 +949,7 @@
     function composeWelcome() {
       const lead = String(adminTexts.welcome || translations[currentLanguage].welcome).replace(/\s*\n+\s*/g," ").trim();
       const extra = String(adminTexts.welcomeExtra || "").replace(/\s*\n+\s*/g," ").trim();
-      return `${lead}${extra ? ` ${extra}` : ""}\n\n${today}.`;
+      return `${lead}${extra ? ` ${extra}` : ""} ← SWIPE PAGES →\n\n${today}.`;
     }
     let welcome = composeWelcome();
     const typewriterText = document.getElementById("typewriter-text");
@@ -967,13 +964,6 @@
       const lead = hasDateLine ? typedValue.slice(0, divider) : typedValue;
       const date = hasDateLine ? typedValue.slice(divider + 2) : "";
       const leadSpan = document.createElement("span"); leadSpan.textContent = lead;
-      const fullLead = String(welcome || "").split("\n\n")[0];
-      if (lead === fullLead) {
-        const hint = document.createElement("span");
-        hint.className = "home-welcome-hint";
-        hint.textContent = "  ← SWIPE PAGES →";
-        leadSpan.append(hint);
-      }
       target.replaceChildren(leadSpan);
       if (hasDateLine) {
         const dateSpan = document.createElement("span");
@@ -1023,22 +1013,24 @@
         homeFeature.classList.add("intro-opening");
         homeFeature.classList.remove("intro-pending");
         const book = homeFeature.querySelector(".home-mosaic");
+        const bookDuration = 1800;
         if (book && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
           const bookOpening = book.animate([
             { opacity:0, transform:"perspective(1450px) rotateY(-76deg) translateX(-10px) scaleY(.985)", filter:"brightness(.9) saturate(.94)" },
             { opacity:1, transform:"perspective(1450px) rotateY(0) translateX(0) scaleY(1)", filter:"brightness(1) saturate(1)" }
-          ], { duration:1280, easing:"cubic-bezier(.18,.72,.18,1)", fill:"forwards" });
-          bookOpening.finished.catch(() => {}).finally(() => {
-            homeFeature.classList.remove("intro-opening");
-            bookOpening.cancel();
-          });
-        } else homeFeature.classList.remove("intro-opening");
-        // Let the left-hand book open first; the dossier tabs then arrive from the other side.
+          ], { duration:bookDuration, easing:"cubic-bezier(.18,.72,.18,1)", fill:"forwards" });
+          bookOpening.finished.catch(() => {}).finally(() => { bookOpening.cancel(); });
+        }
+        window.setTimeout(() => homeFeature.classList.remove("intro-opening"), bookDuration);
+        // A dossier bar follows the book; then tabs 1–8 unfold from the left beside Home.
         window.setTimeout(() => {
           projectMenu?.classList.remove("dossier-pending");
-          projectMenu?.classList.add("dossier-opening");
-          window.setTimeout(typeWelcome, 560);
-        }, 1380);
+          projectMenu?.classList.add("dossier-bar-opening");
+          window.setTimeout(() => {
+            projectMenu?.classList.add("dossier-tabs-opening");
+            window.setTimeout(typeWelcome, 900);
+          }, 760);
+        }, bookDuration + 90);
       }, 160);
     }
     startHomeIntro();
